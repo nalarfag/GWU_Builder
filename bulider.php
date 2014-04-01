@@ -105,7 +105,7 @@ function builder_create_table() {
                 `Location` VARCHAR( 100 ) NULL
             ) ENGINE = INNODB;';
     $Response_creation_query =
-            'CREATE TABLE IF NOT EXISTS   `builder`.`Response` (
+            'CREATE TABLE IF NOT EXISTS  Response (
                 `ID` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,
                 `SessionID` INT NOT NULL ,
                 `QuestionnaireID` INT NOT NULL ,

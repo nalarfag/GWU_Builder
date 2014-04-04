@@ -8,7 +8,7 @@ bulider_drop_table();
 
 function bulider_drop_table() {
 
-    $builder_db = new wpdb(DB_USER, DB_PASSWORD, 'GWU_Builder', DB_HOST);
+   /* $builder_db = new wpdb(DB_USER, DB_PASSWORD, 'GWU_Builder', DB_HOST);
     $builder_db->query("Drop Table Response");
     $builder_db->query("Drop Table Session");
     $builder_db->query("Drop Table AnswerChoice");
@@ -33,6 +33,15 @@ function bulider_drop_table() {
 
 
     mysql_close($link);
+*/
+
+global $wpdb;
+    $wpdb->query("Drop Table GWU_Response");
+    $wpdb->query("Drop Table GWU_Session");
+    $wpdb->query("Drop Table GWU_AnswerChoice");
+    $wpdb->query("Drop Table GWU_Action");
+    $wpdb->query("Drop Table GWU_Question");
+    $wpdb->query("Drop Table GWU_Questionnaire");
 }
 
 ?>

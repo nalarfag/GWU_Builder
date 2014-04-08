@@ -1,4 +1,4 @@
-<?
+<?php
 namespace WordPress\ORM\Model;
 
 
@@ -199,9 +199,9 @@ class GWWrapper
 	}
 
 	// For GWAnswerChoice
-	public function listGWAnwerChoice($QuestionnaireID,$Question_Number){
+	public function listAnswerChoice($QuestionnaireID,$Question_Number){
 		$keys = array('QuestionnaireID'=>$QuestionnaireID,'Question_Number'=>$Question_Number);
-		return 	GWAnwerChoice::find(keys);
+		return 	GWAnwerChoice::find($keys);
 	}
 	
 	public function saveAnswerChoice($OptionNumber, $QuestionnaireID, $Qustion_Number, $AnsValue) {

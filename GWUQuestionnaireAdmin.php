@@ -80,10 +80,9 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
                 $QuestionnaireID = $_GET['Qid'];
                 $Wrapper= new GWWrapper();
                 $questionnaire=$Wrapper->getQuestionnaire($QuestionnaireID);
-                echo $questionnaire;
                  //Top-level menu -->
                 echo '<div id="Questionnaire-general" class="wrap">
-                <h2>Questionnaire'.$questionnaire['Title'].'
+                <h2>'.$questionnaire[0]->get_Title().'
                 </h2>';
                 
                 echo'  <p> current Questions </p>

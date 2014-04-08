@@ -75,18 +75,21 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
                 include_once $this->pluginPath . '/views/addQuesionnaire.php';
             } elseif (isset($_GET['id']) && ( $_GET['id'] == 'view' || is_numeric($_GET['id']) )) {
 
-           
                 //show current question
                 $QuestionnaireID = $_GET['Qid'];
                 $Wrapper= new GWWrapper();
                 $questionnaire=$Wrapper->getQuestionnaire($QuestionnaireID);
-                echo $questionnaire;
                  //Top-level menu -->
                 echo '<div id="Questionnaire-general" class="wrap">
-                <h2>Questionnaire'.$questionnaire['Title'].'
+                <h2>'.$questionnaire[0]->get_Title().'
                 </h2>';
                 
-                echo'  <p> current Questions </p>
+           
+                
+              $output= $this->show_GWU_questions();
+              echo $output;
+                
+                echo'  
            
                      <h2>    <a class="add-new-h2" 
 			href="' . add_query_arg(
@@ -165,7 +168,68 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
             
             return $nextQuestionNum;
         }
-        
+        //show question function
+public function show_GWU_questions()
+{
+    global $wpdb;
+//string to hold the HTML code for output
+	$questions = $wpdb->get_results("SELECT * FROM `gwu_question` WHERE QuestionnaireID =".$_GET["Qid"]);
+	$output = '<form><hr/>';
+	foreach($questions as $question){
+	     $Title = $question->Text;
+         $type = $question->AnsType;
+         $Questionarireid = $_GET["Qid"];
+         $questionno = $question->Question_Number;
+       
+         $output .= $questionno .'&nbsp;&nbsp;&nbsp;  '. $Title .'<br/>';
+     
+   
+         $Wrapper= new GWWrapper();
+         $answerchoices =$Wrapper->listAnswerChoice($Questionarireid, $questionno);
+   
+         if($type == 'Text Box')
+             {
+                  $output .= '<textarea  cols="30" rows="5"> </textarea><br/><hr/>';
+             }
+             elseif($type == 'NPS')
+             {
+                  
+                  $output .= '<table><tr><td></td>';
+                  for ($i=0; $i<10; $i++)
+                  {
+                       $output .= '<td><input  type="radio"/>&nbsp;</td>';
+                  }
+                  $output .= '<td></td></tr><tr><td>'.$answerchoices[10]->get_AnsValue().' </td>';
+                  for ($i=1; $i<11; $i++)
+                  {
+                       $output .= '<td>'.$i.'</td>';
+                  }
+                  $output .= '<br/><td>'.$answerchoices[11]->get_AnsValue().' </td></table>';
+
+             }
+             elseif($type== 'Multiple Choice, Single Value')
+             {
+                
+	        foreach ($answerchoices as $answerchoice){
+                    $answerchoicescontent=$answerchoice->get_AnsValue();
+        	
+        		$output .= '<input type="radio"/>&nbsp;&nbsp;'. $answerchoicescontent . '<br/>' ;
+                        
+                        }
+             }
+             else
+             {
+                  foreach ($answerchoices as $answerchoice){
+	             $answerchoicescontent=$answerchoice->get_AnsValue();
+        	
+        	    $output .= '<input type="checkbox"/>&nbsp;&nbsp;'. $answerchoicescontent . '<br/>' ;}
+             }
+             $output .= '<hr/>';
+             }			  
+						  
+        return $output ;
+
+      }
         public function GWUAdd_Questionnaire() {
 
             // Place all user submitted values in an array

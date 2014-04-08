@@ -92,20 +92,20 @@ class GWWrapper
 	}
 	
 	
-		public function listSessions() {
+		public static function listSessions() {
 	
 		return GWSession::all();
 		
 	}
 	
-	public function getSession($sessionID) {
+	public static function getSession($sessionID) {
 	
 		$keys = array('SessionID' => $sessionID);
 		return GWSession::find($keys);
 		
 	}
 	
-	public function saveSession($user_name, $surveyCompleted, $duration, $surveyTakenDate, $ip, $city, $country) {
+	public static function saveSession($user_name, $surveyCompleted, $duration, $surveyTakenDate, $ip, $city, $country) {
 	
 		$session = new GWSession();
 		$session->set_User_name($user_name);
@@ -121,20 +121,20 @@ class GWWrapper
 		
 	}
 	
-	public function listResponses() {
+	public static function listResponses() {
 	
 		return GWResponse::all();
 	
 	}
 	
-	public function getResponse($responseID) {
+	public static function getResponse($responseID) {
 	
 		$keys = array('ResponceID' => $responseID);
 		return GWResponse::find($keys);
 	
 	}
 	
-	public function saveResponse($sessionID, $questionnaireID, $question_Number, $answerNumber, $responceType, $responceContent, $codeToProcessResponce, $processingResult) {
+	public static function saveResponse($sessionID, $questionnaireID, $question_Number, $answerNumber, $responceType, $responceContent, $codeToProcessResponce, $processingResult) {
 	
 		$response = new GWResponse();
 		$response->set_SessionID($sessionID);
@@ -151,16 +151,16 @@ class GWWrapper
 	
 	}
 	
-	public function listQestionnaires() {
+	public static function listQestionnaires() {
 		return GWQuestionnaire::all();
 	}
 	
-	public function getQuestionnaire($questionnaireID) {
+	public static function getQuestionnaire($questionnaireID) {
 		$keys = array('QuestionnaireID' => $questionnaireID);
 		return GWQuestionnaire::find($keys);
 	}
 	
-	public function saveQuestionnaire($Title, $Topic, $AllowAnonymous, $AllowMultiple, $CreatorName, $DateCreated) {
+	public static function saveQuestionnaire($Title, $Topic, $AllowAnonymous, $AllowMultiple, $CreatorName, $DateCreated) {
 		$questionnaire = new GWQuestionnaire();
 		$questionnaire->set_Title($Title);
 		$questionnaire->set_Topic($Topic);
@@ -174,16 +174,16 @@ class GWWrapper
 	}
 
 	//For Action
-	public function listActions($QuestionnaireID, $Question_Number){
+	public static function listActions($QuestionnaireID, $Question_Number){
 		$keys = array('QuestionnaireID'=>$QuestionnaireID,'Question_Number'=>$Question_Number);
 		return 	GWAction::find($keys);
 	}
-	public function getActions($ActionID){
+	public static function getActions($ActionID){
 		$keys = array('ActionID' => $ActionID);
 		return GWAction::find($keys);
 	}
 	
-	public function saveAction($QuestionnaireID, $ActionType, $Question_Number, $Content, $Duration, $LinkToAction, $Sequence) {
+	public static function saveAction($QuestionnaireID, $ActionType, $Question_Number, $Content, $Duration, $LinkToAction, $Sequence) {
 		$action = new GWAction();
 		//$action->set_ActionID($ActionID);
 		$action->set_QuestionnaireID($QuestionnaireID);
@@ -199,12 +199,12 @@ class GWWrapper
 	}
 
 	// For GWAnswerChoice
-	public function listAnswerChoice($QuestionnaireID,$Question_Number){
+	public static function listAnswerChoice($QuestionnaireID,$Question_Number){
 		$keys = array('QuestionnaireID'=>$QuestionnaireID,'Question_Number'=>$Question_Number);
 		return 	GWAnwerChoice::find($keys);
 	}
 	
-	public function saveAnswerChoice($OptionNumber, $QuestionnaireID, $Qustion_Number, $AnsValue) {
+	public static function saveAnswerChoice($OptionNumber, $QuestionnaireID, $Qustion_Number, $AnsValue) {
 		$answerChoice = new GWAnwerChoice();
 		$answerChoice->set_OptionNumber($OptionNumber);
 		$answerChoice->set_QuestionnaireID($QuestionnaireID);

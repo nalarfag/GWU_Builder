@@ -7,7 +7,7 @@ $QuestionNum= GWUQuestionnaireAdmin::getNextQuestionNumber($_GET['Qid']);
 $content ='
         <form method="post" action="'. $adminURL.'">
 	<input type="hidden" name="action" value="add_new_question" />
-        <input type="hidden" name="answer_type" value="essay" />
+        <input type="hidden" name="answer_type" value="Text Box" />
          <input type="hidden" name="QuestionnaireID" value="'.$_GET['Qid'].'" />
             <table>
                  <tr>

@@ -75,12 +75,17 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
                 include_once $this->pluginPath . '/views/addQuesionnaire.php';
             } elseif (isset($_GET['id']) && ( $_GET['id'] == 'view' || is_numeric($_GET['id']) )) {
 
-                //Top-level menu -->
-                echo '<div id="Questionnaire-general" class="wrap">
-                <h2>Questionnaire #title
-                </h2>';
+           
                 //show current question
                 $QuestionnaireID = $_GET['Qid'];
+                $Wrapper= new GWWrapper();
+                $questionnaire=$Wrapper->getQuestionnaire($QuestionnaireID);
+                echo $questionnaire;
+                 //Top-level menu -->
+                echo '<div id="Questionnaire-general" class="wrap">
+                <h2>Questionnaire'.$questionnaire['Title'].'
+                </h2>';
+                
                 echo'  <p> current Questions </p>
            
                      <h2>    <a class="add-new-h2" 

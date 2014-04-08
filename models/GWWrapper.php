@@ -7,7 +7,8 @@ class GWWrapper
 {
 	public static function listQuestion($questionnaireID){
 		//return GWQuestion::all();
-		return GWQuestion::find($questionnaireID);
+		$keys = array('QuestionnaireID' => $questionnaireID);
+		return GWQuestion::find($keys);
 	}
 	
 	public static function getQuestion($questionNumber, $questionnaireID){

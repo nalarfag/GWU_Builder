@@ -203,7 +203,7 @@ abstract class GWBaseModel
 	 * @param  string $value
 	 * @return false|self
 	 */
-	public static function find($propertyMap, $operator = "AND")
+	public static function find($propertyValueMap, $operator = "AND")
 	{
 		global $wpdb;
 

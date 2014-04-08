@@ -213,7 +213,7 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
             //save question
             $Wrapper= new GWWrapper();
             $Wrapper->saveQuestion($Question_data['questionNumber'], $Question_data['QuestionnaireID'],
-                    $Question_data['AnsType'],$Question_data['Text']
+                    $Question_data['AnsType'],$Question_data['Text'],
                       $Question_data['Mandatory'] );
             
             $Answer_data = array();

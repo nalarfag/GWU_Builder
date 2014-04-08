@@ -1,5 +1,15 @@
 <?php
 
+include_once dirname( __FILE__ ) . '/models/GWQuestion.php';
+include_once dirname( __FILE__ ) . '/models/GWQuestionnaire.php';
+include_once dirname( __FILE__ ) . '/models/GWWrapper.php';
+
+if(!defined('GWU_BUILDER_DIR'))
+	define('GWU_BUILDER_DIR',WP_PLUGIN_DIR.'\\'.GWU_Builder);
+
+use WordPress\ORM\Model\GWQuestionnaire;
+use WordPress\ORM\Model\GWQuestion;
+use WordPress\ORM\Model\GWWrapper;
 /**
  * Description of GWUQuestionnaireTables
  * 
@@ -18,6 +28,8 @@ if (!class_exists('GWUQuestionnaireTables')) {
             //Plugin shortcode 
             // Use label [show_GWU_Questionnaire_tables] to show data dictionary
             add_shortcode('show_GWU_Questionnaire_tables', array($this, 'showQuestionnaireTables'));
+			add_shortcode('list_GWU_Questionnaires', array($this, 'displayQuestionnaires'));
+			add_shortcode('list_GWU_Questions', array($this, 'displayQuestions'));
         }
 
         // Function to create new database tables
@@ -40,7 +52,7 @@ if (!class_exists('GWUQuestionnaireTables')) {
             )ENGINE = INNODB;';
             $Question_creation_query =
                     'CREATE TABLE IF NOT EXISTS  GWU_Question (
-                `Question_Number` INT NOT NULL ,
+                `Question_Number` INT NOT NULL,
                 `QuestionnaireID` INT NOT NULL ,
                 `AnsType` VARCHAR( 100 ) NOT NULL ,
                 `Text` VARCHAR( 255 ) NOT NULL ,
@@ -51,7 +63,7 @@ if (!class_exists('GWUQuestionnaireTables')) {
 
             $Action_creation_query =
                     'CREATE TABLE IF NOT EXISTS  GWU_Action (
-                `ActionID` INT( 11 ) NOT NULL ,
+                `ActionID` INT( 11 ) NOT NULL AUTO_INCREMENT ,
                 `QuestionnaireID` INT NOT NULL ,
                 `Question_Number` INT NOT NULL ,
                 `Sequence` INT NOT NULL ,
@@ -59,7 +71,7 @@ if (!class_exists('GWUQuestionnaireTables')) {
                 `LinkToAction` VARCHAR( 200 ) NULL ,
                 `Content` VARCHAR( 255 ) NULL ,
                 `Duration` INT( 10 ) NOT NULL ,
-                PRIMARY KEY (  `ActionID` ,  `QuestionnaireID` ,  `Question_Number` ),
+                PRIMARY KEY ( `ActionID`),
                 FOREIGN KEY (`QuestionnaireID`) REFERENCES GWU_Question(`QuestionnaireID`),
                 FOREIGN KEY (`Question_Number`) REFERENCES GWU_Question(`Question_Number`)
             ) ENGINE = INNODB;';
@@ -113,7 +125,7 @@ if (!class_exists('GWUQuestionnaireTables')) {
                 `Country` VARCHAR( 50 ) NULL
             ) ENGINE = INNODB;';
             $Response_creation_query =
-                    'CREATE TABLE IF NOT EXISTS  GWU_Response (
+                    'CREATE TABLE IF NOT EXISTS GWU_Response (
                 `ResponceID` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,
                 `SessionID` INT NOT NULL ,
                 `QuestionnaireID` INT NOT NULL ,
@@ -144,6 +156,8 @@ if (!class_exists('GWUQuestionnaireTables')) {
 
         //builder show tbl function
         public function showQuestionnaireTables() {
+	
+			
             //string to hold the HTML code for output
             $output = '<body style="padding-top: 58px;">
 		<div id = wrapper>
@@ -201,6 +215,80 @@ if (!class_exists('GWUQuestionnaireTables')) {
 
             return $output;
         }
+		
+		public function displayQuestionnaires() {
+			$objQair = new GWQuestionnaire();
+			//$objQair->set_QuestionnaireID(2);
+			$objQair->set_Title("NEW Questionaire");
+			$objQair->save();
+			$questionnaires = GWQuestionnaire::all();
+			$output = '<body style="padding-top: 58px;">
+					   <div id = wrapper>
+							<h1>List of Questionnaires</h1>';
+			$output .=' <br><div class=table>
+			<br>
+				<table class="print" width="100%" border="1">
+					<tr>
+						<th>Questionnaire ID</th>
+						<th>Title</th>
+					</tr>';
+			foreach($questionnaires as $questionnaire) {
+				
+				$output .= '<tr>
+				<td>'. $questionnaire->get_QuestionnaireID() .'</td>';
+				$output .= '<td>'. $questionnaire->get_Title() .'</td></tr>';
+				
+			}
+			
+			$output .= '</table></div></div>';
+			
+			return $output;
+					
+			
+			
+		}
+		
+		public function displayQuestions() {
+			/*$qtnObj = new GWQuestion();
+			$qtnObj->set_QuestionnaireID(1);
+			$qtnObj->set_Question_Number(111);
+			$qtnObj->set_Text("This is a question###?");
+			$qtnObj->update();*/
+			
+			GWWrapper::saveQuestion(100,1,"Multi","SAVED QUESTION",0);
+			$questions = GWQuestion::all();
+			$output = '<body style="padding-top: 58px;">
+					   <div id = wrapper>
+							<h1>List of Questions</h1>';
+			$output .=' <br><div class=table>
+			<br>
+				<table class="print" width="100%" border="1">
+					<tr>
+						<th>Questionnaire ID</th>
+						<th>Question ID</th>
+						<th>QAID</th>
+						<th>QID</th>
+						<th>Text</th>
+					</tr>';
+			foreach($questions as $question) {
+				
+				$output .= '<tr>
+				<td>'. $question->get_QuestionnaireID() .'</td>';
+				$output .= '<td>'. $question->get_Question_Number() .'</td>';
+				foreach(GWQuestion::get_primary_key() as $key) {
+				$output .= '<td>'. $question->{$key}() .'</td>';
+				}
+				$output .= '<td>'. $question->get_Text() .'</td></tr>';
+				
+			}
+			
+			$output .= '</table></div></div>';
+			
+			return $output;
+					
+			
+			
+		}
 
     }
 

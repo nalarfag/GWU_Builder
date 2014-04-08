@@ -1,10 +1,16 @@
 <?php
 
-/*
- * To change this template, choose Tools | Templates
- * and open the template in the editor.
- */
+include_once dirname( __FILE__ ) . '/models/GWQuestion.php';
+include_once dirname( __FILE__ ) . '/models/GWQuestionnaire.php';
+include_once dirname( __FILE__ ) . '/models/GWAnswerChoice.php';
+include_once dirname( __FILE__ ) . '/models/GWWrapper.php';
 
+if(!defined('GWU_BUILDER_DIR'))
+	define('GWU_BUILDER_DIR',WP_PLUGIN_DIR.'\\'.GWU_Builder);
+
+use WordPress\ORM\Model\GWQuestionnaire;
+use WordPress\ORM\Model\GWQuestion;
+use WordPress\ORM\Model\GWWrapper;
 /**
  * Description of GWUQuestionnaireAdmin
  * 
@@ -138,7 +144,14 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
             }
             echo' </div>';
         }
-
+        public static function getNextQuestionNumber($QuestionnaireID)
+        {
+             $Wrapper= new GWWrapper();
+             $Questions=$Wrapper->listQuestion();
+             $nextQuestionNum= sizeof($Questions)+1;
+            return $nextQuestionNum;
+        }
+        
         public function GWUAdd_Questionnaire() {
 
             // Place all user submitted values in an array
@@ -147,88 +160,123 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
             $Questionnaire_data['Title'] = ( isset($_POST['questionnaire_title']) ? $_POST['questionnaire_title'] : '' );
             $Questionnaire_data['Topic'] = ( isset($_POST['topic']) ? $_POST['topic'] : '' );
             $Questionnaire_data['AllowAnonymous'] = ( isset($_POST['anonymous']) ? $_POST['anonymous'] : '' );
-            ;
             $Questionnaire_data['AllowMultiple'] = ( isset($_POST['multiple']) ? $_POST['multiple'] : '' );
-            ;
+            $Questionnaire_data['DateDate']=date('Y-m-d H:i:s');
+            $current_user = wp_get_current_user();
+            $Questionnaire_data['CreaterName']=$current_user->user_login;
 
-            //view the data
+            /*/*view the data
             echo '<pre>';
             var_dump($Questionnaire_data);
             echo '<pre>';
-
-
-            //must add data to DB and remove the following comment 
-            //should get questionnaire_id 
-            /*
+             * 
+             */
+            $Wrapper= new GWWrapper();
+            $Questionnaire=$Wrapper->saveQuestionnaire($Questionnaire_data['Title'], $Questionnaire_data['Topic'],
+               $Questionnaire_data['AllowAnonymous'] ,  $Questionnaire_data['AllowMultiple'],
+                    $Questionnaire_data['CreaterName'], $Questionnaire_data['DateDate'] );
+           
+      
+            
               // Redirect the page to the admin form
-              wp_redirect( add_query_arg(array( 'page' =>'GWU_add-Questionnaire-page',
-              'id'=>'view', 'Qid'=> $QuestionnaireID),
+            wp_redirect( add_query_arg(array( 'page' =>'GWU_add-Questionnaire-page',
+              'id'=>'view', 'Qid'=> $Questionnaire['QuestionnaireID']),
               admin_url( 'admin.php' ) ) );
               exit;
-             * */
+              
+            
         }
 
         public function GWUAdd_Question() {
             // Place all user submitted values in an array
             $Question_data = array();
             $QuestionnaireID = ( isset($_POST['QuestionnaireID']) ? $_POST['QuestionnaireID'] : '' );
-            $answer_type = ( isset($_POST['answer_type']) ? $_POST['answer_type'] : '' );
+            $answer_type_short = ( isset($_POST['answer_type_short']) ? $_POST['answer_type_short'] : '' );
+            
 
-
+            $Question_data['questionNumber']= ( isset($_POST['question_Number']) ? $_POST['question_Number'] : '' );
             $Question_data['Text'] = ( isset($_POST['question_text']) ? $_POST['question_text'] : '' );
-            $Question_data['AnsType'] = $answer_type;
+            $Question_data['AnsType'] = ( isset($_POST['answer_type']) ? $_POST['answer_type'] : '' );
             $Question_data['QuestionnaireID'] = $QuestionnaireID;
+            $Question_data['Mandatory']= ( isset($_POST['Mondatary']) ? $_POST['Mondatary'] : '' );
+            
+            
+            //save question
+            $Wrapper= new GWWrapper();
+            $Wrapper->saveQuestion($Question_data['questionNumber'], $Question_data['QuestionnaireID'],
+                 $Question_data['Text'],   $Question_data['AnsType'],
+                      $Question_data['Mandatory'] );
+            
             $Answer_data = array();
             $Answers = preg_split('/(\r?\n)+/', $_POST['answers']);
             $counter = 1;
 
-            if ($answer_type == 'multipleS' || $answer_type == 'multipleM') {
+            if ($answer_type_short == 'multipleS' || $answer_type_short == 'multipleM') {
                 foreach ($Answers as $answer) {
-                    $Answer_data[$counter] = array();
+                    /*$Answer_data[$counter] = array();
                     $Answer_data[$counter]['OptionNumber'] = $counter;
 
                     $Answer_data[$counter]['QuestionnaireID'] = $QuestionnaireID;
                     $Answer_data[$counter]['AnsValue'] = $answer;
-
+                     * 
+                     */
+                    $Wrapper->saveAnswerChoice($counter, 
+                            $QuestionnaireID, $Question_data['questionNumber'], 
+                            $answer);
                     $counter++;
                 }
-            } elseif ($answer_type == 'NPS') {
-                echo 'hi';
+            } elseif ($answer_type_short == 'NPS') {
+ 
                 for ($counter; $counter <= 10; $counter++) {
-                    $Answer_data[$counter] = array();
+                  /*  $Answer_data[$counter] = array();
                     $Answer_data[$counter]['OptionNumber'] = $counter;
 
                     $Answer_data[$counter]['QuestionnaireID'] = $QuestionnaireID;
                     $Answer_data[$counter]['AnsValue'] = $counter;
+                   * 
+                   */
+                    
+                     $Wrapper->saveAnswerChoice($counter, 
+                            $QuestionnaireID, $Question_data['questionNumber'], 
+                            $counter);
                 }
-                $Answer_data[$counter] = array();
+               /*$Answer_data[$counter] = array();
                 $Answer_data[$counter]['OptionNumber'] = $counter;
 
                 $Answer_data[$counter]['QuestionnaireID'] = $QuestionnaireID;
                 $Answer_data[$counter]['AnsValue'] = ( isset($_POST['Detractor']) ? $_POST['Detractor'] : '' );
+                */
+                $ansValue_Detractor=( isset($_POST['Detractor']) ? $_POST['Detractor'] : '' );
+                 $Wrapper->saveAnswerChoice($counter, 
+                            $QuestionnaireID, $Question_data['questionNumber'], 
+                            $ansValue_Detractor);
                 $counter++;
-                $Answer_data[$counter] = array();
+                
+                 $ansValue_Promoter=( isset($_POST['Promoter']) ? $_POST['Promoter'] : '' );
+                 $Wrapper->saveAnswerChoice($counter, 
+                            $QuestionnaireID, $Question_data['questionNumber'], 
+                            $ansValue_Promoter);
+                /*$Answer_data[$counter] = array();
                 $Answer_data[$counter]['OptionNumber'] = $counter;
 
                 $Answer_data[$counter]['QuestionnaireID'] = $QuestionnaireID;
                 $Answer_data[$counter]['AnsValue'] = ( isset($_POST['Promoter']) ? $_POST['Promoter'] : '' );
+                 * 
+                 */
             }
-            //view the data
-            echo '<pre>';
-            var_dump($Answers);
-            var_dump($Question_data);
-            var_dump($Answer_data);
-            echo '<pre>';
+      
+            
+          //  saveQuestion($questionNumber, $questionnaireID, $ansType, $text, $mandatory)
 
-
+            
             //must add data to DB and remove the following comment 
-            /*
+           
               // Redirect the page to the admin form
               wp_redirect( add_query_arg(array( 'page' =>'GWU_add-Questionnaire-page',
               'id'=>'view', 'Qid'=> $QuestionnaireID),
               admin_url( 'admin.php' ) ) );
               exit;
-             * */
+             
         }
 
         public function GWUShowQuestionnaire() {

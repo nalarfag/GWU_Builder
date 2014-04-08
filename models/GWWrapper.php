@@ -5,8 +5,9 @@ namespace WordPress\ORM\Model;
 
 class GWWrapper
 {
-	public static function listQuestion(){
-		return GWQuestion::all();
+	public static function listQuestion($questionnaireID){
+		//return GWQuestion::all();
+		return GWQuestion::find($questionnaireID);
 	}
 	
 	public static function getQuestion($questionNumber, $questionnaireID){

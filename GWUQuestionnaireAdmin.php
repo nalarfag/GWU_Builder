@@ -147,8 +147,17 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
         public static function getNextQuestionNumber($QuestionnaireID)
         {
              $Wrapper= new GWWrapper();
-             $Questions=$Wrapper->listQuestion();
-             $nextQuestionNum= sizeof($Questions)+1;
+             $Questions=$Wrapper->listQuestion($QuestionnaireID);
+           
+             if(empty($Questions))
+             {
+             $nextQuestionNum=1;
+             }
+             else
+             {
+                  $nextQuestionNum= sizeof($Questions)+1;
+             }
+            
             return $nextQuestionNum;
         }
         
@@ -204,7 +213,7 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
             //save question
             $Wrapper= new GWWrapper();
             $Wrapper->saveQuestion($Question_data['questionNumber'], $Question_data['QuestionnaireID'],
-                 $Question_data['Text'],   $Question_data['AnsType'],
+                    $Question_data['AnsType'],$Question_data['Text']
                       $Question_data['Mandatory'] );
             
             $Answer_data = array();

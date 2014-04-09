@@ -8,7 +8,7 @@ use WordPress\ORM\GWBaseModel;
 
 include_once WP_PLUGIN_DIR . '/GWU_Builder/lib/GWBaseModel.php';
 
-class GWAnwerChoice extends GWBaseModel
+class GWAnswerChoice extends GWBaseModel
 {
     protected $OptionNumber;
 	protected $QuestionnaireID;
@@ -22,7 +22,7 @@ class GWAnwerChoice extends GWBaseModel
 
     public static function get_table()
     {
-        return 'gwu_answerchoice';
+        return 'gwu_answerChoice';
     }
 
     public static function get_searchable_fields()

@@ -29,6 +29,8 @@ require_once 'models/GWFlagCheck.php';
 require_once 'models/GWFlagSet.php';
 //require_once 'models/GWReponse.php';
 require_once 'models/GWSession.php';
+//require_once 'views/mutlipleS.php';
+//require_once 'views/Template.php';
 // Activation Callback
 if( class_exists( 'GWUQuestionnaireTables' ) ) {
   $QuestionnaireTables= new GWUQuestionnaireTables();

@@ -8,18 +8,20 @@ bulider_drop_table();
 
 function bulider_drop_table() {
 
- 
+ /*
 
 global $wpdb;
-    $wpdb->query("Drop Table GWU_Response");
-    $wpdb->query("Drop Table GWU_Session");
-    $wpdb->query("Drop Table GWU_FlagCheck");
-    $wpdb->query("Drop Table GWU_FlagSet");
-    $wpdb->query("Drop Table GWU_Flag");
-    $wpdb->query("Drop Table GWU_AnswerChoice");
-    $wpdb->query("Drop Table GWU_Action");
-    $wpdb->query("Drop Table GWU_Question");
-    $wpdb->query("Drop Table GWU_Questionnaire");
+    $wpdb->query("Drop Table gwu_response");
+    $wpdb->query("Drop Table gwu_session");
+    $wpdb->query("Drop Table gwu_flagcheck");
+    $wpdb->query("Drop Table gwu_flagset");
+    $wpdb->query("Drop Table gwu_flag");
+    $wpdb->query("Drop Table gwu_answerChoice");
+    $wpdb->query("Drop Table gwu_action");
+    $wpdb->query("Drop Table gwu_question");
+    $wpdb->query("Drop Table gwu_questionnaire");
+  * 
+  */
 }
 
 ?>

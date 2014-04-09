@@ -201,11 +201,11 @@ class GWWrapper
 	// For GWAnswerChoice
 	public static function listAnswerChoice($QuestionnaireID,$Question_Number){
 		$keys = array('QuestionnaireID'=>$QuestionnaireID,'Question_Number'=>$Question_Number);
-		return 	GWAnwerChoice::find($keys);
+		return 	GWAnswerChoice::find($keys);
 	}
 	
 	public static function saveAnswerChoice($OptionNumber, $QuestionnaireID, $Qustion_Number, $AnsValue) {
-		$answerChoice = new GWAnwerChoice();
+		$answerChoice = new GWAnswerChoice();
 		$answerChoice->set_OptionNumber($OptionNumber);
 		$answerChoice->set_QuestionnaireID($QuestionnaireID);
 		$answerChoice->set_Question_Number($Qustion_Number);

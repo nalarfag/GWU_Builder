@@ -229,7 +229,7 @@ abstract class GWBaseModel
 		foreach($objs as $obj){
 			array_push($objArray,static::create($obj));
 		}
-
+		
 		// Return false if no item was found, or a new model
 		return ($objArray ? $objArray : false);
 	}

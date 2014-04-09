@@ -205,7 +205,11 @@ class GWWrapper
 	}
 	
 	public static function saveAnswerChoice($OptionNumber, $QuestionnaireID, $Qustion_Number, $AnsValue) {
+<<<<<<< HEAD
 		$answerChoice = new GWAnswerChoice();
+=======
+		$answerChoice = new GWAnwerChoice();
+>>>>>>> FETCH_HEAD
 		$answerChoice->set_OptionNumber($OptionNumber);
 		$answerChoice->set_QuestionnaireID($QuestionnaireID);
 		$answerChoice->set_Question_Number($Qustion_Number);

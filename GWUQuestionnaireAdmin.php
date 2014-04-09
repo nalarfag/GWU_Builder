@@ -15,7 +15,8 @@ use WordPress\ORM\Model\GWWrapper;
  * 
  * Create admin menu for the questionnaire
  *
- * @author Nada Alarfag, Ashley, Michel, Sunny, Neerag
+ * @author Nada Alarfag
+ * Some part by Ashley, Michel, Sunny, Neerag
  * 
  */
 if (!class_exists('GWUQuestionnaireAdmin')) {
@@ -142,16 +143,7 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
             } elseif (isset($_GET['id']) && ( $_GET['id'] == 'view' || is_numeric($_GET['id']) )) {
              
                 $QuestionnaireID = $_GET['Qid'];
-<<<<<<< HEAD
                 $this->ShowOneQuestionnaire($QuestionnaireID);
-=======
-                $Wrapper= new GWWrapper();
-                $questionnaire=$Wrapper->getQuestionnaire($QuestionnaireID);
-                 //Top-level menu -->
-                echo '<div id="Questionnaire-general" class="wrap">
-                <h2>'.$questionnaire[0]->get_Title().'
-                </h2>';
->>>>>>> FETCH_HEAD
                 
             } elseif (isset($_GET['id']) && is_numeric($_GET['Qid']) &&
                     ( $_GET['id'] == 'new' || is_numeric($_GET['Qno']) )) {

@@ -1,3 +1,25 @@
+
+       <script type='text/javascript'>
+        function notEmpty(form){
+            var questionNumber=form.question_Number;
+            var questionText=form.question_text;
+            var answers=form.answers;
+            if(questionNumber.value.length == 0){
+                alert("Please enter a question number");
+                form.question_Number.focus();
+                return false;
+            }
+            if(questionText.value.length == 0){
+                alert("Please enter a question");
+                form.question_text.focus();
+                return false;
+            }
+
+            
+            return true;
+        }
+        
+            </script>
 <?php
 $url = WP_PLUGIN_URL . '/GWU_Builder/images/CommentBox.png';
 $adminURL = admin_url('admin-post.php');
@@ -7,7 +29,7 @@ $QuestionNum = GWUQuestionnaireAdmin::getNextQuestionNumber($_GET['Qid']);
 require dirname(__FILE__) . '/Header.php';
 ?>
 <div class='content_q'>
-    <form method="post" action="<?php echo $adminURL; ?>">
+    <form method="post" onsubmit="return notEmpty(this);" action="<?php echo $adminURL; ?>">
         <input type="hidden" name="action" value="add_new_question" />
         <input type="hidden" name="answer_type" value="Text Box" />
         <input type="hidden" name="QuestionnaireID" value="<?php echo $_GET['Qid']; ?>" />
@@ -23,13 +45,13 @@ require dirname(__FILE__) . '/Header.php';
                 <td class="style1">
 
                     Question Number:    
-                    <input type="text" name="question_Number" size="1" value="<?php echo $QuestionNum; ?>" />
+                    <input type="text" id="question_Number" name="question_Number" size="1" value="<?php echo $QuestionNum; ?>" />
                 </td>
             </tr>
             <td class="style1">
                 <p>
                     Question Text:</p>
-                <textarea name="question_text" cols="55" rows="2"></textarea>
+                <textarea id="question_text" name="question_text" cols="55" rows="2"></textarea>
             </td>
             </tr>
             <tr>

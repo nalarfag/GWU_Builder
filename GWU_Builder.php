@@ -45,7 +45,10 @@ if( class_exists( 'GWUQuestionnaireAdmin' ) ) {
  //$QuestionnaireAdmin->GWU_add_menu_links();
 }
 
-
+add_action( 'wp_enqueue_script', 'load_jquery' );
+function load_jquery() {
+    wp_enqueue_script( 'jquery' );
+}
 // Use [show_GWU_Questionnaire_tables] to show data dictionary 
 // of the Questionnaire Tables
 

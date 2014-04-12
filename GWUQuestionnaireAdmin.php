@@ -234,11 +234,12 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
 
                     $output .= '<table><tr><td></td>';
                     for ($i = 0; $i < 10; $i++) {
-                        $output .= '<td><input  type="radio"/>&nbsp;</td>';
+                        $output .= '<td><input name="'.$questionno.'" type="radio"
+                            value="'.$answerchoices[$i]->get_OptionNumber().'"/>&nbsp;</td>';
                     }
                     $output .= '<td></td></tr><tr><td>' . $answerchoices[10]->get_AnsValue() . ' </td>';
-                    for ($i = 1; $i < 11; $i++) {
-                        $output .= '<td>' . $i . '</td>';
+                    for ($i = 0; $i < 10; $i++) {
+                        $output .= '<td>' . $answerchoices[$i]->get_AnsValue()  . '</td>';
                     }
                     $output .= '<td>' . $answerchoices[11]->get_AnsValue() . ' </td></tr></table>';
                 } elseif ($type == 'Multiple Choice, Single Value') {
@@ -246,13 +247,13 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
                     foreach ($answerchoices as $answerchoice) {
                         $answerchoicescontent = $answerchoice->get_AnsValue();
 
-                        $output .= '<input type="radio"/>&nbsp;&nbsp;' . $answerchoicescontent . '<br/>';
+                        $output .= '<input name="'.$questionno.'" type="radio" value="'.$answerchoice->get_OptionNumber().'"/>&nbsp;&nbsp;' . $answerchoicescontent . '<br/>';
                     }
                 } else {
                     foreach ($answerchoices as $answerchoice) {
                         $answerchoicescontent = $answerchoice->get_AnsValue();
 
-                        $output .= '<input type="checkbox"/>&nbsp;&nbsp;' . $answerchoicescontent . '<br/>';
+                        $output .= '<input name="'.$questionno.'" value="'.$answerchoice->get_OptionNumber().'" type="checkbox"/>&nbsp;&nbsp;' . $answerchoicescontent . '<br/>';
                     }
                 }
                 $output .= '<hr/>';

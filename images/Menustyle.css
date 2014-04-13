@@ -46,3 +46,9 @@ padding-top: 10px
 	background:  url(menu.gif) 0 -32px;
         padding: 8px 0 0 10px;
 }
+
+span.validate  {
+	color:#F00;
+	padding-left:8px;
+	font-style:italic;
+}

@@ -11,7 +11,8 @@
 
 include_once dirname( __FILE__ ) . '/GWUQuestionnaireTables.php';
 include_once dirname( __FILE__ ) . '/GWUQuestionnaireAdmin.php';
-
+include_once dirname(__FILE__) .'/response.php';
+require_once 'GWUQuestion.php';
 
 
 require_once 'lib/GWBaseModel.php';

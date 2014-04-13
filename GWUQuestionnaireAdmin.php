@@ -25,6 +25,7 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
 
         protected $pluginPath;
         protected $pluginUrl;
+        protected $gwuquestion;
 
         public function __construct() {
 
@@ -35,19 +36,19 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
 
             // Register function to be called when administration pages init takes place
             add_action('admin_init', array($this, 'GWU_Questionnaire_admin_init'));
-            add_shortcode('questionnaire', array($this, 'showQuestionnaireForPost'));
+
             // Set Plugin Path
             $this->pluginPath = dirname(__FILE__);
 
             // Set Plugin URL
             $this->pluginUrl = WP_PLUGIN_URL . '/GWU_Builder';
+            $this->gwuquestion=new GWUQuestion();
         }
 
         public function GWU_add_Questionnaire_menu_links() {
 
-            add_menu_page('View Questionnaires', 'View Questionnaires', 'manage_options',
-                'GWU_Questionnaire-mainMenu-page', array($this, 'GWU_Questionnaire_mainpage_callback')
-                , plugins_url('images/GWUQuestionnaire.png', __FILE__));
+            add_menu_page('View Questionnaires', 'View Questionnaires', 'manage_options', 'GWU_Questionnaire-mainMenu-page', array($this, 'GWU_Questionnaire_mainpage_callback')
+                    , plugins_url('images/GWUQuestionnaire.png', __FILE__));
 
             add_submenu_page('GWU_Questionnaire-mainMenu-page', 'Add New Questionnaire ', 'Add New Questionnaire', 'manage_options', 'GWU_add-Questionnaire-page', array($this, 'GWU_add_Questionnaire_mainpage_callback'));
         }
@@ -63,18 +64,13 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
 
         // Register functions to be called when bugs are saved
         function GWU_Questionnaire_admin_init() {
-            add_action('admin_post_add_new_question', array($this, 'GWUAddNewQuestion'));
+           
+            add_action('admin_post_add_new_question', array(&$this->gwuquestion, 'GWUAddNewQuestion'));
+            add_action('admin_post_question_handler', array(&$this->gwuquestion, 'QuestionHandler'));
             add_action('admin_post_add_new_Questionnaire', array($this, 'GWUAddNewQuestionnaire'));
         }
 
-        public function showQuestionnaireForPost( $atts ) {
-            extract( shortcode_atts( array(
-                'id' => '-1'
-            ), $atts ));
-            return $this->ShowQuestions($id);
-        }
-
-        private function publishSelectedQuestionaire(){
+       private function publishSelectedQuestionaire(){
             if(isset($_GET['id']) && $_GET['id'] == 'publish'&&isset($_GET['Qid'])&&is_numeric($_GET['Qid'])){
                 global $wpdb;
                 $qId = $_GET['Qid'];
@@ -86,7 +82,9 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
                     $my_post = array(
                         'post_title'    => $result->Title,
                         'post_content'  => '[questionnaire id="'.$qId.'"]',
-                        'post_status'   => 'publish'
+                        'post_status'   => 'publish',
+                        'post_type'     => 'page',
+                        'comment_status'=> 'closed'
                     );
                     //insert a post with options and get the new post id
                     $postId = wp_insert_post( $my_post );
@@ -119,7 +117,7 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
             // string to hold the HTML code for output
             $output = '
 		<div class="wrap">
-			<h1>Questionnaire Set</h1>'.$message;
+			<h1>Questionnaire Set</h1>' . $message;
 
             // $tables=$builder_db->get_results("SHOW TABLES FROM builder");
             $Qestionnaires = $Wrapper->listQestionnaires();
@@ -150,7 +148,7 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
                 $Category = $Qestionnaire->get_Topic();
                 $CreatorName = $Qestionnaire->get_CreatorName();
                 $PostId = $Qestionnaire->get_PostId();
-                $Link = get_permalink( $PostId );
+                $Link = get_permalink($PostId);
 
                 $output .= '  <tr>
 				<td align="center" nowrap="nowrap">' . $Name . '</td>
@@ -161,25 +159,24 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
                                     <td  align="center" nowrap="nowrap">' . $CreatorName . '</td>
                                     <td align="center" nowrap="nowrap"><a class="View-Q" 
 			href="' . add_query_arg(
-                        array('page' => 'GWU_add-Questionnaire-page',
+                                array('page' => 'GWU_add-Questionnaire-page',
                             'id' => 'view', 'Qid' => $id
-                        ), admin_url('admin.php'))
-                    . '">view</a> </td>
+                                ), admin_url('admin.php'))
+                        . '">view</a> </td>
                     <td style="100px;" align="center" nowrap="nowrap">
-                    <a class="View-Q" href="'.($PostId < 1?
-                        add_query_arg(
-                            array('page' => 'GWU_Questionnaire-mainMenu-page',
-                                'id' => 'publish', 'Qid' => $id
-                            ), admin_url('admin.php')).'">Publish</a>'
-                        :
-                        $Link.'">'.$Link.'</a>').
-                    '</tr>';
+                    <a class="View-Q" href="' . ($PostId < 1 ?
+                                add_query_arg(
+                                        array('page' => 'GWU_Questionnaire-mainMenu-page',
+                                    'id' => 'publish', 'Qid' => $id
+                                        ), admin_url('admin.php')) . '">Publish</a>' :
+                                $Link . '">' . $Link . '</a>') .
+                        '</tr>';
             }
 
             $address = add_query_arg(array(
                 'page' => 'GWU_add-Questionnaire-page',
                 'id' => 'newQuestionnaire'
-            ), admin_url('admin.php'));
+                    ), admin_url('admin.php'));
 
             $output .= '		</tbody>
 				</table>
@@ -188,8 +185,6 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
                         </br><a class="add-new-h2"  href="' . $address . '">Add new questionaire</a>';
             echo $output;
         }
-
-
 
         public function GWUAddQuestionnaire() {
 
@@ -202,9 +197,8 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
 
                 $QuestionnaireID = $_GET['Qid'];
                 $this->ShowOneQuestionnaire($QuestionnaireID);
-
             } elseif (isset($_GET['id']) && is_numeric($_GET['Qid']) &&
-                ( $_GET['id'] == 'new' || is_numeric($_GET['Qno']) )) {
+                    ( $_GET['id'] == 'new' || is_numeric($_GET['Qno']) )) {
 
                 $mode = 'new';
 
@@ -212,11 +206,11 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
                 // Display title based on current mode
                 if ($mode == 'new') {
 
-                    if (isset($_GET['type']) && $_GET['type'] == 'mutlipleS') {
+                    if (isset($_GET['type']) && $_GET['type'] == 'multipleS') {
                         include_once $this->pluginPath . '/views/mutlipleS.php';
                     }
 
-                    if (isset($_GET['type']) && $_GET['type'] == 'mutlipleM') {
+                    if (isset($_GET['type']) && $_GET['type'] == 'multipleM') {
                         include_once $this->pluginPath . '/views/mutlipleM.php';
                     }
 
@@ -233,18 +227,6 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
             }
         }
 
-        public static function getNextQuestionNumber($QuestionnaireID) {
-            $Wrapper = new GWWrapper();
-            $Questions = $Wrapper->listQuestion($QuestionnaireID);
-
-            if (empty($Questions)) {
-                $nextQuestionNum = 1;
-            } else {
-                $nextQuestionNum = sizeof($Questions) + 1;
-            }
-
-            return $nextQuestionNum;
-        }
 
         public function ShowOneQuestionnaire($QuestionnaireID) {
 
@@ -255,71 +237,15 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
             //Top-level menu -->
             echo '<div id="Questionnaire-general" class="wrap">
                 <h2>' . $questionnaire[0]->get_Title() . '
-                </h2>';
+                </h2> <br/>';
 
-            $output = $this->ShowQuestions($QuestionnaireID);
-            echo $output;
+            $this->gwuquestion->ShowQuestions($QuestionnaireID);
+           
 
-            echo' <h2>    <a class="add-new-h2" 
-			href="' . add_query_arg(
-                    array('page' => 'GWU_add-Questionnaire-page',
-                        'id' => 'new', 'Qid' => $QuestionnaireID,
-                        'type' => 'mutlipleS'), admin_url('admin.php'))
-                . '">Add New Question</a></h2>';
-            echo' </div>';
+         echo' </div>';
         }
 
-        //show question function
-        public function ShowQuestions($QuestionnaireID) {
-//string to hold the HTML code for output
-            $Wrapper = new GWWrapper();
-            $questions = $Wrapper->listQuestion($QuestionnaireID);
-            $output = '<form><hr/>';
-            if($questions==false)
-                return;
-            foreach ($questions as $question) {
-                $Title = $question->get_Text();
-                $type = $question->get_AnsType();
-                $questionno = $question->get_QuestionNumber();
-
-                $output .= $questionno . '&nbsp;&nbsp;&nbsp;  ' . $Title . '<br/>';
-
-                $answerchoices = $Wrapper->listAnswerChoice($QuestionnaireID, $questionno);
-
-                if ($type == 'Text Box') {
-                    $output .= '<textarea  cols="30" rows="5"> </textarea><br/><hr/>';
-                } elseif ($type == 'NPS') {
-
-                    $output .= '<table><tr><td></td>';
-                    for ($i = 0; $i < 10; $i++) {
-                        $output .= '<td><input name="'.$questionno.'" type="radio"
-                            value="'.$answerchoices[$i]->get_OptionNumber().'"/>&nbsp;</td>';
-                    }
-                    $output .= '<td></td></tr><tr><td>' . $answerchoices[10]->get_AnsValue() . ' </td>';
-                    for ($i = 0; $i < 10; $i++) {
-                        $output .= '<td>' . $answerchoices[$i]->get_AnsValue()  . '</td>';
-                    }
-                    $output .= '<td>' . $answerchoices[11]->get_AnsValue() . ' </td></tr></table>';
-                } elseif ($type == 'Multiple Choice, Single Value') {
-
-                    foreach ($answerchoices as $answerchoice) {
-                        $answerchoicescontent = $answerchoice->get_AnsValue();
-
-                        $output .= '<input name="'.$questionno.'" type="radio" value="'.$answerchoice->get_OptionNumber().'"/>&nbsp;&nbsp;' . $answerchoicescontent . '<br/>';
-                    }
-                } else {
-                    foreach ($answerchoices as $answerchoice) {
-                        $answerchoicescontent = $answerchoice->get_AnsValue();
-
-                        $output .= '<input name="'.$questionno.'" value="'.$answerchoice->get_OptionNumber().'" type="checkbox"/>&nbsp;&nbsp;' . $answerchoicescontent . '<br/>';
-                    }
-                }
-                $output .= '<hr/>';
-            }
-
-            return $output;
-        }
-
+       
         public function GWUAddNewQuestionnaire() {
 
             // Place all user submitted values in an array
@@ -334,83 +260,26 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
             $current_user = wp_get_current_user();
             $Questionnaire_data['CreaterName'] = $current_user->user_login;
 
-			//Temp data because UI is not yet modified to capture the following fields.
-			$dateModified = date('Y-m-d H:i:s');
-			$inactiveDate = '';
-			$introText = 'Introduction';
-			$thankyouText = 'Thank You!';
-			//$PostId
-			$publishFlag = '';
-			$publishDate = '';
-			
+            //Temp data because UI is not yet modified to capture the following fields.
+            $dateModified = date('Y-m-d H:i:s');
+            $inactiveDate = '';
+            $introText = 'Introduction';
+            $thankyouText = 'Thank You!';
+            //$PostId
+            $publishFlag = '';
+            $publishDate = '';
+
             $Wrapper = new GWWrapper();
-            $Questionnaire = $Wrapper->saveQuestionnaire($Questionnaire_data['Title'], $Questionnaire_data['Topic'], $Questionnaire_data['CreaterName'],
-			$Questionnaire_data['AllowAnonymous'], $Questionnaire_data['AllowMultiple'], $Questionnaire_data['DateDate'], 
-			$dateModified, $inactiveDate, $introText, $thankyouText, $Questionnaire_data['PostId'], $publishFlag, $publishDate);
+            $Questionnaire = $Wrapper->saveQuestionnaire($Questionnaire_data['Title'], $Questionnaire_data['Topic'], $Questionnaire_data['CreaterName'], $Questionnaire_data['AllowAnonymous'], $Questionnaire_data['AllowMultiple'], $Questionnaire_data['DateDate'], $dateModified, $inactiveDate, $introText, $thankyouText, $Questionnaire_data['PostId'], $publishFlag, $publishDate);
 
 
             // Redirect the page to the admin form
             wp_redirect(add_query_arg(array('page' => 'GWU_add-Questionnaire-page',
-                    'id' => 'view', 'Qid' => $Questionnaire['QuestionnaireID']),
-                admin_url('admin.php')));
+                        'id' => 'view', 'Qid' => $Questionnaire['QuestionnaireID']), admin_url('admin.php')));
             exit;
         }
 
-        public function GWUAddNewQuestion() {
-            // Place all user submitted values in an array
-            $Question_data = array();
-            $QuestionnaireID = ( isset($_POST['QuestionnaireID']) ? $_POST['QuestionnaireID'] : '' );
-            $answer_type_short = ( isset($_POST['answer_type_short']) ? $_POST['answer_type_short'] : '' );
 
-
-            $Question_data['questionNumber'] = ( isset($_POST['question_Number']) ? $_POST['question_Number'] : '' );
-            $Question_data['Text'] = ( isset($_POST['question_text']) ? $_POST['question_text'] : '' );
-            $Question_data['AnsType'] = ( isset($_POST['answer_type']) ? $_POST['answer_type'] : '' );
-            $Question_data['QuestionnaireID'] = $QuestionnaireID;
-            $Question_data['Mandatory'] = ( isset($_POST['Mandatory']) ? $_POST['Mandatory'] : '' );
-
-			
-			$questSequence = $Question_data['questionNumber'];	//Temporarily questSequence is same as questionNumber
-			$conditionID = 1;	//Temporarily adding same conditionID
-			
-            //save question
-            $Wrapper = new GWWrapper();
-            $Wrapper->saveQuestion($questSequence, $Question_data['QuestionnaireID'], $conditionID, $Question_data['questionNumber'], $Question_data['AnsType'], 
-			$Question_data['Text'], $Question_data['Mandatory']);
-
-            $Answers = preg_split('/(\r?\n)+/', $_POST['answers']);
-            $counter = 1;
-
-            if ($answer_type_short == 'multipleS' || $answer_type_short == 'multipleM') {
-                foreach ($Answers as $answer) {
-
-                    $Wrapper->saveAnswerChoice($QuestionnaireID, $Question_data['questionNumber'], $counter, $answer);
-                    $counter++;
-                }
-            } elseif ($answer_type_short == 'NPS') {
-
-                for ($counter; $counter <= 10; $counter++) {
-
-
-                    $Wrapper->saveAnswerChoice($QuestionnaireID, $Question_data['questionNumber'], $counter, $counter);
-                }
-
-                $ansValue_Detractor = ( isset($_POST['Detractor']) ? $_POST['Detractor'] : '' );
-                $Wrapper->saveAnswerChoice($QuestionnaireID, $Question_data['questionNumber'],$counter, $ansValue_Detractor);
-                $counter++;
-
-                $ansValue_Promoter = ( isset($_POST['Promoter']) ? $_POST['Promoter'] : '' );
-                $Wrapper->saveAnswerChoice( $QuestionnaireID, $Question_data['questionNumber'],$counter, $ansValue_Promoter);
-
-            }
-
-
-            //must add data to DB and remove the following comment 
-            // Redirect the page to the admin form
-            wp_redirect(add_query_arg(array('page' => 'GWU_add-Questionnaire-page',
-                'id' => 'view', 'Qid' => $QuestionnaireID), admin_url('admin.php')));
-            exit;
-        }
     }
 
 }

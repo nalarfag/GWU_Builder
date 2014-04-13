@@ -154,7 +154,7 @@ class GWWrapper
 		$response->set_ResponseType($responseType);
 		$response->set_ResponseContent($responseContent);
 		$response->set_CodeToProcessResponse($codeToProcessResponse);
-		$response->set_ProcessingResult(processingResult);
+		$response->set_ProcessingResult($processingResult);
 		$returnVal = $response->save();
 		
 		return array('ResponceID' => $returnVal);
@@ -170,7 +170,7 @@ class GWWrapper
 		return GWQuestionnaire::find($keys);
 	}
 	
-	public static function saveQuestionnaire($Title, $Topic, $creatorName, $allowMultiple, $allowAnnonymous, $dateCreated, $DateModified, $inactiveDate, $introText, $thankyouText, $Link, $publishFlag, $publishDate, $deleted = 'false') {
+	public static function saveQuestionnaire($Title, $Topic, $creatorName, $allowMultiple, $allowAnnonymous, $dateCreated, $DateModified, $inactiveDate, $introText, $thankyouText, $PostId, $publishFlag, $publishDate, $deleted = 'false') {
 		$questionnaire = new GWQuestionnaire();
 		$questionnaire->set_Title($Title);
 		$questionnaire->set_Topic($Topic);
@@ -178,11 +178,12 @@ class GWWrapper
 		$questionnaire->set_AllowMultiple($allowMultiple);
 		$questionnaire->set_AllowAnnonymous($allowAnnonymous);
 		$questionnaire->set_DateCreated($dateCreated);
-		$questionnaire->set_DateModified(dateModified);
+		$questionnaire->set_DateModified($dateModified);
 		$questionnaire->set_InactiveDate($inactiveDate);
 		$questionnaire->set_IntroText($introText);
 		$questionnaire->set_ThankyouText($thankyouText);
-		$questionnaire->set_Link($link);
+		//$questionnaire->set_Link($link);
+		$questionnaire->set_PostId($PostId);
 		$questionnaire->set_PublishFlag($publishFlag);
 		$questionnaire->set_PublishDate($publishDate);
 		$questionnaire->set_Deleted($deleted);
@@ -195,7 +196,7 @@ class GWWrapper
 
 	//For Action
 	public static function listActions($QuestionnaireID, $Question_Number){
-		$keys = array('QuestionnaireID'=>$QuestionnaireID,'Question_Number'=>$Question_Number);
+		$keys = array('QuestionnaireID'=>$QuestionnaireID,'QuestSequence'=>$questSequence);
 		return 	GWAction::find($keys);
 	}
 	public static function getActions($ActionID){
@@ -220,15 +221,15 @@ class GWWrapper
 	}
 
 	// For GWAnswerChoice
-	public static function listAnswerChoice($QuestionnaireID,$Question_Number){
-		$keys = array('QuestionnaireID'=>$QuestionnaireID,'Question_Number'=>$Question_Number);
+	public static function listAnswerChoice($QuestionnaireID,$questSequence){
+		$keys = array('QuestionnaireID'=>$QuestionnaireID,'QuestSequence'=>$questSequence);
 		return 	GWAnswerChoice::find($keys);
 	}
 	
 	public static function saveAnswerChoice($questionnaireID, $questSequence, $optionNumber, $ansValue, $deleted = 'false') {
 
 
-		$answerChoice = new GWAnwerChoice();
+		$answerChoice = new GWAnswerChoice();
 
 		$answerChoice->set_QuestionnaireID($questionnaireID);
 		$answerChoice->set_QuestSequence($questSequence);

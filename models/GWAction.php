@@ -10,16 +10,14 @@ include_once WP_PLUGIN_DIR . '/GWU_Builder/lib/GWBaseModel.php';
 class GWAction extends GWBaseModel
 {
     protected $ActionID;
-	protected $QuestSequence;
 	protected $QuestionnaireID;
+	protected $Question_Number;
 	protected $ActionType;
-	protected $LinkToAction;
 	protected $Duration;
+	protected $LinkToAction;
 	protected $Sequence;
-    protected $Content;
-	protected $Deleted;
-	
-	
+
+
     public static function get_primary_key()
     {
 		return array('ActionID');
@@ -33,16 +31,7 @@ class GWAction extends GWBaseModel
     public static function get_searchable_fields()
     {
         $searchableFields = array();
-		array_push($searchableFields, 
-		'ActionID',
-		'QuestSequence',
-		'QuestionnaireID',
-		'ActionType',
-		'LinkToAction',
-		'Duration',
-		'Sequence',
-		'Content'
-		);
+		array_push($searchableFields, 'ActionID', 'QuestionnaireID', 'Question_Number', 'ActionType', 'Duration', 'LinkToAction', 'Sequence');
 		return $searchableFields;
     }
 }

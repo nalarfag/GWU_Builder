@@ -10,13 +10,13 @@ include_once WP_PLUGIN_DIR . '/GWU_Builder/lib/GWBaseModel.php';
 class GWSession extends GWBaseModel
 {
 	protected $SessionID;
-	protected $UserName;
+	protected $User_name;
+	protected $SurveyCompleted;
+	protected $Duration;
+	protected $SurveyTakenDate;
 	protected $IP;
 	protected $City;
 	protected $Country;
-	protected $Duration;
-	protected $SurveyTakenDate;
-	protected $SurveyCompleted;
 
 
     public static function get_primary_key()
@@ -32,16 +32,7 @@ class GWSession extends GWBaseModel
     public static function get_searchable_fields()
     {
         $searchableFields = array();
-		array_push($searchableFields, 
-		'SessionID',
-		'UserName',
-		'IP',
-		'City',
-		'Country',
-		'Duration',
-		'SurveyTakenDate',
-		'SurveyCompleted'
-		);
+		array_push($searchableFields, 'SessionID', 'User_name', 'SurveyCompleted', 'Duration', 'SurveyTakenDate', 'IP', 'City', 'Country');
 		return $searchableFields;
     }
 }

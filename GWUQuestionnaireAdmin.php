@@ -280,7 +280,7 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
             foreach ($questions as $question) {
                 $Title = $question->get_Text();
                 $type = $question->get_AnsType();
-                $questionno = $question->get_Question_Number();
+                $questionno = $question->get_QuestionNumber();
 
                 $output .= $questionno . '&nbsp;&nbsp;&nbsp;  ' . $Title . '<br/>';
 
@@ -334,9 +334,19 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
             $current_user = wp_get_current_user();
             $Questionnaire_data['CreaterName'] = $current_user->user_login;
 
+			//Temp data because UI is not yet modified to capture the following fields.
+			$dateModified = date('Y-m-d H:i:s');
+			$inactiveDate = '';
+			$introText = 'Introduction';
+			$thankyouText = 'Thank You!';
+			//$PostId
+			$publishFlag = '';
+			$publishDate = '';
+			
             $Wrapper = new GWWrapper();
-            $Questionnaire = $Wrapper->saveQuestionnaire($Questionnaire_data['Title'], $Questionnaire_data['Topic'], $Questionnaire_data['AllowAnonymous'], $Questionnaire_data['AllowMultiple'], $Questionnaire_data['CreaterName'], $Questionnaire_data['DateDate'], $Questionnaire_data['PostId']);
-
+            $Questionnaire = $Wrapper->saveQuestionnaire($Questionnaire_data['Title'], $Questionnaire_data['Topic'], $Questionnaire_data['CreaterName'],
+			$Questionnaire_data['AllowAnonymous'], $Questionnaire_data['AllowMultiple'], $Questionnaire_data['DateDate'], 
+			$dateModified, $inactiveDate, $introText, $thankyouText, $Questionnaire_data['PostId'], $publishFlag, $publishDate);
 
 
             // Redirect the page to the admin form
@@ -359,10 +369,14 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
             $Question_data['QuestionnaireID'] = $QuestionnaireID;
             $Question_data['Mandatory'] = ( isset($_POST['Mandatory']) ? $_POST['Mandatory'] : '' );
 
-
+			
+			$questSequence = $Question_data['questionNumber'];	//Temporarily questSequence is same as questionNumber
+			$conditionID = 1;	//Temporarily adding same conditionID
+			
             //save question
             $Wrapper = new GWWrapper();
-            $Wrapper->saveQuestion($Question_data['questionNumber'], $Question_data['QuestionnaireID'], $Question_data['AnsType'], $Question_data['Text'], $Question_data['Mandatory']);
+            $Wrapper->saveQuestion($questSequence, $Question_data['QuestionnaireID'], $conditionID, $Question_data['questionNumber'], $Question_data['AnsType'],
+            $Question_data['Text'], $Question_data['Mandatory']);
 
             $Answers = preg_split('/(\r?\n)+/', $_POST['answers']);
             $counter = 1;
@@ -370,7 +384,7 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
             if ($answer_type_short == 'multipleS' || $answer_type_short == 'multipleM') {
                 foreach ($Answers as $answer) {
 
-                    $Wrapper->saveAnswerChoice($counter, $QuestionnaireID, $Question_data['questionNumber'], $answer);
+                    $Wrapper->saveAnswerChoice($QuestionnaireID, $Question_data['questionNumber'], $counter, $answer);
                     $counter++;
                 }
             } elseif ($answer_type_short == 'NPS') {
@@ -378,7 +392,7 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
                 for ($counter; $counter <= 10; $counter++) {
 
 
-                    $Wrapper->saveAnswerChoice($counter, $QuestionnaireID, $Question_data['questionNumber'], $counter);
+                    $Wrapper->saveAnswerChoice($QuestionnaireID, $Question_data['questionNumber'], $counter, $counter);
                 }
 
                 $ansValue_Detractor = ( isset($_POST['Detractor']) ? $_POST['Detractor'] : '' );

@@ -1,5 +1,7 @@
 <?php
 
+
+
 namespace WordPress\ORM\Model;
 
 use WordPress\ORM\GWBaseModel;
@@ -9,13 +11,9 @@ include_once WP_PLUGIN_DIR . '/GWU_Builder/lib/GWBaseModel.php';
 class GWFlag extends GWBaseModel
 {
     protected $FlagID;
-	protected $OptionNumber;
-	protected $QuestSequence;
-	protected $QuestionnaireID;
 	protected $FlagName;
 	protected $FlagValue;
-	protected $Deleted;
-	
+
     public static function get_primary_key()
     {
 		return array('FlagID');
@@ -29,14 +27,7 @@ class GWFlag extends GWBaseModel
     public static function get_searchable_fields()
     {
         $searchableFields = array();
-		array_push($searchableFields,
-		'FlagID',
-		'OptionNumber',
-		'QuestSequence',
-		'QuestionnaireID',
-		'FlagName',
-		'FlagValue'
-		);
+		array_push($searchableFields,'FlagID','FlagName','FlagValue');
 		return $searchableFields;
     }
 }

@@ -396,11 +396,11 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
                 }
 
                 $ansValue_Detractor = ( isset($_POST['Detractor']) ? $_POST['Detractor'] : '' );
-                $Wrapper->saveAnswerChoice($counter, $QuestionnaireID, $Question_data['questionNumber'], $ansValue_Detractor);
+                $Wrapper->saveAnswerChoice($QuestionnaireID, $Question_data['questionNumber'],$counter, $ansValue_Detractor);
                 $counter++;
 
                 $ansValue_Promoter = ( isset($_POST['Promoter']) ? $_POST['Promoter'] : '' );
-                $Wrapper->saveAnswerChoice($counter, $QuestionnaireID, $Question_data['questionNumber'], $ansValue_Promoter);
+                $Wrapper->saveAnswerChoice( $QuestionnaireID, $Question_data['questionNumber'], $counter, $ansValue_Promoter);
 
             }
 

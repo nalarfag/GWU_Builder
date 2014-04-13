@@ -13,10 +13,19 @@ class GWQuestionnaire extends GWBaseModel
     protected $QuestionnaireID;
 	protected $Title;
 	protected $Topic;
-	protected $AllowAnonymous;
-	protected $AllowMultiple;
 	protected $CreatorName;
+	protected $AllowMultiple;
+	protected $AllowAnnonymous;
 	protected $DateCreated;
+	protected $DateModified;
+	protected $InactiveDate; 
+	protected $IntroText;
+	protected $ThankyouText;
+	protected $Link;
+	protected $PublishFlag;
+	protected $PublishDate;
+	protected $Deleted;
+	
 
     public static function get_primary_key()
     {
@@ -31,7 +40,22 @@ class GWQuestionnaire extends GWBaseModel
     public static function get_searchable_fields()
     {
         $searchableFields = array();
-		array_push($searchableFields, 'QuestionnaireID', 'Title', 'Topic', 'AllowAnonymous', 'AllowMultiple', 'CreatorName', 'DateCreated');
+		array_push($searchableFields, 
+			'QuestionnaireID',
+			'Title',
+			'Topic',
+			'CreatorName',
+			'AllowMultiple',
+			'AllowAnnonymous',
+			'DateCreated',
+			'DateModified',
+			'InactiveDate',
+			'IntroText',
+			'ThankyouText',
+			'Link',
+			'PublishFlag',
+			'PublishDate'
+		);
 		return $searchableFields;
     }
 }

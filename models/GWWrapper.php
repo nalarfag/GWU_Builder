@@ -11,21 +11,24 @@ class GWWrapper
 		return GWQuestion::find($keys);
 	}
 	
-	public static function getQuestion($questionNumber, $questionnaireID){
-		$keys = array('Question_Number' => $questionNumber, 'QuestionnaireID' => $questionnaireID);
+	public static function getQuestion($questSequence, $questionnaireID){
+		$keys = array('QuestSequence' => $questSequence, 'QuestionnaireID' => $questionnaireID);
 		return GWQuestion::find($keys);
 	}
 	
-	public static function saveQuestion($questionNumber, $questionnaireID, $ansType, $text, $mandatory){
+	public static function saveQuestion( $questSequence, $questionnaireID, $conditionID, $questionNumber, $ansType, $text, $mandatory, $deleted = 'false'){
 		$gwQuestion = new GWQuestion();
-		$gwQuestion->set_Question_Number($questionNumber);
+		$gwQuestion->set_QuestSequence($questSequence);
 		$gwQuestion->set_QuestionnaireID($questionnaireID);
+		$gwQuestion->set_ConditionID($conditionID);
+		$gwQuestion->set_QuestionNumber($questionNumber);
 		$gwQuestion->set_AnsType($ansType);
 		$gwQuestion->set_Text($text);
 		$gwQuestion->set_Mandatory($mandatory);
+		$gwQuestion->set_Deleted($deleted);
 		$gwQuestion->save();
 		
-		return array('Question_Number' => $questionNumber, 'QuestionnaireID' => $questionnaireID);
+		return array('QuestSequence' => $questSequence, 'QuestionnaireID' => $questionnaireID);
 	}
 	
 	public static function listFlag(){
@@ -37,17 +40,21 @@ class GWWrapper
 		return GWFlag::find($keys);
 	}
 	
-	public static function saveFlag($flagName, $flagValue){
+	public static function saveFlag($optionNumber, $questSequence, $questionnaireID, $flagName, $flagValue, $deleted = 'false'){
 		$gwFlag = new GWFlag();
 		//$gwFlag->set_FlagID($flagID);
+		$gwFlag->set_OptionNumber($optionNumber);
+		$gwFlag->set_QuestSequence($questSequence);
+		$gwFlag->set_QuestionnaireID($questionnaireID);
 		$gwFlag->set_FlagName($flagName);
 		$gwFlag->set_FlagValue($flagValue);
+		$gwFlag->set_Deleted($deleted);
 		$returnVal = $gwFlag->save();
 		
 		return array('FlagID' => $returnVal);
 	}
 	
-	public static function listFlagSet(){
+	/*public static function listFlagSet(){
 		return GWFlagSet::all();
 	}
 	
@@ -97,7 +104,7 @@ class GWWrapper
 		return GWSession::all();
 		
 	}
-	
+	*/
 	public static function getSession($sessionID) {
 	
 		$keys = array('SessionID' => $sessionID);
@@ -105,16 +112,18 @@ class GWWrapper
 		
 	}
 	
-	public static function saveSession($user_name, $surveyCompleted, $duration, $surveyTakenDate, $ip, $city, $country) {
+	public static function saveSession($userName, $IP, $city, $country, $duration, $surveyTakenDate, $surveyCompleted) {
 	
 		$session = new GWSession();
-		$session->set_User_name($user_name);
-		$session->set_SurveyCompleted($surveyCompleted);
-		$session->set_Duration($duration);
-		$session->set_SurveyTakenDate($surveyTakenDate);
-		$session->set_IP($ip);
+		//$session->set_SessionID($sessionID);
+		$session->set_UserName($userName);
+		$session->set_IP($IP);
 		$session->set_City($city);
 		$session->set_Country($country);
+		$session->set_Duration($duration);
+		$session->set_Country($country);
+		$session->set_SurveyTakenDate($surveyTakenDate);
+		$session->set_SurveyCompleted($surveyCompleted);
 		$returnVal = $session->save();
 		
 		return array('SessionID' => $returnVal);
@@ -134,17 +143,18 @@ class GWWrapper
 	
 	}
 	
-	public static function saveResponse($sessionID, $questionnaireID, $question_Number, $answerNumber, $responceType, $responceContent, $codeToProcessResponce, $processingResult) {
+	public static function saveResponse($questSequence, $sessionID, $questionnaireID, $optionNumber, $responseType, $responseContent, $codeToProcessResponse, $processingResult) {
 	
 		$response = new GWResponse();
+		//$response->set_ResponseID($responseID);
+		$response->set_QuestSequence($questSequence);
 		$response->set_SessionID($sessionID);
 		$response->set_QuestionnaireID($questionnaireID);
-		$response->set_Question_Number($question_Number);
-		$response->set_AnswerNumber($answerNumber);
-		$response->set_ResponceType($responceType);
-		$response->set_ResponceContent($responceContent);
-		$response->set_CodeToProcessResponce($codeToProcessResponce);
-		$response->set_ProcessingResult($processingResult);
+		$response->set_OptionNumber($optionNumber);
+		$response->set_ResponseType($responseType);
+		$response->set_ResponseContent($responseContent);
+		$response->set_CodeToProcessResponse($codeToProcessResponse);
+		$response->set_ProcessingResult(processingResult);
 		$returnVal = $response->save();
 		
 		return array('ResponceID' => $returnVal);
@@ -160,14 +170,24 @@ class GWWrapper
 		return GWQuestionnaire::find($keys);
 	}
 	
-	public static function saveQuestionnaire($Title, $Topic, $AllowAnonymous, $AllowMultiple, $CreatorName, $DateCreated) {
+	public static function saveQuestionnaire($Title, $Topic, $creatorName, $allowMultiple, $allowAnnonymous, $dateCreated, $DateModified, $inactiveDate, $introText, $thankyouText, $Link, $publishFlag, $publishDate, $deleted = 'false') {
 		$questionnaire = new GWQuestionnaire();
 		$questionnaire->set_Title($Title);
 		$questionnaire->set_Topic($Topic);
-		$questionnaire->set_AllowAnonymous($AllowAnonymous);
-		$questionnaire->set_AllowMultiple($AllowMultiple);
-		$questionnaire->set_CreatorName($CreatorName);
-		$questionnaire->set_DateCreated($DateCreated);
+		$questionnaire->set_CreatorName($creatorName);
+		$questionnaire->set_AllowMultiple($allowMultiple);
+		$questionnaire->set_AllowAnnonymous($allowAnnonymous);
+		$questionnaire->set_DateCreated($dateCreated);
+		$questionnaire->set_DateModified(dateModified);
+		$questionnaire->set_InactiveDate($inactiveDate);
+		$questionnaire->set_IntroText($introText);
+		$questionnaire->set_ThankyouText($thankyouText);
+		$questionnaire->set_Link($link);
+		$questionnaire->set_PublishFlag($publishFlag);
+		$questionnaire->set_PublishDate($publishDate);
+		$questionnaire->set_Deleted($deleted);
+		
+		
 		$returnVal = $questionnaire->save();
 	
 		return array('QuestionnaireID' => $returnVal);
@@ -183,16 +203,17 @@ class GWWrapper
 		return GWAction::find($keys);
 	}
 	
-	public static function saveAction($QuestionnaireID, $ActionType, $Question_Number, $Content, $Duration, $LinkToAction, $Sequence) {
+	public static function saveAction($questSequence, $questionnaireID, $actionType, $linkToAction, $duration, $sequence, $content, $deleted = 'false') {
 		$action = new GWAction();
 		//$action->set_ActionID($ActionID);
-		$action->set_QuestionnaireID($QuestionnaireID);
-		$action->set_ActionType($ActionType);
-		$action->set_Question_Number($Question_Number);
-		$action->set_Content($Content);
-		$action->set_Duration($Duration);
-		$action->set_LinkToAction($LinkToAction);
-		$action->set_Sequence($Sequence);
+		$action->set_QuestSequence($questSequence);
+		$action->set_QuestionnaireID($questionnaireID);
+		$action->set_ActionType($actionType);
+		$action->set_LinkToAction($linkToAction);
+		$action->set_Duration($duration);
+		$action->set_Sequence($sequence);
+		$action->set_Content($content);
+		$action->set_Deleted($deleted);
 		$returnVal = $action->save();
 		
 		return array('ActionID' => $returnVal);
@@ -204,19 +225,48 @@ class GWWrapper
 		return 	GWAnswerChoice::find($keys);
 	}
 	
-	public static function saveAnswerChoice($OptionNumber, $QuestionnaireID, $Qustion_Number, $AnsValue) {
+	public static function saveAnswerChoice($questionnaireID, $questSequence, $optionNumber, $ansValue, $deleted = 'false') {
 
 
-		$answerChoice = new GWAnswerChoice();
+		$answerChoice = new GWAnwerChoice();
 
-		$answerChoice->set_OptionNumber($OptionNumber);
-		$answerChoice->set_QuestionnaireID($QuestionnaireID);
-		$answerChoice->set_Question_Number($Qustion_Number);
-		$answerChoice->set_AnsValue($AnsValue);
+		$answerChoice->set_QuestionnaireID($questionnaireID);
+		$answerChoice->set_QuestSequence($questSequence);
+		$answerChoice->set_OptionNumber($optionNumber);
+		$answerChoice->set_AnsValue($ansValue);
+		$answerChoice->set_Deleted($deleted);
+		
 		$answerChoice->save();
                 
 		return array('OptionNumber' => $OptionNumber,'QuestionnaireID'=>$QuestionnaireID,
-                    'Question_Number'=>$Qustion_Number);
+                    'QuestSequence'=>$questSequence);
+	}
+	
+	
+	public static function listConditions() {
+		return GWCondition::all();
+	}
+	
+	public static function getCondition($conditionID) {
+		$keys = array('ConditionID' => $conditionID);
+		return GWQuestionnaire::find($keys);
+	}
+	
+	public static function saveCondition($conditionID, $questionnaireID, $logicStatement, $ansValue, $deleted = 'false') {
+
+
+		$condition = new GWCondition();
+
+		$condition->set_ConditionID($conditionID);
+		$condition->set_QuestionnaireID($questionnaireID);
+		$condition->set_LogicStatement($logicStatement);
+		$condition->set_JumpQNoOnFailure($jumpQNoOnFailure);
+		$condition->set_JumpQNoOnSuccess($JumpQNoOnSuccess);
+		$condition->set_Deleted($deleted);
+		
+		$condition->save();
+                
+		return array('ConditionID' => $conditionID);
 	}
 		
 }	

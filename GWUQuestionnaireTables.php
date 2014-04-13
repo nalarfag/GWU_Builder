@@ -41,119 +41,183 @@ if (!class_exists('GWUQuestionnaireTables')) {
             // using received table prefix
             $Questionnaire_creation_query =
                     'CREATE TABLE IF NOT EXISTS  gwu_questionnaire (
-                `QuestionnaireID` INT(20) NOT NULL AUTO_INCREMENT ,
-                `Title` VARCHAR( 100 ) NOT NULL ,
-                `DateCreated` DATE NOT NULL ,
-                `Topic` VARCHAR( 100 ) NULL ,
-                `AllowAnonymous` BOOL NOT NULL ,
-                `AllowMultiple` BOOL NULL ,
-                `CreatorName` VARCHAR( 100 ) NOT NULL,
-                PRIMARY KEY (`QuestionnaireID`)
+                `QuestionnaireID` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
+                  `Title` VARCHAR(200) NOT NULL,
+                  `Topic` VARCHAR(200) NULL,
+                  `CreatorName` VARCHAR(50) NOT NULL,
+                  `AllowMultiple` BOOL NOT NULL,
+                  `AllowAnnonymous` BOOL NOT NULL,
+                  `DateCreated` DATE NOT NULL,
+                  `DateModified` DATETIME NULL,
+                  `InactiveDate` DATE NULL,
+                  `IntroText` text NULL,
+                  `ThankyouText` text NULL,
+                  `PostId` VARCHAR(200) NULL,
+                  `PublishFlag` BOOL NULL,.
+                  `PublishDate` DATE NULL,
+                  `Deleted` BOOL NULL,
+                  PRIMARY KEY(`QuestionnaireID`)
             )ENGINE = INNODB;';
             $Question_creation_query =
                     'CREATE TABLE IF NOT EXISTS  gwu_question (
-                `Question_Number` INT NOT NULL,
-                `QuestionnaireID` INT NOT NULL ,
-                `AnsType` VARCHAR( 100 ) NOT NULL ,
-                `Text` VARCHAR( 255 ) NOT NULL ,
-                `Mandatory` BOOL NOT NULL ,
-                PRIMARY KEY (  `Question_Number` , `QuestionnaireID` ),
-                FOREIGN KEY (`QuestionnaireID`) REFERENCES gwu_questionnaire(`QuestionnaireID`)
+                  `QuestionnaireID` INTEGER UNSIGNED NOT NULL,
+                  `QuestSequence` INTEGER UNSIGNED NOT NULL  AUTO_INCREMENT,
+                  `ConditionID` INTEGER UNSIGNED  NULL,
+                  `QuestionNumber` VARCHAR(10) NOT NULL,
+                  `AnsType` VARCHAR(20) NULL,
+                  `Text` text NULL,
+                  `Mandatory` BOOL NULL,
+                  `Deleted` BOOL NULL,
+                  PRIMARY KEY(`QuestSequence`),
+                  FOREIGN KEY(`QuestionnaireID`)
+                    REFERENCES gwu_questionnaire(`QuestionnaireID`)
+                      ON DELETE CASCADE
+                      ON UPDATE CASCADE   
             )ENGINE = INNODB;';
+
+             $Condition_creation_query =
+                'CREATE TABLE IF NOT EXISTS gwu_condition (
+                  `ConditionID` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
+                  `QuestionnaireID` INTEGER UNSIGNED NOT NULL,
+                  `LogicStatement` VARCHAR(100) NULL,
+                  `JumpQNoOnFailure` INTEGER UNSIGNED NULL,
+                  `JumpQNoOnSuccess` INTEGER UNSIGNED NULL,
+                  `Deleted` BOOL NULL,
+                  PRIMARY KEY(`ConditionID`),
+                  FOREIGN KEY(`QuestionnaireID`) REFERENCES gwu_question(`QuestionnaireID`)
+                    ON DELETE CASCADE
+                    ON UPDATE CASCADE,
+ FOREIGN KEY(`JumpQNoOnFailure`) REFERENCES gwu_question(`QuestSequence`)
+                    ON DELETE CASCADE
+                    ON UPDATE CASCADE,
+                  FOREIGN KEY(`JumpQNoOnSuccess`) REFERENCES gwu_question(`QuestSequence`)
+                    ON DELETE CASCADE
+                    ON UPDATE CASCADE
+                ) ENGINE = INNODB';
+
+            $Set_ForeignKey_Query = 'ALTER TABLE gwu_question ADD CONSTRAINT FOREIGN KEY GWU_Question_FKIndex2 (`ConditionID`) references gwu_condition (`ConditionID`);';
 
             $Action_creation_query =
                     'CREATE TABLE IF NOT EXISTS  gwu_action (
-                `ActionID` INT( 11 ) NOT NULL AUTO_INCREMENT ,
-                `QuestionnaireID` INT NOT NULL ,
-                `Question_Number` INT NOT NULL ,
-                `Sequence` INT NOT NULL ,
-                `ActionType` VARCHAR( 100 ) NOT NULL ,
-                `LinkToAction` VARCHAR( 200 ) NULL ,
-                `Content` VARCHAR( 255 ) NULL ,
-                `Duration` INT( 10 ) NOT NULL ,
-                PRIMARY KEY ( `ActionID`),
-                FOREIGN KEY (`QuestionnaireID`) REFERENCES gwu_question(`QuestionnaireID`),
-                FOREIGN KEY (`Question_Number`) REFERENCES gwu_question(`Question_Number`)
+               `ActionID` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
+                  `QuestSequence` INTEGER UNSIGNED NULL,
+                  `QuestionnaireID` INTEGER UNSIGNED NOT NULL,
+                  `ActionType` VARCHAR(20) NULL,
+                  `LinkToAction` VARCHAR(100) NULL,
+                  `Duration` TIME NULL,
+                  `Sequence` INTEGER UNSIGNED NULL,
+                  `Content` text NULL,
+                  `Deleted` BOOL NULL,
+                  PRIMARY KEY(`ActionID`),
+                  FOREIGN KEY(`QuestionnaireID`)
+                    REFERENCES gwu_question(`QuestionnaireID`)
+                      ON DELETE CASCADE
+                      ON UPDATE CASCADE,
+ FOREIGN KEY(`QuestSequence`)
+                    REFERENCES gwu_question(`QuestSequence`)
+                      ON DELETE CASCADE
+                      ON UPDATE CASCADE
             ) ENGINE = INNODB;';
             $AnswerChoice_creation_query =
                     'CREATE TABLE IF NOT EXISTS  gwu_answerChoice (
-                `OptionNumber` INT NOT NULL ,
-                `QuestionnaireID` INT NOT NULL ,
-                `Question_Number` INT NOT NULL ,
-                `AnsValue` VARCHAR( 255 ) NULL ,
-                PRIMARY KEY (  `OptionNumber` ,  `QuestionnaireID` ,  `Question_Number` ),
-                FOREIGN KEY (`QuestionnaireID`) REFERENCES gwu_question(`QuestionnaireID`),
-                FOREIGN KEY (`Question_Number`) REFERENCES gwu_question(`Question_Number`)
-            ) ENGINE = INNODB;';
+                  `QuestionnaireID` INTEGER UNSIGNED NOT NULL,
+                  `QuestSequence` INTEGER UNSIGNED NOT NULL,
+                  `OptionNumber` INTEGER UNSIGNED NOT NULL,
+                  `AnsValue` VARCHAR(100) NULL,
+                  `Deleted` BOOL NULL,
+                  PRIMARY KEY(`QuestionnaireID`, `QuestSequence`, `OptionNumber`),
+                  FOREIGN KEY(`QuestionnaireID`)
+                    REFERENCES gwu_question(`QuestionnaireID`)
+                      ON DELETE CASCADE
+                      ON UPDATE CASCADE,
+                       FOREIGN KEY(`QuestSequence`)
+                    REFERENCES gwu_question( `QuestSequence`)
+                      ON DELETE CASCADE
+                      ON UPDATE CASCADE
+            ) ENGINE = INNODB; 
+            ALTER TABLE  `gwu_answerChoice` ADD INDEX (  `OptionNumber` )
+';
             $Flag_creation_query =
-                    'CREATE TABLE IF NOT EXISTS  gwu_flag (
-                `FlagID` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,
-                 `FlagName` VARCHAR( 100 ) NOT NULL ,
-                `FlagValue` VARCHAR( 100 ) NOT NULL
-            ) ENGINE = INNODB;';
-            $FlagSet_creation_query =
-                    'CREATE TABLE IF NOT EXISTS  gwu_flagset (
-                `FlagID` INT,
-                `QuestionnaireID` INT NOT NULL ,
-                `Question_Number` INT NOT NULL ,
-                `OptionNumber` INT NULL ,
-                PRIMARY KEY (   `FlagID`,`OptionNumber` ,  `QuestionnaireID` ,  `Question_Number` ),
-                 FOREIGN KEY (`QuestionnaireID`) REFERENCES gwu_answerchoice(`QuestionnaireID`),
-                FOREIGN KEY (`Question_Number`) REFERENCES gwu_answerChoice(`Question_Number`),
-                FOREIGN KEY (`OptionNumber`) REFERENCES gwu_answerChoice(`OptionNumber`),
-                FOREIGN KEY (`FlagID`) REFERENCES gwu_flag(`FlagID`)
-            ) ENGINE = INNODB;';
-            $FlagCheck_creation_query =
-                    'CREATE TABLE IF NOT EXISTS  gwu_flagcheck (
-                `FlagID` INT,
-                `QuestionnaireID` INT NOT NULL ,
-                `Question_Number` INT NOT NULL ,
-                PRIMARY KEY (   `FlagID`,  `QuestionnaireID` ,  `Question_Number` ),
-                 FOREIGN KEY (`QuestionnaireID`) REFERENCES gwu_question(`QuestionnaireID`),
-                FOREIGN KEY (`Question_Number`) REFERENCES gwu_question(`Question_Number`),
-                FOREIGN KEY (`FlagID`) REFERENCES gwu_flag(`FlagID`)
-            ) ENGINE = INNODB;';
+                    '
+                        CREATE TABLE IF NOT EXISTS  gwu_flag (
+              `FlagID` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
+                  `OptionNumber` INTEGER UNSIGNED NOT NULL,
+                  `QuestSequence` INTEGER UNSIGNED NOT NULL,
+                  `QuestionnaireID` INTEGER UNSIGNED NOT NULL,
+                  `FlagName` VARCHAR(20) NOT NULL,
+                  `FlagValue` VARCHAR(20) NOT NULL,
+                  `Deleted` BOOL NULL,
+                  PRIMARY KEY(`FlagID`),
+                  FOREIGN KEY(`QuestionnaireID`)
+                    REFERENCES gwu_answerChoice(`QuestionnaireID`)
+                      ON DELETE CASCADE
+                      ON UPDATE CASCADE,
+FOREIGN KEY(`QuestSequence`)
+                    REFERENCES gwu_answerChoice( `QuestSequence`)
+                      ON DELETE CASCADE
+                      ON UPDATE CASCADE,
+FOREIGN KEY(`OptionNumber`)
+                    REFERENCES gwu_answerChoice( `OptionNumber`)
+                      ON DELETE CASCADE
+                      ON UPDATE CASCADE
+            ) ENGINE = INNODB';
+           
             $Session_creation_query =
                     'CREATE TABLE IF NOT EXISTS  gwu_session (
-                `SessionID` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,
-                `User_name` VARCHAR( 100 ) NULL ,
-                `SurveyCompleted` BOOL NOT NULL ,
-                `Duration` TIME NOT NULL ,
-                `SurveyTakenDate` DATE NOT NULL ,
-                `IP` VARCHAR( 20 ) NOT NULL ,
-                `City` VARCHAR( 50 ) NULL,
-                `Country` VARCHAR( 50 ) NULL
+                 `SessionID` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
+                  `UserName` VARCHAR(100) NULL,
+                  `IP` VARCHAR(50) NULL,
+                  `City` VARCHAR(50) NULL,
+                  `Country` VARCHAR(50) NULL,
+                  `Duration` TIME NULL,
+                  `SurveyTakenDate` DATE NULL,
+                  `SurveyCompleted` BOOL NULL,
+                  PRIMARY KEY(`SessionID`)
             ) ENGINE = INNODB;';
             $Response_creation_query =
                     'CREATE TABLE IF NOT EXISTS gwu_response (
-                `ResponceID` INT NOT NULL AUTO_INCREMENT PRIMARY KEY ,
-                `SessionID` INT NOT NULL ,
-                `QuestionnaireID` INT NOT NULL ,
-                `Question_Number` INT NOT NULL ,
-                `AnswerNumber` INT NULL ,
-                `ResponceType` VARCHAR( 100 ) NULL ,
-                `ResponceContent` TEXT NULL ,
-                `CodeToProcessResponce` TEXT NULL ,
-                `ProcessingResult` TEXT NULL,
-                FOREIGN KEY (`QuestionnaireID`) REFERENCES gwu_question(`QuestionnaireID`),
-                FOREIGN KEY (`Question_Number`) REFERENCES gwu_question(`Question_Number`),
-                FOREIGN KEY (`AnswerNumber`) REFERENCES gwu_answerChoice(`OptionNumber`),
-                FOREIGN KEY (`SessionID`) REFERENCES gwu_session(`SessionID`)
+                `ResponseID` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
+                  `QuestSequence` INTEGER UNSIGNED NOT NULL,
+                  `SessionID` INTEGER UNSIGNED NOT NULL,
+                  `QuestionnaireID` INTEGER UNSIGNED NOT NULL,
+                  `OptionNumber` INTEGER UNSIGNED NULL,
+                  `ResponseType` VARCHAR(100) NOT NULL,
+                  `ResponseContent` text NULL,
+                  `CodeToProcessResponse` text NULL,
+                  `ProcessingResult` text NULL,
+                  PRIMARY KEY(`ResponseID`),
+                   FOREIGN KEY(`QuestionnaireID`)
+                    REFERENCES gwu_question(`QuestionnaireID`)
+                      ON DELETE CASCADE
+                      ON UPDATE CASCADE,
+FOREIGN KEY( `QuestSequence`)
+                    REFERENCES gwu_question( `QuestSequence`)
+                      ON DELETE CASCADE
+                      ON UPDATE CASCADE,
+                  FOREIGN KEY( `OptionNumber`)
+                    REFERENCES gwu_answerChoice(`OptionNumber`)
+                      ON DELETE CASCADE
+                      ON UPDATE CASCADE,
+                  FOREIGN KEY(`SessionID`)
+                    REFERENCES gwu_session(`SessionID`)
+                      ON DELETE CASCADE
+                      ON UPDATE CASCADE
             ) ENGINE = INNODB;';
 
 
             //excute the SQLs
+        //excute the SQLs
             $wpdb->query($Questionnaire_creation_query);
             $wpdb->query($Question_creation_query);
+            $wpdb->query($Condition_creation_query);
+            $wpdb->query($Set_ForeignKey_Query);
             $wpdb->query($Action_creation_query);
             $wpdb->query($AnswerChoice_creation_query);
-            $wpdb->query($Flag_creation_query);
-            $wpdb->query($FlagSet_creation_query);
-            $wpdb->query($FlagCheck_creation_query);
             $wpdb->query($Session_creation_query);
+            $wpdb->query($Flag_creation_query);
             $wpdb->query($Response_creation_query);
 
-        //   $this->Questionnaire_insert_sample();
+       //  $this->Questionnaire_insert_sample();
 
         }
 

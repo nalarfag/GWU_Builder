@@ -1,47 +1,41 @@
 <?php
 
 
+
 namespace WordPress\ORM\Model;
 
 use WordPress\ORM\GWBaseModel;
 
 include_once WP_PLUGIN_DIR . '/GWU_Builder/lib/GWBaseModel.php';
 
-class GWAction extends GWBaseModel
+class GWCondition extends GWBaseModel
 {
-    protected $ActionID;
-	protected $QuestSequence;
+    protected $ConditionID;
 	protected $QuestionnaireID;
-	protected $ActionType;
-	protected $LinkToAction;
-	protected $Duration;
-	protected $Sequence;
-    protected $Content;
-	protected $Deleted;
-	
-	
+	protected $LogicStatement;
+	protected $JumpQNoOnFailure;
+	protected $JumpQNoOnSuccess;
+    protected $Deleted;
+			  
     public static function get_primary_key()
     {
-		return array('ActionID');
+		return array('Question_Number','QuestionnaireID');
     }
 
     public static function get_table()
     {
-        return 'gwu_action';
+        return 'gwu_condition';
     }
 
     public static function get_searchable_fields()
     {
         $searchableFields = array();
-		array_push($searchableFields, 
-		'ActionID',
-		'QuestSequence',
+		array_push($searchableFields,
+		'ConditionID',
 		'QuestionnaireID',
-		'ActionType',
-		'LinkToAction',
-		'Duration',
-		'Sequence',
-		'Content'
+		'LogicStatement',
+		'JumpQNoOnFailure',
+		'JumpQNoOnSuccess'
 		);
 		return $searchableFields;
     }

@@ -10,16 +10,19 @@ include_once WP_PLUGIN_DIR . '/GWU_Builder/lib/GWBaseModel.php';
 
 class GWQuestion extends GWBaseModel
 {
-    protected $Question_Number;
-	protected $QuestionnaireID;
+    protected $QuestionnaireID;
+	protected $QuestSequence;
+	protected $ConditionID;
+	protected $QuestionNumber;
 	protected $AnsType;
-	protected $Text;
-	protected $Mandatory;
-
-
+    protected $Text;
+    protected $Mandatory;
+	protected $Deleted;
+	
+			  
     public static function get_primary_key()
     {
-		return array('Question_Number','QuestionnaireID');
+		return array('QuestSequence','QuestionnaireID');
     }
 
     public static function get_table()
@@ -30,7 +33,15 @@ class GWQuestion extends GWBaseModel
     public static function get_searchable_fields()
     {
         $searchableFields = array();
-		array_push($searchableFields,'Question_Number','QuestionnaireID','AnsType','Text','Mandatory');
+		array_push($searchableFields,
+		'QuestionnaireID',
+		'QuestSequence',
+		'ConditionID',
+		'QuestionNumber',
+		'AnsType',
+		'Text',
+		'Mandatory'		
+		);
 		return $searchableFields;
     }
 }

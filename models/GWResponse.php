@@ -9,14 +9,14 @@ include_once WP_PLUGIN_DIR . '/GWU_Builder/lib/GWBaseModel.php';
 
 class GWResponse extends GWBaseModel
 {
-    protected $ResponceID;
+    protected $ResponseID;
+	protected $QuestSequence;
 	protected $SessionID;
 	protected $QuestionnaireID;
-	protected $Question_Number;
-	protected $AnswerNumber;
-	protected $ResponceType;
-	protected $ResponceContent;
-	protected $CodeToProcessResponce;
+	protected $OptionNumber;
+	protected $ResponseType;
+	protected $ResponseContent;
+	protected $CodeToProcessResponse;
 	protected $ProcessingResult;
 
 
@@ -33,7 +33,17 @@ class GWResponse extends GWBaseModel
     public static function get_searchable_fields()
     {
         $searchableFields = array();
-		array_push($searchableFields, 'ResponceID', 'SessionID', 'QuestionnaireID', 'Question_Number', 'AnswerNumber', 'ResponceType', 'ResponceContent', 'CodeToProcessResponce', 'ProcessingResult');
+		array_push($searchableFields, 
+		'ResponseID',
+		'QuestSequence',
+		'SessionID',
+		'QuestionnaireID',
+		'OptionNumber',
+		'ResponseType',
+		'ResponseContent',
+		'CodeToProcessResponse',
+		'ProcessingResult'
+		);
 		return $searchableFields;
     }
 }

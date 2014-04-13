@@ -375,8 +375,8 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
 			
             //save question
             $Wrapper = new GWWrapper();
-            $Wrapper->saveQuestion($questSequence, $Question_data['QuestionnaireID'], $conditionID, $Question_data['questionNumber'], $Question_data['AnsType'],
-            $Question_data['Text'], $Question_data['Mandatory']);
+            $Wrapper->saveQuestion($questSequence, $Question_data['QuestionnaireID'], $conditionID, $Question_data['questionNumber'], $Question_data['AnsType'], 
+			$Question_data['Text'], $Question_data['Mandatory']);
 
             $Answers = preg_split('/(\r?\n)+/', $_POST['answers']);
             $counter = 1;
@@ -400,7 +400,7 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
                 $counter++;
 
                 $ansValue_Promoter = ( isset($_POST['Promoter']) ? $_POST['Promoter'] : '' );
-                $Wrapper->saveAnswerChoice( $QuestionnaireID, $Question_data['questionNumber'], $counter, $ansValue_Promoter);
+                $Wrapper->saveAnswerChoice( $QuestionnaireID, $Question_data['questionNumber'],$counter, $ansValue_Promoter);
 
             }
 

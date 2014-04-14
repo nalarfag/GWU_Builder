@@ -105,7 +105,7 @@ function Response_questions($atts)
                         for ($i = 0; $i < 10; $i++) 
                         {
                            $output .= '
-                           <td><input "response" type="radio" value="'.$i .'"/>&nbsp;</td>';
+                           <td><input name="response" type="radio" value="'.$i .'"/>&nbsp;</td>';
                            }
                            $output .= '<td></td></tr><tr><td>' . $Answerchoices[10]->get_AnsValue() . ' </td>';
                         for ($i = 1; $i < 11; $i++) 

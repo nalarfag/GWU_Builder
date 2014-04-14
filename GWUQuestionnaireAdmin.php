@@ -66,6 +66,7 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
         function GWU_Questionnaire_admin_init() {
            
             add_action('admin_post_add_new_question', array(&$this->gwuquestion, 'GWUAddNewQuestion'));
+            add_action('admin_post_edit_question', array(&$this->gwuquestion, 'GWUEditQuestion'));
             add_action('admin_post_question_handler', array(&$this->gwuquestion, 'QuestionHandler'));
             add_action('admin_post_add_new_Questionnaire', array($this, 'GWUAddNewQuestionnaire'));
         }
@@ -220,11 +221,18 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
                     if (isset($_GET['type']) && $_GET['type'] == 'NPS') {
                         include_once $this->pluginPath . '/views/NPS.php';
                     }
-                } elseif ($mode == 'edit') {
-
-                    //for later 
-                }
+                } 
             }
+            
+            elseif (isset($_GET['id']) && is_numeric($_GET['Qid']) &&
+                    ( $_GET['id'] == 'editQ' || is_numeric($_GET['Qno']) )) {
+
+                $Wrapper= new GWWrapper(); 
+                        include_once $this->pluginPath . '/views/EditQuestion.php';
+
+                
+            }
+            
         }
 
 

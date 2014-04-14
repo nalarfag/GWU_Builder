@@ -244,7 +244,7 @@ class GWWrapper
 	}
 	
 	
-	public static function listConditions() {
+        public static function listConditions() {
 		return GWCondition::all();
 	}
 	

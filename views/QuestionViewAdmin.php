@@ -34,10 +34,10 @@ $adminURL= admin_url('admin-post.php');
                   
                  <tr>
                 <th colspan="100%" align="left">
-                   <input type="submit" name="add " value="add" class="button-primary"/>
+                   <input type="submit" name="add" value="add" class="button-primary"/>
                     <input type="submit" name="edit" value="edit" class="button-primary"/>
                     <input type="submit" name="logic" value="logic" class="button-primary"/>
-                    <input type="submit" name="action" value="action" class="button-primary"/>
+                    <input type="submit" name="addAction" value="Action" class="button-primary"/>
                     <input type="submit" name="delete" value="delete" class="button-primary"/>
                 </th>
                 </tr>
@@ -50,13 +50,14 @@ $adminURL= admin_url('admin-post.php');
                 $answerchoices = $Wrapper->listAnswerChoice($QuestionnaireID, $QuestionSeq);
 
                 if ($type == 'Text Box') {
+                      echo '  <input type="hidden" name="QuestioType" value="essay" />';
                   echo '
                  <tr>
                 <td class="style1">
                 <textarea  cols="30" rows="5"> </textarea></td>
                 </tr>';
                 } elseif ($type == 'NPS') {
-
+                  echo '  <input type="hidden" name="QuestioType" value="NPS" />';
                    echo '<tr><td></td>';
                     for ($i = 0; $i < 10; $i++) {
                         echo  '<td><input name="' . $questionno . '" type="radio"
@@ -69,7 +70,7 @@ $adminURL= admin_url('admin-post.php');
                     }
                    echo '<td>' . $answerchoices[11]->get_AnsValue() . ' </td></tr>';
                 } elseif ($type == 'Multiple Choice, Single Value') {
-                  
+                   echo '  <input type="hidden" name="QuestioType" value="multipleS" />';
                     foreach ($answerchoices as $answerchoice) {
                         $answerchoicescontent = $answerchoice->get_AnsValue();
 
@@ -80,6 +81,7 @@ $adminURL= admin_url('admin-post.php');
                     }
                     
                 } else {
+                      echo '  <input type="hidden" name="QuestioType" value="multipleM" />';
                     foreach ($answerchoices as $answerchoice) {
                         $answerchoicescontent = $answerchoice->get_AnsValue();
 

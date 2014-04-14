@@ -10,7 +10,7 @@ require dirname(__FILE__) . '/Header.php';
     <form id="add_question" method="post"  action="<?php echo $adminURL; ?>">
         <input type="hidden" name="action" value="add_new_question" />
         <input type="hidden" name="answer_type" value="Multiple Choice, Single Value" />
-        <input type="hidden" name="answer_type_short" value="multipleM" />
+        <input type="hidden" name="answer_type_short" value="multipleS" />
         <input type="hidden" name="QuestionnaireID" value="<?php echo $_GET['Qid']; ?>" />
         <table>
             <tr>

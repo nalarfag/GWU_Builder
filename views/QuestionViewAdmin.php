@@ -141,4 +141,3 @@ $adminURL= admin_url('admin-post.php');
     <p>These items will be permanently deleted and cannot be recovered. Are you sure?</p>
   </div>
     
-    <script src="jquery.confirm/jquery.confirm.js"></script>

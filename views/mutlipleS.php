@@ -2,6 +2,12 @@
 <?php
 $url = WP_PLUGIN_URL . '/GWU_Builder/images/SingleChoice.png';
 $adminURL = admin_url('admin-post.php');
+if (isset($_GET['qno'])) {
+    $QuestionSeq = $_GET['qno'];
+} else {
+    $QuestionSeq = GWUQuestion::getNextQuestionNumber($_GET['Qid']);
+}
+
 $QuestionNum = GWUQuestion::getNextQuestionNumber($_GET['Qid']);
 
 require dirname(__FILE__) . '/Header.php';
@@ -11,6 +17,7 @@ require dirname(__FILE__) . '/Header.php';
         <input type="hidden" name="action" value="add_new_question" />
         <input type="hidden" name="answer_type" value="Multiple Choice, Single Value" />
         <input type="hidden" name="answer_type_short" value="multipleS" />
+        <input type="hidden" name="questionSeq" value="<?php echo $QuestionSeq; ?>" />
         <input type="hidden" name="QuestionnaireID" value="<?php echo $_GET['Qid']; ?>" />
         <table>
             <tr>
@@ -19,12 +26,12 @@ require dirname(__FILE__) . '/Header.php';
                          class="Sampleimage" />
                 </td>
             </tr>
-         
+
             <tr>
                 <td class="style1">
 
                     Question Number:    
-                    <input type="text" id="question_Number" name="question_Number" size="1" value="<?php echo $QuestionNum; ?>" />
+                    <input type="text" id="question_Number" name="question_Number" size="3" value="Q<?php echo $QuestionNum; ?>" />
                 </td>
                 <td><span class="val_qno"></span></td>
             </tr>
@@ -32,26 +39,26 @@ require dirname(__FILE__) . '/Header.php';
             <tr>
                 <td class="style1">
                     <input type="text" id="question_text" name="question_text" size="50" />
-                    
+
                 </td>
                 <td><span class="val_qtext"></span></td>
             </tr>
             <tr><td> Answers Choices:</td><td></td></tr>
             <tr>
-               <td>
+                <td>
 
 
                     <div id="p_choices">
-                        
-                           <p> <label for="p_choices"><input type="text" id="p_choice_1"
+
+                        <p> <label for="p_choices"><input type="text" id="p_choice_1"
                                                           size="50" name="p_choice[]" value="" 
                                                           placeholder="choice Value" /></label>
-                           </p>
-                           <p> <label for="p_choices"><input type="text" id="p_choice_2"
+                        </p>
+                        <p> <label for="p_choices"><input type="text" id="p_choice_2"
                                                           size="50" name="p_choice[]" value="" 
                                                           placeholder="choice Value" /></label>
-                           </p>
-                       
+                        </p>
+
 
                     </div> 
                     <a class="add-new-h2" href="#"   id="addChoice">Add Another Choice</a>
@@ -75,20 +82,20 @@ require dirname(__FILE__) . '/Header.php';
             </tr>
 
             <tr>
-                
+
             </tr>
-              <tr>
+            <tr>
                 <td align="right">
-                 
-                   <input type="submit" name="close" value="Close" class="button-primary"/>
+
+                    <input type="submit" name="close" value="Close" class="button-primary"/>
                     <input type="submit" name="saveAdd" value="Save and Add Another" class="button-primary"/>
                     <input type="submit" name="save" value="Save" class="button-primary"/>
                 </td>
                 <td></td>
             </tr>
-  </table>
-            
-      
+        </table>
+
+
     </form>
 </div>
 <?php require dirname(__FILE__) . '/Footer.php'; ?>

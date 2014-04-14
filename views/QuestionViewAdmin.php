@@ -10,6 +10,38 @@
                 });
             });
             
+ jQuery( document ).ready( function($) { 
+ 
+    $("#dialog-confirm-multiple").dialog({
+            autoOpen: false,
+            resizable: false,
+            width: 300,
+            modal: true,
+            show: {
+                effect: "bounce",
+                duration: 100
+            },
+            hide: "drop",
+            buttons: {
+                "Yes": function () {
+                    $(this).dialog("close");
+                    $("#delete").click();
+                },
+                "No": function () {
+                    $(this).dialog("close");
+                }
+            }
+        });
+        $("#delete").click(function (e,ui) {
+            debugger;
+            if(e.originalEvent) {
+                e.preventDefault();
+                $("#dialog-confirm-multiple").dialog('open');
+                return false;
+            }
+        });
+    });
+            
 </script>
 <div>
 
@@ -34,11 +66,11 @@ $adminURL= admin_url('admin-post.php');
                   
                  <tr>
                 <th colspan="100%" align="left">
-                   <input type="submit" name="add" value="add" class="button-primary"/>
-                    <input type="submit" name="edit" value="edit" class="button-primary"/>
-                    <input type="submit" name="logic" value="logic" class="button-primary"/>
+                   <input type="submit" name="add" value="Add" class="button-primary"/>
+                    <input type="submit" name="edit" value="Edit" class="button-primary"/>
+                    <input type="submit" name="logic" value="Logic" class="button-primary"/>
                     <input type="submit" name="addAction" value="Action" class="button-primary"/>
-                    <input type="submit" name="delete" value="delete" class="button-primary"/>
+                    <input type="submit" id="delete" name="delete" value="Delete" class="button-primary"/>
                 </th>
                 </tr>
                  <tr>
@@ -104,3 +136,9 @@ $adminURL= admin_url('admin-post.php');
            
 ?>
 </div>
+    
+     <div id="dialog-confirm-multiple" title="Confirmation Required">
+    <p>These items will be permanently deleted and cannot be recovered. Are you sure?</p>
+  </div>
+    
+    <script src="jquery.confirm/jquery.confirm.js"></script>

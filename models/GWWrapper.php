@@ -5,12 +5,18 @@ namespace WordPress\ORM\Model;
 
 class GWWrapper
 {
-	public static function listQuestion($questionnaireID){
-		//return GWQuestion::all();
-		$keys = array('QuestionnaireID' => $questionnaireID);
+	public static function listQuestion($questionnaireID, $allWithDeleted = false){
+		if( $allWithDeleted == false)
+                {
+		$keys = array('QuestionnaireID' => $questionnaireID, 'Deleted'=>$allWithDeleted);
+                }
+                else 
+                {
+                    $keys = array('QuestionnaireID' => $questionnaireID);
+                }
 		return GWQuestion::find($keys);
 	}
-	
+
 	public static function getQuestion($questSequence, $questionnaireID){
 		$keys = array('QuestSequence' => $questSequence, 'QuestionnaireID' => $questionnaireID);
 		return GWQuestion::find($keys);

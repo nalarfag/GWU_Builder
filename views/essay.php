@@ -2,6 +2,11 @@
 <?php
 $url = WP_PLUGIN_URL . '/GWU_Builder/images/CommentBox.png';
 $adminURL = admin_url('admin-post.php');
+if (isset($_GET['qno'])) {
+    $QuestionSeq = $_GET['qno'];
+} else {
+    $QuestionSeq = GWUQuestion::getNextQuestionNumber($_GET['Qid']);
+}
 $QuestionNum = GWUQuestion::getNextQuestionNumber($_GET['Qid']);
 
 
@@ -12,7 +17,7 @@ require dirname(__FILE__) . '/Header.php';
         <input type="hidden" name="action" value="add_new_question" />
         <input type="hidden" name="answer_type" value="Text Box" />
         <input type="hidden" name="answer_type_short" value="essay" />
-
+        <input type="hidden" name="questionSeq" value="<?php echo $QuestionSeq; ?>" />
         <input type="hidden" name="QuestionnaireID" value="<?php echo $_GET['Qid']; ?>" />
         <table>
             <tr>
@@ -21,24 +26,24 @@ require dirname(__FILE__) . '/Header.php';
                          class="Sampleimage" />
                 </td>
             </tr>
-              <tr>
+            <tr>
                 <td class="style1">
 
                     Question Number:    
-                    <input type="text" id="question_Number" name="question_Number" size="1" value="<?php echo $QuestionNum; ?>" />
+                    <input type="text" id="question_Number" name="question_Number" size="3" value="Q<?php echo $QuestionNum; ?>" />
                 </td>
                 <td><span class="val_qno"></span></td>
             </tr>
             <tr><td> <p>Question Text:</p></td></tr>
             <tr>
                 <td class="style1">
-                     <textarea id="question_text" name="question_text" cols="55" rows="2"></textarea>
-                    
+                    <textarea id="question_text" name="question_text" cols="55" rows="2"></textarea>
+
                 </td>
                 <td><span class="val_qtextA"></span></td>
             </tr>
-          
-         
+
+
             <tr>
                 <td class="style1">Mandatory: 
 
@@ -53,10 +58,10 @@ require dirname(__FILE__) . '/Header.php';
 
                 </td>
             </tr>
-             <tr>
+            <tr>
                 <td align="right">
-                 
-                   <input type="submit" name="close" value="Close" class="button-primary"/>
+
+                    <input type="submit" name="close" value="Close" class="button-primary"/>
                     <input type="submit" name="saveAdd" value="Save and Add Another" class="button-primary"/>
                     <input type="submit" name="save" value="Save" class="button-primary"/>
                 </td>
@@ -66,4 +71,4 @@ require dirname(__FILE__) . '/Header.php';
     </form>
 </div>
 
-    <?php require dirname(__FILE__) . '/Footer.php'; ?>
+<?php require dirname(__FILE__) . '/Footer.php'; ?>

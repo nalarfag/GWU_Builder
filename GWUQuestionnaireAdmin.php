@@ -54,21 +54,21 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
         }
 
         public function GWU_Questionnaire_mainpage_callback() {
-            $this->GWUShowAllQuestionnaire();
+            $this->ShowAllQuestionnaire();
         }
 
         public function GWU_add_Questionnaire_mainpage_callback() {
 
-            $this->GWUAddQuestionnaire();
+            $this->AddQuestionnairePageHandler();
         }
 
         // Register functions to be called when bugs are saved
         function GWU_Questionnaire_admin_init() {
            
-            add_action('admin_post_add_new_question', array(&$this->gwuquestion, 'GWUAddNewQuestion'));
-            add_action('admin_post_edit_question', array(&$this->gwuquestion, 'GWUEditQuestion'));
+            add_action('admin_post_add_new_question', array(&$this->gwuquestion, 'AddNewQuestion'));
+            add_action('admin_post_edit_question', array(&$this->gwuquestion, 'EditQuestion'));
             add_action('admin_post_question_handler', array(&$this->gwuquestion, 'QuestionHandler'));
-            add_action('admin_post_add_new_Questionnaire', array($this, 'GWUAddNewQuestionnaire'));
+            add_action('admin_post_add_new_Questionnaire', array($this, 'AddNewQuestionnaire'));
         }
 
        private function publishSelectedQuestionaire(){
@@ -111,7 +111,7 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
 
         }
 
-        public function GWUShowAllQuestionnaire() {
+        public function ShowAllQuestionnaire() {
             $message = $this->publishSelectedQuestionaire();
 
             $Wrapper = new GWWrapper();
@@ -187,7 +187,7 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
             echo $output;
         }
 
-        public function GWUAddQuestionnaire() {
+        public function AddQuestionnairePageHandler() {
 
             // Add questionnaire if no parameter sent in URL -->
             if (empty($_GET['id']) || $_GET['id'] == 'newQuestionnaire') {
@@ -254,7 +254,7 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
         }
 
        
-        public function GWUAddNewQuestionnaire() {
+        public function AddNewQuestionnaire() {
 
             // Place all user submitted values in an array
             $Questionnaire_data = array();

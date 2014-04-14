@@ -17,7 +17,7 @@
         href=<?php echo add_query_arg( 
                                 array ( 'page' => 'GWU_add-Questionnaire-page',
                                     'id' => 'new',
-                                    'Qid' => $_GET['Qid'],
+                                    'Qid' => $_GET['Qid'], 'qno' => $_GET['qno'],
                                     'type' => 'multipleS'),
                                 admin_url('admin.php')); 
                         ?>>Multiple choice (single answers) </a></li>
@@ -27,7 +27,7 @@
         ?>  class="select_q2" <?php } ?> href="<?php echo add_query_arg( 
                                 array ( 'page' => 'GWU_add-Questionnaire-page',
                                     'id' => 'new', 
-                                    'Qid' => $_GET['Qid'],
+                                    'Qid' => $_GET['Qid'],'qno' => $_GET['qno'],
                                     'type' => 'multipleM'),
                                 admin_url('admin.php')); 
                         ?>">Multiple choice (multiple answers) </a></li>
@@ -37,7 +37,7 @@
         href=<?php echo add_query_arg( 
                                 array ( 'page' => 'GWU_add-Questionnaire-page',
                                     'id' => 'new', 
-                                    'Qid' => $_GET['Qid'],
+                                    'Qid' => $_GET['Qid'],'qno' => $_GET['qno'],
                                     'type' => 'essay'),
                                 admin_url('admin.php')); 
                         ?>>Essay/Comment </a></li>
@@ -47,7 +47,7 @@
         href=<?php echo add_query_arg( 
                                 array ( 'page' => 'GWU_add-Questionnaire-page',
                                     'id' => 'new', 
-                                    'Qid' => $_GET['Qid'],
+                                    'Qid' => $_GET['Qid'],'qno' => $_GET['qno'],
                                     'type' => 'NPS'),
                                 admin_url('admin.php')); 
                         ?>>NPS </a></li>

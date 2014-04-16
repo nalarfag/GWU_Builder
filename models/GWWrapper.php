@@ -46,6 +46,13 @@ class GWWrapper
 		return GWFlag::find($keys);
 	}
 	
+	public static function getFlagsByQuestionnaire($QuestionnaireID) {
+	
+		$keys = array('QuestionnaireID' => $QuestionnaireID);
+		return GWFlag::find($keys);
+	
+	}
+	
 	public static function saveFlag($optionNumber, $questSequence, $questionnaireID, $flagName, $flagValue, $deleted = 'false'){
 		$gwFlag = new GWFlag();
 		//$gwFlag->set_FlagID($flagID);
@@ -163,7 +170,7 @@ class GWWrapper
 		$response->set_ProcessingResult($processingResult);
 		$returnVal = $response->save();
 		
-		return array('ResponceID' => $returnVal);
+		return array('ResponseID' => $returnVal);
 	
 	}
 	
@@ -250,7 +257,7 @@ class GWWrapper
 	}
 	
 	
-        public static function listConditions() {
+    public static function listConditions() {
 		return GWCondition::all();
 	}
 	

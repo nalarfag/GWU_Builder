@@ -13,6 +13,7 @@ include_once dirname( __FILE__ ) . '/GWUQuestionnaireTables.php';
 include_once dirname( __FILE__ ) . '/GWUQuestionnaireAdmin.php';
 include_once dirname(__FILE__) .'/response.php';
 require_once 'GWUQuestion.php';
+//require_once 'models/GWCondition.php';
 
 
 require_once 'lib/GWBaseModel.php';
@@ -28,7 +29,7 @@ require_once 'models/GWAnswerChoice.php';
 require_once 'models/GWFlag.php';
 require_once 'models/GWFlagCheck.php';
 require_once 'models/GWFlagSet.php';
-//require_once 'models/GWReponse.php';
+require_once 'models/GWResponse.php';
 require_once 'models/GWSession.php';
 //require_once 'views/mutlipleS.php';
 //require_once 'views/Template.php';
@@ -53,6 +54,21 @@ function load_jquery() {
 // Use [show_GWU_Questionnaire_tables] to show data dictionary 
 // of the Questionnaire Tables
 
+//Actions to create a session
+add_action('init', 'myStartSession', 1);
+add_action('wp_logout', 'myEndSession');
+add_action('wp_login', 'myEndSession');
 
+//Start session
+function myStartSession() {
+	if(!session_id()) {
+        session_start();
+    }
+}
+
+//End session
+function myEndSession() {
+	session_destroy();
+}
 
 ?>

@@ -4,7 +4,7 @@
   Plugin Name:  GWU Builder Plugin
   Plugin URI:
   Description: This plugin create the necessory tables for the builder part of the Questionnaire plugin, create admin page for adding questionnaire
-  Version: 1.1
+  Version: 1.2
   Author: Builder team
   Author URI:
  */

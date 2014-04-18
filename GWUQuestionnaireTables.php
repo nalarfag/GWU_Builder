@@ -84,13 +84,10 @@ if (!class_exists('GWUQuestionnaireTables')) {
                   `JumpQNoOnSuccess` INTEGER UNSIGNED NULL,
                   `Deleted` BOOL NULL,
                   PRIMARY KEY(`ConditionID`),
-                  FOREIGN KEY(`QuestionnaireID`) REFERENCES gwu_question(`QuestionnaireID`)
+		 FOREIGN KEY(`QuestionnaireID`,`JumpQNoOnFailure`) REFERENCES gwu_question(`QuestionnaireID`,`QuestSequence`)
                     ON DELETE CASCADE
                     ON UPDATE CASCADE,
- FOREIGN KEY(`JumpQNoOnFailure`) REFERENCES gwu_question(`QuestSequence`)
-                    ON DELETE CASCADE
-                    ON UPDATE CASCADE,
-                  FOREIGN KEY(`JumpQNoOnSuccess`) REFERENCES gwu_question(`QuestSequence`)
+		  FOREIGN KEY(`QuestionnaireID`,`JumpQNoOnSuccess`) REFERENCES gwu_question(`QuestionnaireID`,`QuestSequence`)
                     ON DELETE CASCADE
                     ON UPDATE CASCADE
                 ) ENGINE = INNODB';
@@ -109,12 +106,8 @@ if (!class_exists('GWUQuestionnaireTables')) {
               `Content` text NULL,
               `Deleted` BOOL NULL,
               PRIMARY KEY(`ActionID`),
-              FOREIGN KEY(`QuestionnaireID`)
-                REFERENCES gwu_question(`QuestionnaireID`)
-                  ON DELETE CASCADE
-                  ON UPDATE CASCADE,
-FOREIGN KEY(`QuestSequence`)
-                REFERENCES gwu_question(`QuestSequence`)
+	      FOREIGN KEY(`QuestionnaireID`,`QuestSequence`)
+		REFERENCES gwu_question(`QuestionnaireID`,`QuestSequence`)
                   ON DELETE CASCADE
                   ON UPDATE CASCADE
         ) ENGINE = INNODB;';
@@ -123,15 +116,11 @@ FOREIGN KEY(`QuestSequence`)
               `QuestionnaireID` INTEGER UNSIGNED NOT NULL,
               `QuestSequence` INTEGER UNSIGNED NOT NULL,
               `OptionNumber` INTEGER UNSIGNED NOT NULL,
-              `AnsValue` VARCHAR(100) NULL,
+	      `AnsValue` VARCHAR(255) NULL,
               `Deleted` BOOL NULL,
               PRIMARY KEY(`QuestionnaireID`, `QuestSequence`, `OptionNumber`),
-              FOREIGN KEY(`QuestionnaireID`)
-                REFERENCES gwu_question(`QuestionnaireID`)
-                ON DELETE CASCADE
-                  ON UPDATE CASCADE,
-                   FOREIGN KEY(`QuestSequence`)
-                REFERENCES gwu_question( `QuestSequence`)
+	      FOREIGN KEY(`QuestionnaireID`,`QuestSequence`)
+		REFERENCES gwu_question(`QuestionnaireID`,`QuestSequence`)
                 ON DELETE CASCADE
                   ON UPDATE CASCADE
         ) ENGINE = INNODB;
@@ -148,16 +137,8 @@ FOREIGN KEY(`QuestSequence`)
               `FlagValue` VARCHAR(20) NOT NULL,
               `Deleted` BOOL NULL,
               PRIMARY KEY(`FlagID`),
-              FOREIGN KEY(`QuestionnaireID`)
-                REFERENCES gwu_answerChoice(`QuestionnaireID`)
-                  ON DELETE CASCADE
-                  ON UPDATE CASCADE,
-FOREIGN KEY(`QuestSequence`)
-                REFERENCES gwu_answerChoice( `QuestSequence`)
-                  ON DELETE CASCADE
-                  ON UPDATE CASCADE,
-FOREIGN KEY(`OptionNumber`)
-                REFERENCES gwu_answerChoice( `OptionNumber`)
+	      FOREIGN KEY(`QuestionnaireID`, `QuestSequence`,`OptionNumber`)
+		REFERENCES gwu_answerChoice(`QuestionnaireID`, `QuestSequence`,`OptionNumber`)
                   ON DELETE CASCADE
                   ON UPDATE CASCADE
         ) ENGINE = INNODB';
@@ -186,12 +167,8 @@ FOREIGN KEY(`OptionNumber`)
               `CodeToProcessResponse` text NULL,
               `ProcessingResult` text NULL,
               PRIMARY KEY(`ResponseID`),
-               FOREIGN KEY(`QuestionnaireID`)
-                REFERENCES gwu_question(`QuestionnaireID`)
-                  ON DELETE CASCADE
-                  ON UPDATE CASCADE,
-FOREIGN KEY( `QuestSequence`)
-                REFERENCES gwu_question( `QuestSequence`)
+	       FOREIGN KEY(`QuestionnaireID`, `QuestSequence`)
+		REFERENCES gwu_question(`QuestionnaireID`, `QuestSequence`)
                   ON DELETE CASCADE
                   ON UPDATE CASCADE,
               FOREIGN KEY( `OptionNumber`)
@@ -218,7 +195,7 @@ FOREIGN KEY( `QuestSequence`)
             $wpdb->query($Flag_creation_query);
             $wpdb->query($Response_creation_query);
 
-           // $this->Questionnaire_insert_sample();
+	    $this->Questionnaire_insert_sample();
         }
 
 // Function to insert data to the table

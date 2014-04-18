@@ -51,11 +51,11 @@ require dirname(__FILE__) . '/Header.php';
                     <div id="p_choices">
 
                         <p> <label for="p_choices"><input type="text" id="p_choice_1"
-                                                          size="50" name="p_choice[]" value="" 
+							  size="50" maxlength="255" name="p_choice[]" value=""
                                                           placeholder="choice Value" /></label>
                         </p>
                         <p> <label for="p_choices"><input type="text" id="p_choice_2"
-                                                          size="50" name="p_choice[]" value="" 
+							  size="50" maxlength="255"  name="p_choice[]" value=""
                                                           placeholder="choice Value" /></label>
                         </p>
 
@@ -71,7 +71,7 @@ require dirname(__FILE__) . '/Header.php';
             <tr>
                 <td class="style1">Mandatory: 
                     <span>
-                        <input id="Mandatory_1" name="Mandatory" class="element radio" type="radio" value="1" />
+			<input id="Mandatory_1" name="Mandatory" class="element radio" type="radio" value="1" checked />
                         <label class="choice" for="Mandatory_1">yes</label>
                         <input id="Mandatory2" name="Mandatory" class="element radio" type="radio" value="0" />
                         <label class="choice" for="Mandatory_2">no</label>

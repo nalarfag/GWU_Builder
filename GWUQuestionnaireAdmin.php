@@ -69,6 +69,7 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
             add_action('admin_post_edit_question', array(&$this->gwuquestion, 'EditQuestion'));
             add_action('admin_post_question_handler', array(&$this->gwuquestion, 'QuestionHandler'));
             add_action('admin_post_add_new_Questionnaire', array($this, 'AddNewQuestionnaire'));
+	    add_action( 'wp_ajax_delete_question', array(&$this->gwuquestion, 'DeleteQuestion' ));
         }
 
        private function publishSelectedQuestionaire(){
@@ -89,11 +90,14 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
                     );
                     //insert a post with options and get the new post id
                     $postId = wp_insert_post( $my_post );
+		     $cureentDataTime = date('Y-m-d H:i:s');
                     //save post page id into questionnaire's property, PostId
                     $success = $wpdb->update(
                         'gwu_questionnaire',
                         array(
-                            'PostId' => $postId
+			    'PostId' => $postId,
+			    'PublishFlag' => true,
+			    'PublishDate'=>$cureentDataTime
                         ),
                         array( 'QuestionnaireID' => $qId )
                     );
@@ -183,7 +187,7 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
 				</table>
 			</div> 
                         </br>
-                        </br><a class="add-new-h2"  href="' . $address . '">Add new questionaire</a>';
+			</br><a class="add-new-h2"  href="' . $address . '">Add new questionaire</a></div>';
             echo $output;
         }
 
@@ -247,7 +251,7 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
                 <h2>' . $questionnaire[0]->get_Title() . '
                 </h2> <br/>';
 
-            $this->gwuquestion->ShowQuestions($QuestionnaireID);
+	    $this->gwuquestion->ViewQuestionsForAdmin($QuestionnaireID);
            
 
          echo' </div>';

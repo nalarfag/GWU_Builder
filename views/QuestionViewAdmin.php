@@ -13,27 +13,41 @@
  jQuery( document ).ready( function($) { 
  
     $("#dialog-confirm-multiple").dialog({
+	dialogClass   : "wp-dialog",
             autoOpen: false,
-            resizable: false,
+	      resizable: false,
             width: 300,
             modal: true,
-            show: {
-                effect: "bounce",
-                duration: 100
-            },
-            hide: "drop",
             buttons: {
                 "Yes": function () {
+		    var ajax_url = '<?php echo admin_url( 'admin-ajax.php' ); ?>';
+		    var val=$('#view_question').serialize() ;
                     $(this).dialog("close");
-                    $("#delete").click();
+		     $.ajax({
+			  type: "POST",
+			    url: ajax_url,
+			    action: 'delete_question',
+			  data:
+			      {
+			       action: 'delete_question',
+			      value: val
+			      }
+			  ,
+			  success: function(data) {
+			    $("#"+data).remove();
+			  }
+
+		});
+
                 },
                 "No": function () {
                     $(this).dialog("close");
                 }
             }
         });
-        $("#delete").click(function (e,ui) {
-            debugger;
+	$(document).on("click","#delete",function(e,ui){
+	//$("#delete").click(function (e,ui) {
+	 //   debugger;
             if(e.originalEvent) {
                 e.preventDefault();
                 $("#dialog-confirm-multiple").dialog('open');
@@ -53,7 +67,10 @@ $adminURL= admin_url('admin-post.php');
                 $type = $question->get_AnsType();
                 $questionno = $question->get_QuestionNumber();
                 $QuestionSeq=$question->get_QuestSequence();
+		$Mandatory= ($question->get_Mandatory()==1 ?'*' : '' );
+
                 ?>
+		<div id="question_<?php echo $QuestionnaireID; ?>_<?php echo $QuestionSeq; ?>" class="wrap">
                   <div class="divbutton" >
                  <form id="view_question"  method="post" action="<?php echo $adminURL; ?>">
                 <input type="hidden" name="action" value="question_handler" />
@@ -63,19 +80,21 @@ $adminURL= admin_url('admin-post.php');
                    
               
                 <table>
-                  
-                 <tr>
+		   <?php if($PublishedFlag!=1) {?>
+		 <tr>
                 <th colspan="100%" align="left">
+
                    <input type="submit" name="add" value="Add" class="button-primary"/>
                     <input type="submit" name="edit" value="Edit" class="button-primary"/>
                     <input type="submit" name="logic" value="Logic" class="button-primary"/>
                     <input type="submit" name="addAction" value="Action" class="button-primary"/>
                     <input type="submit" id="delete" name="delete" value="Delete" class="button-primary"/>
                 </th>
-                </tr>
+		</tr> <?php }?>
                  <tr>
                 <th colspan="100%" align="left">
-                   <?php echo $questionno; ?> &nbsp;&nbsp;&nbsp; <?php echo $Title; ?>
+		   <?php echo $Mandatory;
+		   echo $questionno; ?> &nbsp;&nbsp;&nbsp; <?php echo $Title; ?>
                 </th>
                 </tr>
                     <?php
@@ -90,17 +109,22 @@ $adminURL= admin_url('admin-post.php');
                 </tr>';
                 } elseif ($type == 'NPS') {
                   echo '  <input type="hidden" name="QuestioType" value="NPS" />';
-                   echo '<tr><td></td>';
+		   echo '<tr>';
                     for ($i = 0; $i < 10; $i++) {
                         echo  '<td><input name="' . $questionno . '" type="radio"
                             value="' . $answerchoices[$i]->get_OptionNumber() . '"/>&nbsp;</td>';
                     }
-                   echo '<td></td></tr>
-                       <tr><td>' . $answerchoices[10]->get_AnsValue() . ' </td>';
+		   echo '</tr>
+		       <tr>';
                     for ($i = 0; $i < 10; $i++) {
                         echo '<td>' . $answerchoices[$i]->get_AnsValue() . '</td>';
                     }
-                   echo '<td>' . $answerchoices[11]->get_AnsValue() . ' </td></tr>';
+		   echo '</tr>';
+		   echo '<tr>
+		       <td colspan="5" align="left">'.$answerchoices[10]->get_AnsValue().'</td>
+		       <td colspan="5" align="right">'.$answerchoices[11]->get_AnsValue().'</td>
+
+		       </tr>';
                 } elseif ($type == 'Multiple Choice, Single Value') {
                    echo '  <input type="hidden" name="QuestioType" value="multipleS" />';
                     foreach ($answerchoices as $answerchoice) {
@@ -122,22 +146,22 @@ $adminURL= admin_url('admin-post.php');
                                &nbsp;&nbsp;' . $answerchoicescontent . '</td></tr>';
                     }
                 }
-                echo '</table> </form> </div><hr/>';
+		echo '</table> </form> </div><hr/></div>';
             }
-            
+	      if($PublishedFlag!=1) {
                 echo' <h2>    <a class="add-new-h2" 
 			href="' . add_query_arg(
                     array('page' => 'GWU_add-Questionnaire-page',
                 'id' => 'new', 'Qid' => $QuestionnaireID,
                 'type' => 'multipleS'), admin_url('admin.php'))
             . '">Add New Question</a></h2>';
-           
+	      }
 
            
 ?>
 </div>
     
      <div id="dialog-confirm-multiple" title="Confirmation Required">
-    <p>These items will be permanently deleted and cannot be recovered. Are you sure?</p>
+    <p>This item will be permanently deleted and cannot be recovered. Are you sure?</p>
   </div>
     

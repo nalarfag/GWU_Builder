@@ -5,7 +5,7 @@ jQuery( document ).ready( function($) {
     var i = $('#p_choices p').size() + 1;
         
     $('#addChoice').live('click', function() {
-        $('<p><label for="p_choices"><input type="text" id="p_choice_'+i+'" size="50" name="p_choice[]" value="" placeholder="Choice Value" /></label> <a href="#" id="remScnt">Remove</a></p>').appendTo(scntDiv);
+	$('<p><label for="p_choices"><input type="text" id="p_choice_'+i+'" size="50" maxlength="255"  name="p_choice[]" value="" placeholder="Choice Value" /></label> <a href="#" id="remScnt">Remove</a></p>').appendTo(scntDiv);
         i++;
         return false;
     });

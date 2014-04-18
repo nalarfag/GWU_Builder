@@ -51,6 +51,14 @@ add_action( 'wp_enqueue_script', 'load_jquery' );
 function load_jquery() {
     wp_enqueue_script( 'jquery' );
 }
+
+add_action( 'admin_enqueue_scripts', 'queue_my_admin_scripts');
+
+function queue_my_admin_scripts() {
+    wp_enqueue_script (  'jquery-ui-dialog'); // dependencies
+    // A style available in WP
+    wp_enqueue_style (  'wp-jquery-ui-dialog');
+}
 // Use [show_GWU_Questionnaire_tables] to show data dictionary 
 // of the Questionnaire Tables
 

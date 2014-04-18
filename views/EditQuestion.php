@@ -31,7 +31,7 @@ $answerchoices = $Wrapper->listAnswerChoice($QuestionnaireID, $QuestionSeq);
             <tr><td> <p>Question Text:</p></td></tr>
             <tr>
                 <td class="style1">
-                    <input type="text" id="question_text" name="question_text" size="50" value="<?php echo $text  ?>" />
+		     <textarea id="question_text" name="question_text" cols="50" rows="2"><?php echo $text  ?></textarea>
                     
                 </td>
                 <td><span class="val_qtext"></span></td>
@@ -67,7 +67,7 @@ $answerchoices = $Wrapper->listAnswerChoice($QuestionnaireID, $QuestionSeq);
                         $optionNum = $answerchoice->get_OptionNumber();
                        echo '
                          <p> <label for="p_choices"><input type="text" id="p_choice_'.$optionNum.'"
-                                                          size="50" name="p_choice[]" value="'.$answerchoicescontent.'" 
+							  size="50" maxlength="255"  name="p_choice[]" value="'.$answerchoicescontent.'"
                                                           placeholder="choice Value" /></label>
                            </p>';
                     }

@@ -49,7 +49,7 @@ require dirname(__FILE__) . '/Header.php';
 
 
                     <span>
-                        <input id="element_4_1" name="Mandatory" class="element radio" type="radio" value="1" />
+			<input id="element_4_1" name="Mandatory" class="element radio" type="radio" value="1" checked />
                         <label class="choice" for="Mandatory_1">yes</label>
                         <input id="element_4_2" name="Mandatory" class="element radio" type="radio" value="0" />
                         <label class="choice" for="Mandatory_2">no</label>

@@ -39,7 +39,7 @@ require dirname(__FILE__) . '/Header.php';
             <tr><td> <p>Question Text:</p></td></tr>
             <tr>
                 <td class="style1">
-                    <input type="text" id="question_text" name="question_text" size="50" />
+		    <textarea  id="question_text" name="question_text" cols="50" rows="2">How likely is it that you would recommend us to a friend or colleague?</textarea>
 
                 </td>
                 <td><span class="val_qtext"></span></td>
@@ -52,12 +52,12 @@ require dirname(__FILE__) . '/Header.php';
             <tr>
                 <td class="style1">
                     Detractor:
-                    <input type="text" id="Detractor" name="Detractor" size="20" />
+		    <input type="text" id="Detractor" name="Detractor" size="20" value="Not likely at all"/>
                 </td> <td><span class="val_Detractor"></span></td>
             <tr>
                 <td class="style1">
                     Promoter:
-                    <input type="text" id="Promoter" name="Promoter" size="20" />
+		    <input type="text" id="Promoter" name="Promoter" size="20" value="Extremely likely" />
                 </td> </td> <td><span class="val_Promoter"></span></td>
             </tr>
             <tr>
@@ -65,9 +65,9 @@ require dirname(__FILE__) . '/Header.php';
 
 
                     <span>
-                        <input id="element_4_1" name="Mandatory" class="element radio" type="radio" value="1" />
+			<input id="element_4_1" name="Mandatory" class="element radio" type="radio" value="1" checked />
                         <label class="choice" for="Mandatory_1">yes</label>
-                        <input id="element_4_2" name="Mandatory" class="element radio" type="radio" value="0" />
+			<input id="element_4_2" name="Mandatory" class="element radio" type="radio" value="0"/>
                         <label class="choice" for="Mandatory_2">no</label>
 
                     </span> 

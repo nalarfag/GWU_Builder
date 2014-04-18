@@ -12,7 +12,9 @@
 include_once dirname( __FILE__ ) . '/GWUQuestionnaireTables.php';
 include_once dirname( __FILE__ ) . '/GWUQuestionnaireAdmin.php';
 include_once dirname(__FILE__) .'/response.php';
+
 require_once 'GWUQuestion.php';
+require_once 'GWUQuestionnaire.php';
 //require_once 'models/GWCondition.php';
 
 
@@ -31,8 +33,8 @@ require_once 'models/GWFlagCheck.php';
 require_once 'models/GWFlagSet.php';
 require_once 'models/GWResponse.php';
 require_once 'models/GWSession.php';
-//require_once 'views/mutlipleS.php';
-//require_once 'views/Template.php';
+
+
 // Activation Callback
 if( class_exists( 'GWUQuestionnaireTables' ) ) {
   $QuestionnaireTables= new GWUQuestionnaireTables();

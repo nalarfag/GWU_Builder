@@ -11,7 +11,19 @@
             });
             
  jQuery( document ).ready( function($) { 
- 
+ var id =1;
+ $("#dialog-success").dialog({
+	dialogClass   : "wp-dialog",
+            autoOpen: false,
+	      resizable: false,
+            width: 300,
+            modal: true,
+             buttons: {
+                "OK": function () { 
+                    $(this).dialog("close");
+                    }
+                    }
+ });
     $("#dialog-confirm-multiple").dialog({
 	dialogClass   : "wp-dialog",
             autoOpen: false,
@@ -19,7 +31,7 @@
             width: 300,
             modal: true,
             buttons: {
-                "Yes": function () {
+                "Yes": function () { 
 		    var ajax_url = '<?php echo admin_url( 'admin-ajax.php' ); ?>';
 		    var val=$('#view_question').serialize() ;
                     $(this).dialog("close");
@@ -30,11 +42,15 @@
 			  data:
 			      {
 			       action: 'delete_question',
-			      value: val
+			      value: val, 
+                              id:id
 			      }
 			  ,
 			  success: function(data) {
-			    $("#"+data).remove();
+                              // id = $(this).closest().attr("id");
+                              $("#dialog-success").dialog('open');
+			   // $("#"+data).remove();
+                           $("#QuestionView").load(location.href + " #QuestionView");
 			  }
 
 		});
@@ -50,6 +66,8 @@
 	 //   debugger;
             if(e.originalEvent) {
                 e.preventDefault();
+                id = $(this).closest('div').parent().attr('id');
+             //   console.debug(id);
                 $("#dialog-confirm-multiple").dialog('open');
                 return false;
             }
@@ -57,7 +75,7 @@
     });
             
 </script>
-<div>
+<div id="QuestionView">
 
     
 <?php
@@ -165,3 +183,6 @@ $adminURL= admin_url('admin-post.php');
     <p>This item will be permanently deleted and cannot be recovered. Are you sure?</p>
   </div>
     
+    <div id="dialog-success" title="Item deleted">
+    <p>The item was successfully deleted</p>
+  </div>

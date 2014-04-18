@@ -195,7 +195,7 @@ if (!class_exists('GWUQuestionnaireTables')) {
             $wpdb->query($Flag_creation_query);
             $wpdb->query($Response_creation_query);
 
-	    $this->Questionnaire_insert_sample();
+	    //$this->Questionnaire_insert_sample();
         }
 
 // Function to insert data to the table

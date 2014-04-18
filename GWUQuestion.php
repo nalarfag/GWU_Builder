@@ -212,12 +212,12 @@ if (!class_exists('GWUQuestion')) {
 	public function DeleteQuestion()
 	{
 	    $value=( isset($_POST['value']) ? $_POST['value'] : '' );
-
-	    parse_str($value, $fromData);
-	      $questSequence = ( isset($fromData['QuestionSeq']) ? $fromData['QuestionSeq'] : '' );
-	    $QuestionnaireID = ( isset($fromData['QuestionnaireID']) ? $fromData['QuestionnaireID'] : '' );
-
-
+            $divID=( isset($_POST['id']) ? $_POST['id'] : '' );
+            $divIDArray=explode( '_', $divID ) ;
+	    $QuestionnaireID = $divIDArray[1];
+             $questSequence = $divIDArray[2];
+           
+            
 
 	      global $wpdb;
 
@@ -228,6 +228,7 @@ if (!class_exists('GWUQuestion')) {
 	      $this->shiftQuestionsForDelete($QuestionnaireID, $questSequence);
 
 	      $this->updateQuestionnaireModifedDate($QuestionnaireID);
+
 
 	      echo 'question_'.$QuestionnaireID.'_'.$questSequence;
 	      die();

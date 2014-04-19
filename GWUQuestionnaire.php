@@ -28,77 +28,11 @@ class GWUQuestionnaire {
     public function ShowAllQuestionnaire() {
             $message = $this->publishSelectedQuestionaire();
 
-            $Wrapper = new GWWrapper();
-            // string to hold the HTML code for output
-            $output = '
-		<div class="wrap">
-			<h1>Questionnaire Set</h1>' . $message;
-
-            // $tables=$builder_db->get_results("SHOW TABLES FROM builder");
-            $Qestionnaires = $Wrapper->listQestionnaires();
-            $output .= ' <br><div class=table>
-
-            <br>
-				<table class="wp-list-table widefat fixed"  width="90%" border="1">
-					<tbody>
-                                        <tr>
-							<th width="100">Name</th>
-							<th width="40">Date</th>
-							<th width="70">AllowAnonymous</th>
-							<th width="70">AllowMultiple</th>
-							<th width="40">Category</th>
-                                                        <th width="40">Creater</th>
-                                                        <th width="40"></th>
-                                                        <th width="40"></th>
-						</tr>';
-
-            foreach ($Qestionnaires as $Qestionnaire) {
-
-                // $tableName=$table->Tables_in_builder;
-                $id = $Qestionnaire->get_QuestionnaireID();
-                $Name = $Qestionnaire->get_Title();
-                $Date = $Qestionnaire->get_DateCreated();
-                $Anonymous = $Qestionnaire->get_AllowAnonymous();
-                $Multiple = $Qestionnaire->get_AllowMultiple();
-                $Category = $Qestionnaire->get_Topic();
-                $CreatorName = $Qestionnaire->get_CreatorName();
-                $PostId = $Qestionnaire->get_PostId();
-                $Link = get_permalink($PostId);
-
-                $output .= '  <tr>
-				<td align="center" nowrap="nowrap">' . $Name . '</td>
-				<td align="center" xml:lang="en" dir="ltr" nowrap="nowrap">' . $Date . '</td>
-				<td align="center" nowrap="nowrap">' . ($Anonymous ? 'Yes' : 'No') . '</td>
-				<td align="center" nowrap="nowrap">' . ($Multiple ? 'Yes' : 'No') . '</td>
-				<td  align="center" nowrap="nowrap">' . $Category . '</td>
-                                    <td  align="center" nowrap="nowrap">' . $CreatorName . '</td>
-                                    <td align="center" nowrap="nowrap"><a class="View-Q" 
-			href="' . add_query_arg(
-                                array('page' => 'GWU_add-Questionnaire-page',
-                            'id' => 'view', 'Qid' => $id
-                                ), admin_url('admin.php'))
-                        . '">view</a> </td>
-                    <td style="100px;" align="center" nowrap="nowrap">
-                    <a class="View-Q" href="' . ($PostId < 1 ?
-                                add_query_arg(
-                                        array('page' => 'GWU_Questionnaire-mainMenu-page',
-                                    'id' => 'publish', 'Qid' => $id
-                                        ), admin_url('admin.php')) . '">Publish</a>' :
-                                $Link . '">' . $Link . '</a>') .
-                        '</tr>';
-            }
-
-            $address = add_query_arg(array(
-                'page' => 'GWU_add-Questionnaire-page',
-                'id' => 'newQuestionnaire'
-                    ), admin_url('admin.php'));
-
-            $output .= '		</tbody>
-				</table>
-			</div> 
-                        </br>
-			</br><a class="add-new-h2"  href="' . $address . '">Add new questionaire</a></div>';
-            echo $output;
+               $Wrapper = new GWWrapper();
+               $Qestionnaires = $Wrapper->listQestionnaires();
+               
+            include_once dirname(__FILE__) . '/views/QuestionnaireViewAdmin.php';
+            
         }
 
         
@@ -196,6 +130,11 @@ class GWUQuestionnaire {
             exit;
         }
 
+        
+        
+         public function copyQuestionnaire($QuestionnaireID) {
+             
+         }
 }
 }
 

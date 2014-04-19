@@ -89,7 +89,12 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
 
                 $QuestionnaireID = $_GET['Qid'];
                 $this->gwuquestionnaire->ShowOneQuestionnaire($QuestionnaireID);
-            } elseif (isset($_GET['id']) && is_numeric($_GET['Qid']) &&
+            } elseif (isset($_GET['id']) && ( $_GET['id'] == 'duplicate' || is_numeric($_GET['id']) )) {
+
+                $QuestionnaireID = $_GET['Qid'];
+                $this->gwuquestionnaire->copyQuestionnaire($QuestionnaireID);
+            } 
+            elseif (isset($_GET['id']) && is_numeric($_GET['Qid']) &&
                     ( $_GET['id'] == 'new' || is_numeric($_GET['Qno']) )) {
 
                 $mode = 'new';

@@ -297,9 +297,9 @@ class GWWrapper
 		$condition->set_JumpQNoOnSuccess($JumpQNoOnSuccess);
 		$condition->set_Deleted($deleted);
 		
-		$condition->save();
+		$returnVal = $condition->save();
                 
-		return array('ConditionID' => $conditionID);
+		return array('ConditionID' => $returnVal);
 	}
 	
 	public static function copyQuestionnaire($questionnaireID){

@@ -1,5 +1,5 @@
 
-        
+//add new option when click on add        
 jQuery( document ).ready( function($) {   
     var scntDiv = $('#p_choices');
     var i = $('#p_choices p').size() + 1;
@@ -43,7 +43,7 @@ jQuery( document ).ready( function($) {
     /* validation end */
 	
     }); // click end
-        
+    
     function validateForm(form) { 
         var validation_holder=0;
         var question = $("form#add_question input[name='question_text']").val();
@@ -58,7 +58,7 @@ jQuery( document ).ready( function($) {
 
 
 
-        /* validation start */
+        /* validation question text */
         if(question == "") {
             $("span.val_qtext").html("You must enter a question").addClass('validate');
             validation_holder = 1;
@@ -66,14 +66,14 @@ jQuery( document ).ready( function($) {
             $("span.val_qtext").html("");
         }
                         
-        /* validation start */
+        /* validation question text */
         if(questionEssay == "") {
             $("span.val_qtextA").html("You must enter a question").addClass('validate');
             validation_holder = 1;
         } else {
             $("span.val_qtextA").html("");
         }
-        /* validation start */
+        /* validation question number */
         if(questionNo == "") {
             $("span.val_qno").html("You must enter a question number").addClass('validate');
             validation_holder = 1;
@@ -82,7 +82,7 @@ jQuery( document ).ready( function($) {
         }
 		
 		
-        /* validation start */
+        /* validation question choices */
         if(choice1 == "") {
             $("span.val_qchoice").html("You must enter at least the first two choices").addClass('validate');
             validation_holder = 1;
@@ -94,13 +94,14 @@ jQuery( document ).ready( function($) {
             }else
                 $("span.val_qchoice").html("");
         }
-		
+	 /* validation question Detractor */	
         if(Detractor == "") {
             $("span.val_Detractor").html("You must enter a detractor").addClass('validate');
             validation_holder = 1;
         } else {
             $("span.val_Detractor").html("");
         }
+        /* validation question Promoter */	
         if(Promoter == "") {
             $("span.val_Promoter").html("You must enter a promoter").addClass('validate');
             validation_holder = 1;

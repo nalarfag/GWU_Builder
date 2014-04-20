@@ -16,70 +16,63 @@ use WordPress\ORM\Model\GWWrapper;
  * @author Nada Alarfag
  */
 if (!class_exists('GWUQuestionnaire')) {
-class GWUQuestionnaire {
-    
-    protected $gwuquestion;
-    
-     public function __construct() {
-         
-         $this->gwuquestion=new GWUQuestion();
-     }
-    
-    public function ShowAllQuestionnaire() {
-            $message = $this->publishSelectedQuestionaire();
 
-               $Wrapper = new GWWrapper();
-               $Qestionnaires = $Wrapper->listQestionnaires();
-               
-            include_once dirname(__FILE__) . '/views/QuestionnaireViewAdmin.php';
+    class GWUQuestionnaire {
+
+        protected $gwuquestion;
+
+        public function __construct() {
+
+            $this->gwuquestion = new GWUQuestion();
+        }
+
+        public function ShowAllQuestionnaire() {
+    
+            
+                include_once dirname(__FILE__) . '/views/QuestionnaireViewAdmin.php';
             
         }
 
-        
-           private function publishSelectedQuestionaire(){
-            if(isset($_GET['id']) && $_GET['id'] == 'publish'&&isset($_GET['Qid'])&&is_numeric($_GET['Qid'])){
-                global $wpdb;
-                $qId = $_GET['Qid'];
-                //get the title of selected questionnaire
-                $result = $wpdb->get_row('select * from gwu_questionnaire where QuestionnaireID='.$qId);
+        public function PublishQuestionnaire() {
+            global $wpdb;
+            $divID = ( isset($_POST['id']) ? $_POST['id'] : '' );
+            $divIDArray = explode('_', $divID);
+            $qId = $divIDArray[0];
+            //get the title of selected questionnaire
+            $result = $wpdb->get_row('select * from gwu_questionnaire where QuestionnaireID=' . $qId);
 
-                //if the questionnaire id is valid we should get its title
-                if($result != null){
-                    $my_post = array(
-                        'post_title'    => $result->Title,
-                        'post_content'  => '[questionnaire id="'.$qId.'"]',
-                        'post_status'   => 'publish',
-                        'post_type'     => 'page',
-                        'comment_status'=> 'closed'
-                    );
-                    //insert a post with options and get the new post id
-                    $postId = wp_insert_post( $my_post );
-		     $cureentDataTime = date('Y-m-d H:i:s');
-                    //save post page id into questionnaire's property, PostId
-                    $success = $wpdb->update(
-                        'gwu_questionnaire',
-                        array(
-			    'PostId' => $postId,
-			    'PublishFlag' => true,
-			    'PublishDate'=>$cureentDataTime
-                        ),
-                        array( 'QuestionnaireID' => $qId )
-                    );
-                    if($success){
-                        return "<h2>Publish succeed.</h2>";
-                    }
-                    else{
-                        return "<h2>Publish failed.</h2>";
-                    }
+            //if the questionnaire id is valid we should get its title
+            if ($result != null) {
+            $my_post = array(
+                    'post_title' => $result->Title,
+                    'post_content' => '[questionnaire id="' . $qId . '"]',
+                    'post_status' => 'publish',
+                    'post_type' => 'page',
+                    'comment_status' => 'closed'
+                );
+                //insert a post with options and get the new post id
+                $postId = wp_insert_post($my_post);
+                $cureentDataTime = date('Y-m-d H:i:s');
+                //save post page id into questionnaire's property, PostId
+                $success = $wpdb->update(
+                        'gwu_questionnaire', array(
+                    'PostId' => $postId,
+                    'PublishFlag' => true,
+                    'PublishDate' => $cureentDataTime
+                        ), array('QuestionnaireID' => $qId)
+                );
+              if ($success) {
+
+                    echo true;
+                } else {
+                    echo false;
                 }
-                return "";
-
+ 
             }
-            return "";
-
+             die();
         }
-        
-    public function ShowOneQuestionnaire($QuestionnaireID) {
+
+        public function ShowOneQuestionnaire($QuestionnaireID) {
 
             //show current question
 
@@ -90,13 +83,12 @@ class GWUQuestionnaire {
                 <h2>' . $questionnaire[0]->get_Title() . '
                 </h2> <br/>';
 
-	    $this->gwuquestion->ViewQuestionsForAdmin($QuestionnaireID);
-           
+            $this->gwuquestion->ViewQuestionsForAdmin($QuestionnaireID);
 
-         echo' </div>';
+
+            echo' </div>';
         }
 
-       
         public function AddNewQuestionnaire() {
 
             // Place all user submitted values in an array
@@ -130,12 +122,62 @@ class GWUQuestionnaire {
             exit;
         }
 
-        
-        
-         public function copyQuestionnaire($QuestionnaireID) {
-             
-         }
-}
-}
+        public function copyQuestionnaire($QuestionnaireID) {
+            
+        }
 
+        //Delete the selected questionnaire
+        public function DeleteQuestionnaire() {
+            $divID = ( isset($_POST['id']) ? $_POST['id'] : '' );
+            $divIDArray = explode('_', $divID);
+            $QuestionnaireID = $divIDArray[0];
+
+
+            global $wpdb;
+
+            $wpdb->delete('gwu_questionnaire', array(
+                'QuestionnaireID' => $QuestionnaireID
+            ));
+
+            die();
+        }
+
+        //edit the Questionnaire based on the new value
+        public function EditQuestionnaire() {
+
+            $QuestionnaireID = ( isset($_POST['QuestionnaireID']) ? $_POST['QuestionnaireID'] : '' );
+
+            if (isset($_POST['cancel'])) {
+                // Redirect the page to the main questionnaire page
+                wp_redirect(add_query_arg(array('page' => 'GWU_Questionnaire-mainMenu-page'
+                                ), admin_url('admin.php')));
+                exit;
+            }
+
+            if (isset($_POST['save'])) {
+                $Title = ( isset($_POST['questionnaire_title']) ? $_POST['questionnaire_title'] : '' );
+                $Topic = ( isset($_POST['topic']) ? $_POST['topic'] : '' );
+                $AllowMultiple = ( isset($_POST['multiple']) ? $_POST['multiple'] : '' );
+                $AllowAnnonymous = ( isset($_POST['anonymous']) ? $_POST['anonymous'] : '' );
+                $dateModified = date('Y-m-d H:i:s');
+
+                global $wpdb;
+                //save question
+                $wpdb->update('gwu_questionnaire', array(
+                    'Title' => $Title,
+                    'Topic' => $Topic,
+                    'AllowMultiple' => $AllowMultiple,
+                    'AllowAnnonymous' => $AllowAnnonymous,
+                    'dateModified' => $dateModified
+                        ), array('QuestionnaireID' => $QuestionnaireID));
+            }
+            // Redirect the page to the main questionnaire page
+            wp_redirect(add_query_arg(array('page' => 'GWU_Questionnaire-mainMenu-page'
+                            ), admin_url('admin.php')));
+            exit;
+        }
+
+    }
+
+}
 ?>

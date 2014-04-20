@@ -1,94 +1,168 @@
+<script type='text/javascript'>
+
+        
+    jQuery( document ).ready( function($) {  
+        $(this).find(".button-primary").hide();
+        $(document).on('mouseenter', '.divbutton', function () {
+            $(this).find(".button-primary").show();
+        }).on('mouseleave', '.divbutton', function () {
+            $(this).find(".button-primary").hide();
+        });
+    });
+            
+    jQuery( document ).ready( function($) { 
+        var id =1;
+        var ajax_url = '<?php echo admin_url('admin-ajax.php'); ?>';
+        $("#dialog-confirm-multiple").dialog({
+            dialogClass   : "wp-dialog",
+            autoOpen: false,
+            resizable: false,
+            width: 300,
+            modal: true,
+            buttons: {
+                "Yes": function () { 
+		   
+                    $(this).dialog("close");
+                    $.ajax({
+                        type: "POST",
+                        url: ajax_url,
+                        action: 'delete_questionnaire',
+                        data:
+                            {
+                            action: 'delete_questionnaire',
+                            id:id
+                        }
+                        ,
+                        success: function(data) {
+                            //   window.location.reload(true);
+                            // $("#"+data).remove();
+                            $("#QuestionnaireView").load(location.href + " #QuestionnaireView");
+                            $("#Notice").html('<div class="updated"><p>The questionnaire was successfully deleted</p></div>');
+
+                        }
+
+                    });
+
+                },
+                "No": function () {
+                    $(this).dialog("close");
+                }
+            }
+        });
+        $(document).on("click","a#delete",function(e,ui){
+            //   debugger;
+            if(e.originalEvent) {
+                e.preventDefault();
+                var url = ($(this).attr('href'));
+                id = getURLParameter(url, 'qid');
+              //  console.debug(id);
+                $("#dialog-confirm-multiple").dialog('open');
+                return false;
+            }
+        });
+        
+        $(document).on("click","a#publish",function(e,ui){
+
+            e.preventDefault();
+            var url = ($(this).attr('href'));
+            id = getURLParameter(url, 'qid');
+         //   console.debug(id);
+         //   debugger;
+            $.ajax({
+                type: "POST",
+                url: ajax_url,
+                action: 'publish_questionnaire',
+                data:
+                    {
+                    action: 'publish_questionnaire',
+                    id:id
+                }
+                ,
+                success: function(data) {
+                    //   window.location.reload(true);
+                    // $("#"+data).remove();
+                     $("#QuestionnaireView").load(location.href + " #QuestionnaireView");
+                    if(data==true)
+                         $("#Notice").html('<div class="updated"><p>The questionnaire was successfully published</p></div>');
+                     else
+                        $("#Notice").html('<div class="updated"><p>Faild to publish the questionnaire</p></div>');
+
+                }
+
+            });
+            
+        });
+        
+         $(document).on("click","a#dublicate",function(e,ui){
+
+            e.preventDefault();
+            var url = ($(this).attr('href'));
+            id = getURLParameter(url, 'qid');
+         //   console.debug(id);
+         //   debugger;
+            $.ajax({
+                type: "POST",
+                url: ajax_url,
+                action: 'duplicate_questionnaire',
+                data:
+                    {
+                    action: 'duplicate_questionnaire',
+                    id:id
+                }
+                ,
+                success: function(data) {
+                    //   window.location.reload(true);
+                    // $("#"+data).remove();
+                     $("#QuestionnaireView").load(location.href + " #QuestionnaireView");
+                    if(data==true)
+                         $("#Notice").html('<div class="updated"><p>The questionnaire was successfully duplicated</p></div>');
+                     else
+                        $("#Notice").html('<div class="updated"><p>Faild to duplicate the questionnaire</p></div>');
+
+                }
+
+            });
+            
+        });
+    });
+    function getURLParameter(url, name) {
+        return (RegExp(name + '=' + '(.+?)(&|$)').exec(url)||[,null])[1];
+    }    
+</script>
 <?php
 $NewQuestionnaireAddress = add_query_arg(array(
     'page' => 'GWU_add-Questionnaire-page',
     'id' => 'newQuestionnaire'
         ), admin_url('admin.php'));
+$deleteNotice = '<div class="updated"><p>Test Plugin Notice</p></div>';
+?>          
 
-?>
-<div class="wrap">
+<div  class="wrap">
+    <h2>Questionnaire <a class="add-new-h2"  href="<?php echo $NewQuestionnaireAddress; ?>">Add new</a></h2>
 
-    <?php if ($Qestionnaires != false) {
-        ?>
-        <h1>Questionnaire Set</h1> 
+    <div id="Notice"></div>
 
-        <br><div class=table>
+    <?php
+    if ($publishRequest)
+        if ($publishSucceed) {
+            echo '<div class="updated"><p>Publish succeed</p></div>';
+        } else {
+            echo '<div class="updated"><p>Publish faild</p></div>';
+        }
+    ?>
 
-            <br>
-            <table class="wp-list-table widefat fixed pages"  width="90%" border="1">
-                <tbody>
-                <thead>
-                    <tr>
-                        <th width="30%">Questionnaire Name</th>
-                        <th width="20%">Topic</th>
-                        <th width="15%">Allow Anonymous</th>
-                        <th width="15%">Allow Multiple</th>
-                        <th width="10%"></th>
-                        <th width="10%"></th>
-                    </tr> </thead>
-                <tfoot>
-
-                    <?php
-                    foreach ($Qestionnaires as $Qestionnaire) {
-
-                        // $tableName=$table->Tables_in_builder;
-                        $id = $Qestionnaire->get_QuestionnaireID();
-                        $Name = $Qestionnaire->get_Title();
-                        $Date = $Qestionnaire->get_DateCreated();
-                        $DateModified = $Qestionnaire->get_DateModified();
-                        $Anonymous = $Qestionnaire->get_AllowAnonymous();
-                        $Multiple = $Qestionnaire->get_AllowMultiple();
-                        $Topic = $Qestionnaire->get_Topic();
-                        $CreatorName = $Qestionnaire->get_CreatorName();
-                        $PostId = $Qestionnaire->get_PostId();
-                        $PublishFlag=$Qestionnaire->get_PublishFlag();
-                        $Link = get_permalink($PostId);
-                        ?>
-
-  
-
-                    <tr>
-                        <td align="left" nowrap="nowrap">
-                          <strong> <a class="row-title" href="<?php echo add_query_arg( array('page' => 'GWU_add-Questionnaire-page',
-                                         'id' => 'view', 'Qid' => $id), admin_url('admin.php')); ?> ">
-                                         <?php echo $Name; ?> </a> </strong><br/>
-                                         Created in  <?php echo $Date; ?> <br/>
-                                         Last modified in  <?php echo $DateModified; ?> <br/>
-                                         Created by  <?php echo $CreatorName; ?> <br/>
-                        </td>
-                        <td  align="center" nowrap="nowrap"><?php echo $Topic ?></td>
-                        <td align="center" nowrap="nowrap"> <?php echo  ($Anonymous ? 'Yes' : 'No') ?></td>
-                        <td align="center" nowrap="nowrap"><?php echo ($Multiple ? 'Yes' : 'No') ?></td>
-                        <td align="center" nowrap="nowrap"><a class="row-title" href="<?php echo add_query_arg( array('page' => 'GWU_add-Questionnaire-page',
-                                         'id' => 'duplicate', 'Qid' => $id), admin_url('admin.php')); ?> ">
-                                         Duplicate </a></td>
-                        
-
-                        <td style="100px;" align="center" nowrap="nowrap">
-                            <a class="View-Q" href= <?php echo'"';
-                            if ($PublishFlag != true) 
-                            {   echo  add_query_arg(  array('page' => 'GWU_Questionnaire-mainMenu-page',
-                               'id' => 'publish', 'Qid' => $id
-                               ), admin_url('admin.php')) . '">Publish</a>' ;
-                            }
-                              else   
-                              {
-                              echo  $Link . '">' . $Link . '</a>'; 
-                              }
-                              ?>
-                           </tr>
-                           
-                             <?php } ?> 
-               
-                            </tfoot> 
-                            </tbody>
-            </table>
-        </div> 
-        </br>
-        </br>
-  
-<?php } ?>
-
-        <a class="add-new-h2"  href="<?php echo $NewQuestionnaireAddress; ?>">Add new questionnaire</a></div>
+    <div id="QuestionnaireView">
+    <?php
+    //show the Table of Questionnaire
+    $wp_list_table = new Questionnaire_List_Table();
+    $wp_list_table->prepare_items();
+    $wp_list_table->display();
+    ?>
+    </div> </div>
 
 
-<?php echo $message; ?>
+
+<div id="dialog-confirm-multiple" title="Confirmation Required">
+    <p>This item will be permanently deleted and cannot be recovered. Are you sure?</p>
+</div>
+

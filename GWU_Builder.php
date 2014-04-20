@@ -15,6 +15,7 @@ include_once dirname(__FILE__) .'/response.php';
 
 require_once 'GWUQuestion.php';
 require_once 'GWUQuestionnaire.php';
+require_once 'Questionnaire_List_Table.php';
 //require_once 'models/GWCondition.php';
 
 

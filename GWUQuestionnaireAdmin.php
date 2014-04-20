@@ -72,7 +72,11 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
             add_action('admin_post_edit_question', array(&$this->gwuquestion, 'EditQuestion'));
             add_action('admin_post_question_handler', array(&$this->gwuquestion, 'QuestionHandler'));
             add_action('admin_post_add_new_Questionnaire', array(&$this->gwuquestionnaire, 'AddNewQuestionnaire'));
+            add_action('admin_post_edit_Questionnaire', array(&$this->gwuquestionnaire, 'EditQuestionnaire'));
 	    add_action( 'wp_ajax_delete_question', array(&$this->gwuquestion, 'DeleteQuestion' ));
+            add_action( 'wp_ajax_delete_questionnaire', array(&$this->gwuquestionnaire, 'DeleteQuestionnaire' ));
+            add_action( 'wp_ajax_publish_questionnaire', array(&$this->gwuquestionnaire, 'PublishQuestionnaire' ));
+
         }
 
     
@@ -82,17 +86,18 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
 
             // Add questionnaire if no parameter sent in URL -->
             if (empty($_GET['id']) || $_GET['id'] == 'newQuestionnaire') {
-
-
-                include_once $this->pluginPath . '/views/AddQuesionnaire.php';
-            } elseif (isset($_GET['id']) && ( $_GET['id'] == 'view' || is_numeric($_GET['id']) )) {
+                
+                
+                include_once $this->pluginPath . '/views/AddQuestionnaire.php';
+            } elseif (isset($_GET['id']) && ( $_GET['id'] == 'view' && is_numeric($_GET['Qid']) )) {
 
                 $QuestionnaireID = $_GET['Qid'];
                 $this->gwuquestionnaire->ShowOneQuestionnaire($QuestionnaireID);
-            } elseif (isset($_GET['id']) && ( $_GET['id'] == 'duplicate' || is_numeric($_GET['id']) )) {
+            } elseif (isset($_GET['id']) && ( $_GET['id'] == 'edit' && is_numeric($_GET['Qid']) )) {
 
-                $QuestionnaireID = $_GET['Qid'];
-                $this->gwuquestionnaire->copyQuestionnaire($QuestionnaireID);
+                $Wrapper= new GWWrapper(); 
+                
+               include_once $this->pluginPath . '/views/AddQuestionnaire.php';
             } 
             elseif (isset($_GET['id']) && is_numeric($_GET['Qid']) &&
                     ( $_GET['id'] == 'new' || is_numeric($_GET['Qno']) )) {

@@ -27,6 +27,7 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
         protected $pluginUrl;
         protected $gwuquestion;
         protected $gwuquestionnaire;
+     
 
 
         public function __construct() {
@@ -46,6 +47,7 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
             $this->pluginUrl = WP_PLUGIN_URL . '/GWU_Builder';
             $this->gwuquestion=new GWUQuestion();
             $this->gwuquestionnaire= new GWUQuestionnaire();
+           
         }
 
         public function GWU_add_Questionnaire_menu_links() {
@@ -54,6 +56,7 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
                     , plugins_url('images/GWUQuestionnaire.png', __FILE__));
 
             add_submenu_page('GWU_Questionnaire-mainMenu-page', 'Add New Questionnaire ', 'Add New Questionnaire', 'manage_options', 'GWU_add-Questionnaire-page', array($this, 'GWU_add_Questionnaire_mainpage_callback'));
+            add_submenu_page('GWU_Questionnaire-mainMenu-page', 'View Users ', 'View Users', 'manage_options', 'GWU_view-Users-page', array($this, 'GWU_view_Users_mainpage_callback'));
         }
 
         public function GWU_Questionnaire_mainpage_callback() {
@@ -65,6 +68,13 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
             $this->AddQuestionnairePageHandler();
         }
 
+
+        public function GWU_view_Users_mainpage_callback(){
+            if( current_user_can( 'administrator' ) || current_user_can( 'owner' )) {
+                include_once dirname(__FILE__) . '/views/AddUser.php';
+            }
+        }
+        
         // Register functions to be called when bugs are saved
         function GWU_Questionnaire_admin_init() {
            
@@ -72,31 +82,31 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
             add_action('admin_post_edit_question', array(&$this->gwuquestion, 'EditQuestion'));
             add_action('admin_post_question_handler', array(&$this->gwuquestion, 'QuestionHandler'));
             add_action('admin_post_add_new_Questionnaire', array(&$this->gwuquestionnaire, 'AddNewQuestionnaire'));
-			add_action( 'wp_ajax_delete_question', array(&$this->gwuquestion, 'DeleteQuestion' ));
+	        add_action( 'wp_ajax_delete_question', array(&$this->gwuquestion, 'DeleteQuestion' ));
         }
 
-    
 
-        
+
+
         public function AddQuestionnairePageHandler() {
 
             // Add questionnaire if no parameter sent in URL -->
             if (empty($_GET['id']) || $_GET['id'] == 'newQuestionnaire') {
-			
+
+
                 include_once $this->pluginPath . '/views/AddQuesionnaire.php';
-				
             } elseif (isset($_GET['id']) && ( $_GET['id'] == 'view' || is_numeric($_GET['id']) )) {
 
                 $QuestionnaireID = $_GET['Qid'];
                 $this->gwuquestionnaire->ShowOneQuestionnaire($QuestionnaireID);
-				
             } elseif (isset($_GET['id']) && ( $_GET['id'] == 'duplicate' || is_numeric($_GET['id']) )) {
 
                 $QuestionnaireID = $_GET['Qid'];
-                GWWrapper::copyQuestionnaire($QuestionnaireID);
-            } 
+                $this->gwuquestionnaire->copyQuestionnaire($QuestionnaireID);
+            }
             elseif (isset($_GET['id']) && is_numeric($_GET['Qid']) &&
-                    ( $_GET['id'] == 'new' || is_numeric($_GET['Qno']) )) {
+                ( $_GET['id'] == 'new' || is_numeric($_GET['Qno']) )) {
+
 
                 $mode = 'new';
 
@@ -130,7 +140,7 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
                 
             }
             
-        }   
+        }
 
     }
 

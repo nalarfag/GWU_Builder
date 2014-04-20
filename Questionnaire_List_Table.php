@@ -54,9 +54,9 @@ class Questionnaire_List_Table extends WP_List_Table {
         //Build row actions
         if ($item->PublishFlag != true)
             $actions = array(
-                'edit' => sprintf('<a id="duplicate" href="%s">Edit</a>', $edit_link),
+                'edit' => sprintf('<a id="edit" href="%s">Edit</a>', $edit_link),
                 'delete' => sprintf('<a id="delete" href="?page=%s&action=%s&qid=%s">Delete</a>', $_REQUEST['page'], 'delete', $item->QuestionnaireID),
-                'duplicate' => sprintf('<a href="?page=%s&action=%s&qid=%s">Duplicate</a>', $_REQUEST['page'], 'dublicate', $item->QuestionnaireID),
+                'duplicate' => sprintf('<a id="duplicate" href="?page=%s&action=%s&qid=%s">Duplicate</a>', $_REQUEST['page'], 'dublicate', $item->QuestionnaireID),
             );
         else {
             $actions = array(

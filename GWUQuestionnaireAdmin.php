@@ -84,6 +84,8 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
 	    add_action( 'wp_ajax_delete_question', array(&$this->gwuquestion, 'DeleteQuestion' ));
             add_action( 'wp_ajax_delete_questionnaire', array(&$this->gwuquestionnaire, 'DeleteQuestionnaire' ));
             add_action( 'wp_ajax_publish_questionnaire', array(&$this->gwuquestionnaire, 'PublishQuestionnaire' ));
+            add_action( 'wp_ajax_duplicate_questionnaire', array(&$this->gwuquestionnaire, 'DuplicateQuestionnaire' ));
+
 
         }
 
@@ -151,15 +153,3 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
 
 }
 ?>
-=======
-<?php
-
-include_once dirname(__FILE__) . '/models/GWQuestion.php';
-include_once dirname(__FILE__) . '/models/GWQuestionnaire.php';
-include_once dirname(__FILE__) . '/models/GWAnswerChoice.php';
-include_once dirname(__FILE__) . '/models/GWWrapper.php';
-
-if (!defined('GWU_BUILDER_DIR'))
-    define('GWU_BUILDER_DIR', WP_PLUGIN_DIR . '\\' . GWU_Builder);
-
-use WordPress\ORM\Model\GWWrapper;

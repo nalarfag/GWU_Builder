@@ -93,13 +93,13 @@
             
         });
         
-         $(document).on("click","a#dublicate",function(e,ui){
+         $(document).on("click","a#duplicate",function(e,ui){
 
             e.preventDefault();
             var url = ($(this).attr('href'));
             id = getURLParameter(url, 'qid');
-         //   console.debug(id);
-         //   debugger;
+            console.debug(id);
+            debugger;
             $.ajax({
                 type: "POST",
                 url: ajax_url,
@@ -114,11 +114,7 @@
                     //   window.location.reload(true);
                     // $("#"+data).remove();
                      $("#QuestionnaireView").load(location.href + " #QuestionnaireView");
-                    if(data==true)
                          $("#Notice").html('<div class="updated"><p>The questionnaire was successfully duplicated</p></div>');
-                     else
-                        $("#Notice").html('<div class="updated"><p>Faild to duplicate the questionnaire</p></div>');
-
                 }
 
             });

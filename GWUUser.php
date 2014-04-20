@@ -51,10 +51,3 @@ $NewUserAddress = add_query_arg(array(
       </div>
     <?php }?>
     <?php }?>
-
-
-
-
-
-
-  

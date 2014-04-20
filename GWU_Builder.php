@@ -1,4 +1,3 @@
-
 <?php
 
 /*
@@ -20,7 +19,7 @@ require_once 'Questionnaire_List_Table.php';
 require_once 'GWUQuestion.php';
 require_once 'GWUQuestionnaire.php';
 require_once 'GWURole.php';
-require_once 'GWUUsercap.php';
+//require_once 'GWUUser.php';
 //require_once 'models/GWCondition.php';
 
 
@@ -88,4 +87,3 @@ function myEndSession() {
 }
 
 ?>
-

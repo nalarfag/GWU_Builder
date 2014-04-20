@@ -20,17 +20,18 @@ if (!class_exists('GWUQuestionnaire')) {
     class GWUQuestionnaire {
 
         protected $gwuquestion;
+        protected $Wrapper;
 
         public function __construct() {
 
             $this->gwuquestion = new GWUQuestion();
+            $this->Wrapper = new GWWrapper();
         }
 
         public function ShowAllQuestionnaire() {
-    
-            
-                include_once dirname(__FILE__) . '/views/QuestionnaireViewAdmin.php';
-            
+
+
+            include_once dirname(__FILE__) . '/views/QuestionnaireViewAdmin.php';
         }
 
         public function PublishQuestionnaire() {
@@ -43,7 +44,7 @@ if (!class_exists('GWUQuestionnaire')) {
 
             //if the questionnaire id is valid we should get its title
             if ($result != null) {
-            $my_post = array(
+                $my_post = array(
                     'post_title' => $result->Title,
                     'post_content' => '[questionnaire id="' . $qId . '"]',
                     'post_status' => 'publish',
@@ -61,23 +62,22 @@ if (!class_exists('GWUQuestionnaire')) {
                     'PublishDate' => $cureentDataTime
                         ), array('QuestionnaireID' => $qId)
                 );
-              if ($success) {
+                if ($success) {
 
                     echo true;
                 } else {
                     echo false;
                 }
- 
             }
-             die();
+            die();
         }
 
         public function ShowOneQuestionnaire($QuestionnaireID) {
 
             //show current question
 
-            $Wrapper = new GWWrapper();
-            $questionnaire = $Wrapper->getQuestionnaire($QuestionnaireID);
+
+            $questionnaire = $this->Wrapper->getQuestionnaire($QuestionnaireID);
             //Top-level menu -->
             echo '<div id="Questionnaire-general" class="wrap">
                 <h2>' . $questionnaire[0]->get_Title() . '
@@ -112,8 +112,7 @@ if (!class_exists('GWUQuestionnaire')) {
             $publishFlag = '';
             $publishDate = '';
 
-            $Wrapper = new GWWrapper();
-            $Questionnaire = $Wrapper->saveQuestionnaire($Questionnaire_data['Title'], $Questionnaire_data['Topic'], $Questionnaire_data['CreaterName'], $Questionnaire_data['AllowAnonymous'], $Questionnaire_data['AllowMultiple'], $Questionnaire_data['DateDate'], $dateModified, $inactiveDate, $introText, $thankyouText, $Questionnaire_data['PostId'], $publishFlag, $publishDate);
+            $Questionnaire = $this->Wrapper->saveQuestionnaire($Questionnaire_data['Title'], $Questionnaire_data['Topic'], $Questionnaire_data['CreaterName'], $Questionnaire_data['AllowAnonymous'], $Questionnaire_data['AllowMultiple'], $Questionnaire_data['DateDate'], $dateModified, $inactiveDate, $introText, $thankyouText, $Questionnaire_data['PostId'], $publishFlag, $publishDate);
 
 
             // Redirect the page to the admin form
@@ -122,14 +121,13 @@ if (!class_exists('GWUQuestionnaire')) {
             exit;
         }
 
-
-        
-        
-         /*public function copyQuestionnaire($QuestionnaireID) {
-             
-         }*/
-
-
+        public function DuplicateQuestionnaire() {
+            $divID = ( isset($_POST['id']) ? $_POST['id'] : '' );
+            $divIDArray = explode('_', $divID);
+            $QuestionnaireID = $divIDArray[0];
+            $this->Wrapper->copyQuestionnaire($QuestionnaireID);
+            die();
+        }
 
         //Delete the selected questionnaire
         public function DeleteQuestionnaire() {

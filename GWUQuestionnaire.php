@@ -30,7 +30,6 @@ if (!class_exists('GWUQuestionnaire')) {
 
         public function ShowAllQuestionnaire() {
 
-
             include_once dirname(__FILE__) . '/views/QuestionnaireViewAdmin.php';
         }
 
@@ -121,6 +120,8 @@ if (!class_exists('GWUQuestionnaire')) {
             exit;
         }
 
+        //function called by ajax when the user click on duplicate, 
+        //this function call copy questionnaire on the wrapper
         public function DuplicateQuestionnaire() {
             $divID = ( isset($_POST['id']) ? $_POST['id'] : '' );
             $divIDArray = explode('_', $divID);

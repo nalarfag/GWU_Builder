@@ -2,17 +2,26 @@
 //add new option when click on add        
 jQuery( document ).ready( function($) {   
     var scntDiv = $('#p_choices');
+     var nameDiv = $('#p_flagsName');
+      var valueDiv = $('#p_flagsValue');
     var i = $('#p_choices p').size() + 1;
         
     $('#addChoice').live('click', function() {
-	$('<p><label for="p_choices"><input type="text" id="p_choice_'+i+'" size="50" maxlength="255"  name="p_choice[]" value="" placeholder="Choice Value" /></label> <a href="#" id="remScnt">Remove</a></p>').appendTo(scntDiv);
-        i++;
+	$('<p class="p_choice_'+i+'"><label for="p_choices"><input type="text" id="p_choice_'+i+'" size="50" maxlength="255"  name="p_choice[]" value="" placeholder="Choice Value" /></label>').appendTo(scntDiv);
+      	$('<p class="p_choice_'+i+'"><label for="p_choices"><input type="text" id="p_flagName_'+i+'"size="6" maxlength="20" name="p_flagName[]" value="" placeholder="flag name" /></label>').appendTo(nameDiv);
+
+      	$('<p class="p_choice_'+i+'"><label for="p_choices"><input type="text" id="p_flagValue_'+i+'" size="6" maxlength="20" name="p_flagValue[]" value=""placeholder="flag value" ></label> <a href="#" id="remScnt">Remove</a></p>').appendTo(valueDiv);
+
+      i++;
         return false;
     });
         
     $('#remScnt').live('click', function() { 
         if( i > 2 ) {
-            $(this).parents('p').remove();
+            console.debug($(this).parents('p'));
+           var id= $(this).parents('p').attr('class');
+           $('.'+id).remove();
+           console.debug(id);
             i--;
         }
         return false;

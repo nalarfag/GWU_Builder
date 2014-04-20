@@ -138,15 +138,6 @@ $deleteNotice = '<div class="updated"><p>Test Plugin Notice</p></div>';
 
     <div id="Notice"></div>
 
-    <?php
-    if ($publishRequest)
-        if ($publishSucceed) {
-            echo '<div class="updated"><p>Publish succeed</p></div>';
-        } else {
-            echo '<div class="updated"><p>Publish faild</p></div>';
-        }
-    ?>
-
     <div id="QuestionnaireView">
     <?php
     //show the Table of Questionnaire

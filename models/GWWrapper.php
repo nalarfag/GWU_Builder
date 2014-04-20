@@ -2,7 +2,6 @@
 namespace WordPress\ORM\Model;
 
 
-
 class GWWrapper
 {
 	public static function listQuestion($questionnaireID, $allWithDeleted = false){
@@ -22,8 +21,14 @@ class GWWrapper
 		return GWQuestion::find($keys);
 	}
 	
+	public static function getQuestionsByQuestionnaire($questionnaireID){
+		$keys = array('QuestionnaireID' => $questionnaireID);
+		return GWQuestion::find($keys);
+	}
+	
 	public static function saveQuestion( $questSequence, $questionnaireID, $conditionID, $questionNumber, $ansType, $text, $mandatory, $deleted = 'false'){
 		$gwQuestion = new GWQuestion();
+		//file_put_contents("C:/Program Files (x86)/Ampps/www/wp/wp-content/plugins/GWU_Builder/models/log.txt", "HIHIHIHIHI", FILE_APPEND);
 		$gwQuestion->set_QuestSequence($questSequence);
 		$gwQuestion->set_QuestionnaireID($questionnaireID);
 		$gwQuestion->set_ConditionID($conditionID);
@@ -217,6 +222,11 @@ class GWWrapper
 		return GWAction::find($keys);
 	}
 	
+	public static function getActionsByQuestionnaire($questionnaireID){
+		$keys = array('QuestionnaireID'=>$questionnaireID);
+		return 	GWAction::find($keys);
+	}
+	
 	public static function saveAction($questSequence, $questionnaireID, $actionType, $linkToAction, $duration, $sequence, $content, $deleted = 'false') {
 		$action = new GWAction();
 		//$action->set_ActionID($ActionID);
@@ -236,6 +246,11 @@ class GWWrapper
 	// For GWAnswerChoice
 	public static function listAnswerChoice($QuestionnaireID,$questSequence){
 		$keys = array('QuestionnaireID'=>$QuestionnaireID,'QuestSequence'=>$questSequence);
+		return 	GWAnswerChoice::find($keys);
+	}
+	
+	public static function getAnswerChoiceByQuestionnaire($questionnaireID){
+		$keys = array('QuestionnaireID'=>$questionnaireID);
 		return 	GWAnswerChoice::find($keys);
 	}
 	
@@ -266,23 +281,78 @@ class GWWrapper
 		return GWQuestionnaire::find($keys);
 	}
 	
-	public static function saveCondition($conditionID, $questionnaireID, $logicStatement, $ansValue, $deleted = 'false') {
+	public static function getConditionsByQuestionnaire($questionnaireID) {
+		$keys = array('QuestionnaireID'=>$questionnaireID);
+		return GWQuestionnaire::find($keys);
+	}
+	
+	public static function saveCondition($questionnaireID, $logicStatement, $jumpQNoOnFailure, $JumpQNoOnSuccess, $deleted = 'false') {
 
 
 		$condition = new GWCondition();
 
-		$condition->set_ConditionID($conditionID);
 		$condition->set_QuestionnaireID($questionnaireID);
 		$condition->set_LogicStatement($logicStatement);
 		$condition->set_JumpQNoOnFailure($jumpQNoOnFailure);
 		$condition->set_JumpQNoOnSuccess($JumpQNoOnSuccess);
 		$condition->set_Deleted($deleted);
 		
-		$condition->save();
+		$returnVal = $condition->save();
                 
-		return array('ConditionID' => $conditionID);
+		return array('ConditionID' => $returnVal);
 	}
+	
+	public static function copyQuestionnaire($questionnaireID){
+
+		$existingQuestionnaire = GWWrapper::getQuestionnaire($questionnaireID);
+		$newQuestionnaireTitle = array('Title' => "Copy of ".$existingQuestionnaire[0]->get_Title());
+		$num =1;
+		$temp = GWQuestionnaire::find($newQuestionnaireTitle);
+		while(!($temp[0] == NULL)){
+			$num++;
+			$newQuestionnaireTitle = array('Title' => "Copy ".$num." of ".$existingQuestionnaire[0]->get_Title());
+			$temp = GWQuestionnaire::find($newQuestionnaireTitle);
+			//file_put_contents("C:/Program Files (x86)/Ampps/www/wp/wp-content/plugins/GWU_Builder/models/log.txt", $newQuestionnaireTitle, FILE_APPEND);
+		}
+		$newQuestionnaireId = GWWrapper::saveQuestionnaire($newQuestionnaireTitle['Title'], $existingQuestionnaire[0]->get_Topic(), 
+		$existingQuestionnaire[0]->get_CreatorName(), $existingQuestionnaire[0]->get_AllowMultiple(), $existingQuestionnaire[0]->get_AllowAnnonymous(), 
+		date('Y-m-d H:i:s'), date('Y-m-d H:i:s'), '', $existingQuestionnaire[0]->get_IntroText(), $existingQuestionnaire[0]->get_ThankyouText(), -1, '', '');
 		
+		$newQuestionnaireId = $newQuestionnaireId['QuestionnaireID'];
+		$questions = GWWrapper::getQuestionsByQuestionnaire($questionnaireID);
+		$actions = GWWrapper::getActionsByQuestionnaire($questionnaireID);
+		$ansChoices = GWWrapper::getAnswerChoiceByQuestionnaire($questionnaireID);
+		$flags = GWWrapper::getFlagsByQuestionnaire($questionnaireID);
+		$conditions = GWWrapper::getConditionsByQuestionnaire($questionnaireID);
+		if(!($questions[0] == NULL)){
+			foreach ($questions as $question){
+				//file_put_contents("C:/Program Files (x86)/Ampps/www/wp/wp-content/plugins/GWU_Builder/models/log.txt", $question->get_QuestSequence(), FILE_APPEND);
+				GWWrapper::saveQuestion( $question->get_QuestSequence(), $newQuestionnaireId, $question->get_ConditionID(), $question->get_QuestionNumber(), $question->get_AnsType(), $question->get_Text(), $question->get_Mandatory());
+			}
+			
+			if(!($actions[0] == NULL)){
+				foreach($actions as $action){
+					GWWrapper::saveAction($action->get_QuestSequence(), $newQuestionnaireId, $action->get_ActionType(), $action->get_LinkToAction(), $action->get_Duration(), $action->get_Sequence(), $action->get_Content());
+				}
+			}
+			
+			if(!($ansChoices[0] == NULL)){
+				foreach($ansChoices as $ansChoice){
+					GWWrapper::saveAnswerChoice($newQuestionnaireId, $ansChoice->get_QuestSequence(), $ansChoice->get_OptionNumber(), $ansChoice->get_AnsValue()) ;
+				}
+			}
+			if(!($flags[0] == NULL)){
+				foreach($flags as $flag){
+					GWWrapper::saveFlag($flag->get_OptionNumber(), $flag->get_QuestSequence(), $newQuestionnaireId, $flag->get_FlagName(), $flag->get_FlagValue());
+				}
+				if(!($conditions[0] == NULL)){
+					foreach($conditions as $condition){
+						GWWrapper::saveCondition($newQuestionnaireId, $condition->get_LogicStatement(), $condition->get_JumpQNoOnFailure(), $condition->get_JumpQNoOnSuccess());
+					}
+				}
+			}
+		}
+	}	
 }	
 
 ?>

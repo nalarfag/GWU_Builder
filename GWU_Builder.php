@@ -1,21 +1,26 @@
+
 <?php
 
 /*
   Plugin Name:  GWU Builder Plugin
   Plugin URI:
-  Description: This plugin create the necessory tables for the builder part of the Questionnaire plugin, create admin page for adding questionnaire
-  Version: 1.2
+  Description: This plugin create the necessary tables for the builder part of the Questionnaire plugin, create admin page for adding questionnaire
+  Version: 1.3
   Author: Builder team
   Author URI:
  */
 
 include_once dirname( __FILE__ ) . '/GWUQuestionnaireTables.php';
 include_once dirname( __FILE__ ) . '/GWUQuestionnaireAdmin.php';
-include_once dirname(__FILE__) .'/response.php';
+include_once dirname(__FILE__) . '/response.php';
+require_once 'Questionnaire_List_Table.php';
+
+
 
 require_once 'GWUQuestion.php';
 require_once 'GWUQuestionnaire.php';
-require_once 'Questionnaire_List_Table.php';
+require_once 'GWURole.php';
+require_once 'GWUUsercap.php';
 //require_once 'models/GWCondition.php';
 
 
@@ -83,3 +88,4 @@ function myEndSession() {
 }
 
 ?>
+

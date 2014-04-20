@@ -10,12 +10,14 @@ include_once WP_PLUGIN_DIR . '/GWU_Builder/lib/GWBaseModel.php';
 class GWAction extends GWBaseModel
 {
     protected $ActionID;
+	protected $QuestSequence;
 	protected $QuestionnaireID;
-	protected $Question_Number;
 	protected $ActionType;
-	protected $Duration;
 	protected $LinkToAction;
+	protected $Duration;
 	protected $Sequence;
+	protected $Content;
+	protected $Deleted;
 
 
     public static function get_primary_key()

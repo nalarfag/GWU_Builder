@@ -122,9 +122,14 @@ if (!class_exists('GWUQuestionnaire')) {
             exit;
         }
 
-        public function copyQuestionnaire($QuestionnaireID) {
-            
-        }
+
+        
+        
+         /*public function copyQuestionnaire($QuestionnaireID) {
+             
+         }*/
+
+
 
         //Delete the selected questionnaire
         public function DeleteQuestionnaire() {

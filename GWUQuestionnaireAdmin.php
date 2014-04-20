@@ -54,7 +54,9 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
                     , plugins_url('images/GWUQuestionnaire.png', __FILE__));
 
             add_submenu_page('GWU_Questionnaire-mainMenu-page', 'Add New Questionnaire ', 'Add New Questionnaire', 'manage_options', 'GWU_add-Questionnaire-page', array($this, 'GWU_add_Questionnaire_mainpage_callback'));
-        }
+                   add_submenu_page('GWU_Questionnaire-mainMenu-page', 'View Users ', 'View Users', 'manage_options', 'GWU_view-Users-page', array($this, 'GWU_view_Users_mainpage_callback'));
+
+            }
 
         public function GWU_Questionnaire_mainpage_callback() {
             $this->gwuquestionnaire->ShowAllQuestionnaire();
@@ -63,6 +65,12 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
         public function GWU_add_Questionnaire_mainpage_callback() {
 
             $this->AddQuestionnairePageHandler();
+        }
+        
+             public function GWU_view_Users_mainpage_callback(){
+            if( current_user_can( 'administrator' ) || current_user_can( 'owner' )) {
+                include_once dirname(__FILE__) . '/views/AddUser.php';
+            }
         }
 
         // Register functions to be called when bugs are saved
@@ -143,3 +151,15 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
 
 }
 ?>
+=======
+<?php
+
+include_once dirname(__FILE__) . '/models/GWQuestion.php';
+include_once dirname(__FILE__) . '/models/GWQuestionnaire.php';
+include_once dirname(__FILE__) . '/models/GWAnswerChoice.php';
+include_once dirname(__FILE__) . '/models/GWWrapper.php';
+
+if (!defined('GWU_BUILDER_DIR'))
+    define('GWU_BUILDER_DIR', WP_PLUGIN_DIR . '\\' . GWU_Builder);
+
+use WordPress\ORM\Model\GWWrapper;

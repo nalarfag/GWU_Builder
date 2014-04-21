@@ -94,7 +94,7 @@ class Questionnaire_List_Table extends WP_List_Table {
                             ), admin_url('admin.php')) . ' ">Publish</a>';
         } else {
             $Link = get_permalink($item->PostId);
-            $output = '<a id="publish" href=' . $Link . '">' . $Link . '</a>';
+            $output = '<a " href=' . $Link . '">' . $Link . '</a>';
         }
 
         //Return the title contents

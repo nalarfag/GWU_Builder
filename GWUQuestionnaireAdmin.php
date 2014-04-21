@@ -50,11 +50,11 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
 
         public function GWU_add_Questionnaire_menu_links() {
 
-            add_menu_page('View Questionnaires', 'View Questionnaires', 'manage_options', 'GWU_Questionnaire-mainMenu-page', array($this, 'GWU_Questionnaire_mainpage_callback')
+            add_menu_page('View Questionnaires', 'View Questionnaires', 'edit_pages', 'GWU_Questionnaire-mainMenu-page', array($this, 'GWU_Questionnaire_mainpage_callback')
                     , plugins_url('images/GWUQuestionnaire.png', __FILE__));
 
-            add_submenu_page('GWU_Questionnaire-mainMenu-page', 'Add New Questionnaire ', 'Add New Questionnaire', 'manage_options', 'GWU_add-Questionnaire-page', array($this, 'GWU_add_Questionnaire_mainpage_callback'));
-                   add_submenu_page('GWU_Questionnaire-mainMenu-page', 'View Users ', 'View Users', 'manage_options', 'GWU_view-Users-page', array($this, 'GWU_view_Users_mainpage_callback'));
+            add_submenu_page('GWU_Questionnaire-mainMenu-page', 'Add New Questionnaire ', 'Add New Questionnaire', 'edit_pages', 'GWU_add-Questionnaire-page', array($this, 'GWU_add_Questionnaire_mainpage_callback'));
+                   add_submenu_page('GWU_Questionnaire-mainMenu-page', 'View Users ', 'View Users', 'edit_pages', 'GWU_view-Users-page', array($this, 'GWU_view_Users_mainpage_callback'));
 
             }
 

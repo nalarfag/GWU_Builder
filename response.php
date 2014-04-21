@@ -146,34 +146,31 @@ function Response_questions($atts)
 						}
                      $output .='<br/><br/><input type="submit" value="next"></form>';
 		            }
-		      else 
-		        {
-			         $output .= '<form action="" method="post">
-                            <input type="hidden" name="qno" value="'.$qno.'"/> 
-	                       <p>'.$qno.". ".$question->get_Text().'</p><br/><table><tr><td></td>';
-						  if(empty($Answerchoices))
-						{
-							$output .='<br/>your data is invalid because there is no answerchoice';
-						}
-						else
-						{ 
-                        for ($i = 0; $i < 10; $i++) 
-                        {
-                           $output .= '
-                           <td><input name="response" type="radio" value="'.$i .'"/>&nbsp;</td>';
-                           }
-                           $output .= '<td></td></tr><tr><td>' . $Answerchoices[10]->get_AnsValue() . ' </td>';
-                           for ($i = 1; $i < 11; $i++) 
-                           {
-                             $output .= '<td>' . $i . '</td>';
-						   }
-						}
-                      $output .= '<td>' . $Answerchoices[11]->get_AnsValue() . ' </td></tr></table><br/><br/><input type="submit" value="submit"></form>';
-				}
-			
-			
-		}
-		
+		      else {
+            $output .= '<form action="" method="post">
+                            <input type="hidden" name="qno" value="' . $qno . '"/> 
+	                       <p>' . $qno . ". " . $question->get_Text() . '</p><br/>
+                                   <table><tr>';
+            if (empty($Answerchoices)) {
+                $output .='<br/>your data is invalid because there is no answerchoice';
+            } else {
+                for ($i = 0; $i <= 10; $i++) {
+                    $output .= '
+                           <td><input name="response" type="radio" value="' . $Answerchoices[$i]->get_OptionNumber() . '"/>&nbsp;</td>';
+                }
+                 $output .= '</tr><tr>';
+                for ($i = 0; $i <= 10; $i++) {
+                    $output .= '<td>' . $Answerchoices[$i]->get_AnsValue() . '</td>';
+                }
+
+                 $output .= '</tr>';
+                 $output .= '<tr>
+		       <td colspan="6" align="left">' . $Answerchoices[11]->get_AnsValue() . '</td>
+		       <td colspan="5" align="right"  style="text-align: right;">' . $Answerchoices[12]->get_AnsValue() . '</td>
+                            </tr> </table><br/><br/><input type="submit" value="submit"></form>';
+            }
+        }
+    }
 	/*return html*/	
 	
 	return $output;	

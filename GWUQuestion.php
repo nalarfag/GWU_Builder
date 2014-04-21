@@ -117,7 +117,7 @@ if (!class_exists('GWUQuestion')) {
                 }
             } elseif ($answer_type_short == 'NPS') {
 
-                for ($counter; $counter <= 10; $counter++) {
+                for ($counter=0; $counter <= 10; $counter++) {
 
 
                     $Wrapper->saveAnswerChoice($QuestionnaireID, $questSequence, $counter, $counter);

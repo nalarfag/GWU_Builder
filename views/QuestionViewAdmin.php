@@ -128,19 +128,19 @@ $adminURL= admin_url('admin-post.php');
                 } elseif ($type == 'NPS') {
                   echo '  <input type="hidden" name="QuestioType" value="NPS" />';
 		   echo '<tr>';
-                    for ($i = 0; $i < 10; $i++) {
+                    for ($i = 0; $i <= 10; $i++) {
                         echo  '<td><input name="' . $questionno . '" type="radio"
                             value="' . $answerchoices[$i]->get_OptionNumber() . '"/>&nbsp;</td>';
                     }
 		   echo '</tr>
 		       <tr>';
-                    for ($i = 0; $i < 10; $i++) {
+                    for ($i = 0; $i <= 10; $i++) {
                         echo '<td>' . $answerchoices[$i]->get_AnsValue() . '</td>';
                     }
 		   echo '</tr>';
 		   echo '<tr>
-		       <td colspan="5" align="left">'.$answerchoices[10]->get_AnsValue().'</td>
-		       <td colspan="5" align="right">'.$answerchoices[11]->get_AnsValue().'</td>
+		       <td colspan="6" align="left">'.$answerchoices[11]->get_AnsValue().'</td>
+		       <td colspan="5" align="right">'.$answerchoices[12]->get_AnsValue().'</td>
 
 		       </tr>';
                 } elseif ($type == 'Multiple Choice, Single Value') {

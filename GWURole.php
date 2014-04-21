@@ -70,6 +70,7 @@ use WordPress\ORM\Model\GWWrapper;
             remove_role('editor');
             remove_role('author');
             remove_role('contributor');
+             
         }
 
 

@@ -213,7 +213,7 @@ class GWWrapper
 	}
 
 	//For Action
-	public static function listActions($QuestionnaireID, $Question_Number){
+	public static function listActions($QuestionnaireID, $questSequence){
 		$keys = array('QuestionnaireID'=>$QuestionnaireID,'QuestSequence'=>$questSequence);
 		return 	GWAction::find($keys);
 	}

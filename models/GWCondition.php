@@ -19,7 +19,7 @@ class GWCondition extends GWBaseModel
 			  
     public static function get_primary_key()
     {
-		return array('Question_Number','QuestionnaireID');
+		return array('ConditionID');
     }
 
     public static function get_table()

@@ -74,6 +74,7 @@ abstract class GWBaseModel
 			$property    = substr($function, 4);
 
 			if (array_key_exists($property, $model_props)) {
+				file_put_contents("C:/Program Files (x86)/Ampps/www/wp/wp-content/plugins/GWU_Builder/models/log.txt", "value: ".$arguments[0], FILE_APPEND);
 				$this->{$property} = $arguments[0];
 			}
 		}
@@ -140,24 +141,24 @@ abstract class GWBaseModel
 	 */
 	public function save()
 	{
-		global $wpdb;
-
+		//global $wpdb;
+		global $wpdb_allow_null;
 		// Get the model's properties
 		$props = $this->properties();
 		// Flatten complex objects
 		$props = $this->flatten_props($props);
 		// Insert
-		$wpdb->insert($this->get_table(), $props);
+		$wpdb_allow_null->insert($this->get_table(), $props);
 		$this->{static::get_primary_key()} = $wpdb->insert_id;
 		//file_put_contents("C:\Program Files (x86)\Ampps\www\wp\wp-content\plugins\GWU_Builder\models\log.txt",print_r("#######".$wpdb->insert_id, true) );
 		//return $this->id;
-		return $wpdb->insert_id;
+		return $wpdb_allow_null->insert_id;
 	}
 	
 	public function update()
 	{
-		global $wpdb;
-
+		//global $wpdb;
+		global $wpdb_allow_null;
 		// Get the model's properties
 		$props = $this->properties();
 		// Flatten complex objects
@@ -167,10 +168,10 @@ abstract class GWBaseModel
 		foreach(static::get_primary_key() as $key){
 			$keys[$key] = $props[$key];
 		}
-		$wpdb->update(static::get_table(), $props, $keys);
+		$wpdb_allow_null->update(static::get_table(), $props, $keys);
 		//file_put_contents("C:\Program Files (x86)\Ampps\www\wp\wp-content\plugins\GWU_Builder\models\log.txt",print_r("=======".$this->id, true) );
 		//return $this->id;
-		return $wpdb->insert_id;
+		return $wpdb_allow_null->insert_id;
 	}
 
 	/**

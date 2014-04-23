@@ -195,7 +195,8 @@ if (!class_exists('GWUQuestionnaireTables')) {
             $wpdb->query($Flag_creation_query);
             $wpdb->query($Response_creation_query);
 
-	    //$this->Questionnaire_insert_sample();
+	    $this->Questionnaire_insert_sample();
+	    $this->Flag_Condition_Insert();
         }
 
 // Function to insert data to the table
@@ -446,6 +447,36 @@ values(62,5,1,3,5,'Multiple Choice, Multi Value','Other',null,null)");
                 $wpdb->query($q);
             }
         }
+// Function to insert data to the flag and condition table
+        function Flag_Condition_Insert() {
+            // Prepare SQL query to insert the data
+            // using received table prefix
+            //create an array
+            //foreach: loop
+            //wpdb:excute the array
+
+            global $wpdb;
+            $Insert_flag_condition_data = array(
+"insert into gwu_flag(FlagID,OptionNumber,QuestSequence,QuestionnaireID,FlagName,FlagValue,Deleted) values (1,1,1,1,'F1','1',False)",
+"insert into gwu_flag(FlagID,OptionNumber,QuestSequence,QuestionnaireID,FlagName,FlagValue,Deleted) values (2,4,1,1,'F1','0',False)",
+"insert into gwu_flag(FlagID,OptionNumber,QuestSequence,QuestionnaireID,FlagName,FlagValue,Deleted) values (3,1,2,1,'F2','1',False)",
+"insert into gwu_flag(FlagID,OptionNumber,QuestSequence,QuestionnaireID,FlagName,FlagValue,Deleted) values (4,4,2,1,'F2','0',False)",
+
+"insert into gwu_flag(FlagID,OptionNumber,QuestSequence,QuestionnaireID,FlagName,FlagValue,Deleted) values (5,8,4,2,'F3','1',False)",
+"insert into gwu_flag(FlagID,OptionNumber,QuestSequence,QuestionnaireID,FlagName,FlagValue,Deleted) values (6,9,4,2,'F3','1',False)",
+"insert into gwu_flag(FlagID,OptionNumber,QuestSequence,QuestionnaireID,FlagName,FlagValue,Deleted) values (7,10,4,2,'F3','1',False)",
+"insert into gwu_flag(FlagID,OptionNumber,QuestSequence,QuestionnaireID,FlagName,FlagValue,Deleted) values (8,0,4,2,'F3','0',False)",
+"insert into gwu_flag(FlagID,OptionNumber,QuestSequence,QuestionnaireID,FlagName,FlagValue,Deleted) values (9,1,4,2,'F3','0',False)",
+"insert into gwu_flag(FlagID,OptionNumber,QuestSequence,QuestionnaireID,FlagName,FlagValue,Deleted) values (10,2,4,2,'F3','0',False)",
+
+"insert into gwu_condition(ConditionID,QuestionnaireID,LogicStatement,JumpQNoOnFailure,JumpQNoOnSuccess,Deleted) values(1,1,'F1 = 1 and F2 = 1',4,3,False)",
+"insert into gwu_condition(ConditionID,QuestionnaireID,LogicStatement,JumpQNoOnFailure,JumpQNoOnSuccess,Deleted) values(2,2,'F3 = 1',null,5,False)");
+
+	foreach ($Insert_flag_condition_data as $i => $q) {
+                $wpdb->query($q);
+            }
+
+	}
 
         //builder show tbl function
         public function showQuestionnaireTables() {

@@ -347,7 +347,7 @@ class GWWrapper
 				}
 				if(!($conditions[0] == NULL)){
 					foreach($conditions as $condition){
-						if($condition->get_JumpQNoOnFailure() == '' && $condition->get_get_JumpQNoOnSuccess() == ''){
+						/*if($condition->get_JumpQNoOnFailure() == '' && $condition->get_get_JumpQNoOnSuccess() == ''){
 							//$condition->set_JumpQNoOnFailure(NULL);
 							GWWrapper::saveCondition($newQuestionnaireId, $condition->get_LogicStatement(), NULL, NULL);
 						}
@@ -358,9 +358,9 @@ class GWWrapper
 							//$condition->set_JumpQNoOnFailure(NULL);
 							GWWrapper::saveCondition($newQuestionnaireId, $condition->get_LogicStatement(), $condition->get_JumpQNoOnFailure(), NULL);
 						}
-						else{	
+						else{*/	
 						GWWrapper::saveCondition($newQuestionnaireId, $condition->get_LogicStatement(), $condition->get_JumpQNoOnFailure(), $condition->get_JumpQNoOnSuccess());
-						}
+						//}
 					}
 				}
 			}

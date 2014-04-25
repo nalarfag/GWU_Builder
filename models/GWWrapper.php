@@ -278,12 +278,12 @@ class GWWrapper
 	
 	public static function getCondition($conditionID) {
 		$keys = array('ConditionID' => $conditionID);
-		return GWQuestionnaire::find($keys);
+		return GWCondition::find($keys);
 	}
 	
 	public static function getConditionsByQuestionnaire($questionnaireID) {
-		$keys = array('QuestionnaireID'=>$questionnaireID);
-		return GWQuestionnaire::find($keys);
+		$keys = array('QuestionnaireID' => $questionnaireID);
+		return GWCondition::find($keys);
 	}
 	
 	public static function saveCondition($questionnaireID, $logicStatement, $jumpQNoOnFailure, $JumpQNoOnSuccess, $deleted = 'false') {
@@ -347,7 +347,20 @@ class GWWrapper
 				}
 				if(!($conditions[0] == NULL)){
 					foreach($conditions as $condition){
+						/*if($condition->get_JumpQNoOnFailure() == '' && $condition->get_get_JumpQNoOnSuccess() == ''){
+							//$condition->set_JumpQNoOnFailure(NULL);
+							GWWrapper::saveCondition($newQuestionnaireId, $condition->get_LogicStatement(), NULL, NULL);
+						}
+						else if($condition->get_JumpQNoOnFailure() == ''){
+							GWWrapper::saveCondition($newQuestionnaireId, $condition->get_LogicStatement(), NULL, $condition->get_JumpQNoOnSuccess());
+						}
+						else if($condition->get_get_JumpQNoOnSuccess() == ''){
+							//$condition->set_JumpQNoOnFailure(NULL);
+							GWWrapper::saveCondition($newQuestionnaireId, $condition->get_LogicStatement(), $condition->get_JumpQNoOnFailure(), NULL);
+						}
+						else{*/	
 						GWWrapper::saveCondition($newQuestionnaireId, $condition->get_LogicStatement(), $condition->get_JumpQNoOnFailure(), $condition->get_JumpQNoOnSuccess());
+						//}
 					}
 				}
 			}

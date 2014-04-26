@@ -31,16 +31,16 @@ require dirname(__FILE__) . '/Header.php';
 
                     Question Number:    
                     <input type="text" id="question_Number" name="question_Number" size="3" value="Q<?php echo $QuestionNum; ?>" />
-                </td>
-                <td><span class="val_qno"></span></td>
+                <span class="val_qno"></span></td>
+                <td></td>
             </tr>
-            <tr><td> <p>Question Text:</p></td></tr>
+            <tr><td> <p>Question Text:<span class="val_qtextA"></span></p></td></tr>
             <tr>
                 <td class="style1">
                     <textarea id="question_text" name="question_text" cols="55" rows="2"></textarea>
 
                 </td>
-                <td><span class="val_qtextA"></span></td>
+                <td></td>
             </tr>
 
 

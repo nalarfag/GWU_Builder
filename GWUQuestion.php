@@ -19,9 +19,16 @@ if (!class_exists('GWUQuestion')) {
 
     class GWUQuestion {
 
+        protected $Wrapper;
+
+        public function __construct() {
+
+            $this->Wrapper = new GWWrapper();
+        }
+
         public static function getNextQuestionNumber($QuestionnaireID) {
             $Wrapper = new GWWrapper();
-            $Questions = $Wrapper->listQuestion($QuestionnaireID,true);
+            $Questions = $Wrapper->listQuestion($QuestionnaireID, true);
 
             if (empty($Questions)) {
                 $nextQuestionNum = 1;
@@ -32,50 +39,45 @@ if (!class_exists('GWUQuestion')) {
             return $nextQuestionNum;
         }
 
-	  public function shiftQuestionsForAdd($QuestionnaireID,$questionSeq) {
-          
-              $nextSeq=$this->getNextQuestionNumber($QuestionnaireID);
-              $curSeq=$nextSeq-1;
-                            global $wpdb;
+        public function shiftQuestionsForAdd($QuestionnaireID, $questionSeq) {
 
-              while($curSeq>=$questionSeq)
-              {
+            $nextSeq = $this->getNextQuestionNumber($QuestionnaireID);
+            $curSeq = $nextSeq - 1;
+            global $wpdb;
+
+            while ($curSeq >= $questionSeq) {
                 //save question
                 $wpdb->update('gwu_question', array(
                     'QuestSequence' => $nextSeq
                         ), array('QuestionnaireID' => $QuestionnaireID, 'QuestSequence' => $curSeq));
-              
-                 $nextSeq=$curSeq;
-	      $curSeq--;
-	      }
 
-	  }
+                $nextSeq = $curSeq;
+                $curSeq--;
+            }
+        }
 
-	  public function shiftQuestionsForDelete($QuestionnaireID,$questionSeq) {
+        public function shiftQuestionsForDelete($QuestionnaireID, $questionSeq) {
 
-	      $lastSeq=$this->getNextQuestionNumber($QuestionnaireID)+1;
-	      $curSeq=$questionSeq;
-	      $nextSeq=$curSeq+1;
+            $lastSeq = $this->getNextQuestionNumber($QuestionnaireID) + 1;
+            $curSeq = $questionSeq;
+            $nextSeq = $curSeq + 1;
 
-			    global $wpdb;
+            global $wpdb;
 
 
-	      while($curSeq<$lastSeq)
-	      {
-		//save question
-		$wpdb->update('gwu_question', array(
-		    'QuestSequence' => $curSeq
-			), array('QuestionnaireID' => $QuestionnaireID, 'QuestSequence' => $nextSeq));
+            while ($curSeq < $lastSeq) {
+                //save question
+                $wpdb->update('gwu_question', array(
+                    'QuestSequence' => $curSeq
+                        ), array('QuestionnaireID' => $QuestionnaireID, 'QuestSequence' => $nextSeq));
 
-		 $curSeq=$nextSeq;
-		$nextSeq++;
-              }
-              
-          }
-          
+                $curSeq = $nextSeq;
+                $nextSeq++;
+            }
+        }
+
         public function AddNewQuestion() {
-            // Place all user submitted values in an array
-            $Question_data = array();
+
 
             $QuestionnaireID = ( isset($_POST['QuestionnaireID']) ? $_POST['QuestionnaireID'] : '' );
             $answer_type_short = ( isset($_POST['answer_type_short']) ? $_POST['answer_type_short'] : '' );
@@ -89,50 +91,62 @@ if (!class_exists('GWUQuestion')) {
                 exit;
             }
 
-            $questSequence=( isset($_POST['questionSeq']) ? $_POST['questionSeq'] : '' );
-            $Question_data['questionNumber'] = ( isset($_POST['question_Number']) ? $_POST['question_Number'] : '' );
-            $Question_data['Text'] = ( isset($_POST['question_text']) ? $_POST['question_text'] : '' );
-            $Question_data['AnsType'] = ( isset($_POST['answer_type']) ? $_POST['answer_type'] : '' );
-            $Question_data['QuestionnaireID'] = $QuestionnaireID;
-            $Question_data['Mandatory'] = ( isset($_POST['Mandatory']) ? $_POST['Mandatory'] : '' );
+            $questSequence = ( isset($_POST['questionSeq']) ? $_POST['questionSeq'] : '' );
+            $questionNumber = ( isset($_POST['question_Number']) ? $_POST['question_Number'] : '' );
+            $QuestionText = ( isset($_POST['question_text']) ? $_POST['question_text'] : '' );
+            $QuestionAnsType = ( isset($_POST['answer_type']) ? $_POST['answer_type'] : '' );
+
+            $Mandatory = ( isset($_POST['Mandatory']) ? $_POST['Mandatory'] : '' );
             $answersChoices = ( isset($_POST['p_choice']) ? $_POST['p_choice'] : '' );
-            
-            if($questSequence != $this->getNextQuestionNumber($QuestionnaireID))
-            {
-		$this->shiftQuestionsForAdd($QuestionnaireID,$questSequence);
+            $flagNames = ( isset($_POST['p_flagName']) ? $_POST['p_flagName'] : '' );
+            $flagValues = ( isset($_POST['p_flagValue']) ? $_POST['p_flagValue'] : '' );
+
+            if ($questSequence != $this->getNextQuestionNumber($QuestionnaireID)) {
+                $this->shiftQuestionsForAdd($QuestionnaireID, $questSequence);
             }
-            
+
             //save question
-            $Wrapper = new GWWrapper();
-            $Wrapper->saveQuestion($questSequence, $Question_data['QuestionnaireID'], null, $Question_data['questionNumber'], $Question_data['AnsType'], $Question_data['Text'], $Question_data['Mandatory']);
+            $this->Wrapper->saveQuestion($questSequence, $QuestionnaireID, null, $questionNumber, $QuestionAnsType, $QuestionText, $Mandatory);
 
 
 
             $counter = 1;
 
             if ($answer_type_short == 'multipleS' || $answer_type_short == 'multipleM') {
-                foreach ($answersChoices as $choice) {
-                    $Wrapper->saveAnswerChoice($QuestionnaireID, $questSequence, $counter, $choice);
-                    $counter++;
+                foreach ($answersChoices as $index => $choice) {
+                    if (trim($choice) != '') {
+                        $this->Wrapper->saveAnswerChoice($QuestionnaireID, $questSequence, $counter, $choice);
+                        if (trim($flagNames[$index]) != '') {
+                            $this->Wrapper->saveFlag($counter, $questSequence, $QuestionnaireID, $flagNames[$index], $flagValues[$index]);
+                        }
+                        $counter++;
+                    }
                 }
             } elseif ($answer_type_short == 'NPS') {
 
-                for ($counter=0; $counter <= 10; $counter++) {
+                for ($counter = 0; $counter <= 10; $counter++) {
 
-
-                    $Wrapper->saveAnswerChoice($QuestionnaireID, $questSequence, $counter, $counter);
+                    if (strlen($questionNumber) > 4)
+                        $questionNumber = 'Q' + $questSequence;
+                    $this->Wrapper->saveAnswerChoice($QuestionnaireID, $questSequence, $counter, $counter);
+                    if ($counter >= 0 && $counter <= 6)
+                        $this->Wrapper->saveFlag($counter, $questSequence, $QuestionnaireID, $questionNumber . '_NPSDetractor_' . $counter, $counter);
+                    if ($counter == 7 || $counter == 8)
+                        $this->Wrapper->saveFlag($counter, $questSequence, $QuestionnaireID, $questionNumber . '_NPSPassive_' . $counter, $counter);
+                    if ($counter == 9 || $counter == 10)
+                        $this->Wrapper->saveFlag($counter, $questSequence, $QuestionnaireID, $questionNumber . '_NPSPromoter_' . $counter, $counter);
                 }
 
                 $ansValue_Detractor = ( isset($_POST['Detractor']) ? $_POST['Detractor'] : '' );
-                $Wrapper->saveAnswerChoice($QuestionnaireID, $questSequence, $counter, $ansValue_Detractor);
+                $this->Wrapper->saveAnswerChoice($QuestionnaireID, $questSequence, $counter, $ansValue_Detractor);
                 $counter++;
 
                 $ansValue_Promoter = ( isset($_POST['Promoter']) ? $_POST['Promoter'] : '' );
-                $Wrapper->saveAnswerChoice($QuestionnaireID, $questSequence, $counter, $ansValue_Promoter);
+                $this->Wrapper->saveAnswerChoice($QuestionnaireID, $questSequence, $counter, $ansValue_Promoter);
             }
 
 
-	    $this->updateQuestionnaireModifedDate($QuestionnaireID);
+            $this->updateQuestionnaireModifedDate($QuestionnaireID);
 
             if (isset($_POST['save'])) {
 
@@ -141,11 +155,11 @@ if (!class_exists('GWUQuestion')) {
                             'id' => 'view', 'Qid' => $QuestionnaireID), admin_url('admin.php')));
                 exit;
             } elseif (isset($_POST['saveAdd'])) {
-                $nextSeq=$questSequence+1;
+                $nextSeq = $questSequence + 1;
                 // Redirect the page to the admin form
                 wp_redirect(add_query_arg(array('page' => 'GWU_add-Questionnaire-page',
-                            'id' => 'new', 'Qid' => $QuestionnaireID, 
-                    'qno' => $nextSeq,'type' => $answer_type_short), admin_url('admin.php')));
+                            'id' => 'new', 'Qid' => $QuestionnaireID,
+                            'qno' => $nextSeq, 'type' => $answer_type_short), admin_url('admin.php')));
                 exit;
             }
 
@@ -155,9 +169,9 @@ if (!class_exists('GWUQuestion')) {
         public function QuestionHandler() {
             $questSequence = ( isset($_POST['QuestionSeq']) ? $_POST['QuestionSeq'] : '' );
             $QuestionnaireID = ( isset($_POST['QuestionnaireID']) ? $_POST['QuestionnaireID'] : '' );
-          
+
             if (isset($_POST['add'])) {
-               // Redirect the page to the admin form
+                // Redirect the page to the admin form
                 wp_redirect(add_query_arg(array('page' => 'GWU_add-Questionnaire-page',
                             'id' => 'new', 'Qid' => $QuestionnaireID,
                             'qno' => $questSequence, 'type' => 'multipleS'
@@ -172,12 +186,12 @@ if (!class_exists('GWUQuestion')) {
                                 ), admin_url('admin.php')));
                 exit;
             }
-	   /* if (isset($_POST['delete'])) {
+            /* if (isset($_POST['delete'])) {
 
-		// $this->DeleteQuestion($questSequence, $QuestionnaireID);
-            }
-	    *
-	    */
+              // $this->DeleteQuestion($questSequence, $QuestionnaireID);
+              }
+             *
+             */
             if (isset($_POST['logic'])) {
                 //echo 'logic';
 				wp_redirect(add_query_arg(array('page' => 'GWU_add-Questionnaire-page',
@@ -191,58 +205,53 @@ if (!class_exists('GWUQuestion')) {
             }
         }
 
-	//show question for admin page function
-	public function ViewQuestionsForAdmin($QuestionnaireID) {
+        //show question for admin page function
+        public function ViewQuestionsForAdmin($QuestionnaireID) {
             //string to hold the HTML code for output
-            $Wrapper = new GWWrapper();
-            $questions = $Wrapper->listQuestion($QuestionnaireID);
-	    $Questionnaire=$Wrapper->getQuestionnaire($QuestionnaireID);
-	    $PublishedFlag=$Questionnaire[0]->get_PublishFlag();
+            $questions = $this->Wrapper->listQuestion($QuestionnaireID);
+            $Questionnaire = $this->Wrapper->getQuestionnaire($QuestionnaireID);
 
-            if ($questions == false)
-            {
-                 echo' <h2>    <a class="add-new-h2" 
+            if ($questions == false) {
+                echo' <h2>    <a class="add-new-h2" 
 			href="' . add_query_arg(
-                    array('page' => 'GWU_add-Questionnaire-page',
-                'id' => 'new', 'Qid' => $QuestionnaireID,
-                'type' => 'multipleS'), admin_url('admin.php'))
-            . '">Add New Question</a></h2>';
+                        array('page' => 'GWU_add-Questionnaire-page',
+                    'id' => 'new', 'Qid' => $QuestionnaireID,
+                    'type' => 'multipleS'), admin_url('admin.php'))
+                . '">Add New Question</a></h2>';
                 return;
             }
 
             include_once dirname(__FILE__) . '/views/QuestionViewAdmin.php';
         }
 
-
-	public function DeleteQuestion()
-	{
-	    $value=( isset($_POST['value']) ? $_POST['value'] : '' );
-            $divID=( isset($_POST['id']) ? $_POST['id'] : '' );
-            $divIDArray=explode( '_', $divID ) ;
-	    $QuestionnaireID = $divIDArray[1];
-             $questSequence = $divIDArray[2];
-           
-            
-
-	      global $wpdb;
-
-	    $wpdb->delete('gwu_question', array(
-		    'QuestSequence' => $questSequence,'QuestionnaireID' => $QuestionnaireID
-			));
-
-	      $this->shiftQuestionsForDelete($QuestionnaireID, $questSequence);
-
-	      $this->updateQuestionnaireModifedDate($QuestionnaireID);
+        public function DeleteQuestion() {
+            $value = ( isset($_POST['value']) ? $_POST['value'] : '' );
+            $divID = ( isset($_POST['id']) ? $_POST['id'] : '' );
+            $divIDArray = explode('_', $divID);
+            $QuestionnaireID = $divIDArray[1];
+            $questSequence = $divIDArray[2];
 
 
-	      echo 'question_'.$QuestionnaireID.'_'.$questSequence;
-	      die();
 
-	}
+            global $wpdb;
+
+            $wpdb->delete('gwu_question', array(
+                'QuestSequence' => $questSequence, 'QuestionnaireID' => $QuestionnaireID
+            ));
+
+            $this->shiftQuestionsForDelete($QuestionnaireID, $questSequence);
+
+            $this->updateQuestionnaireModifedDate($QuestionnaireID);
+
+
+            echo 'question_' . $QuestionnaireID . '_' . $questSequence;
+            die();
+        }
+
         public function EditQuestion() {
 
             $QuestionnaireID = ( isset($_POST['QuestionnaireID']) ? $_POST['QuestionnaireID'] : '' );
-            
+
             if (isset($_POST['cancel'])) {
                 // Redirect the page to the admin form
                 wp_redirect(add_query_arg(array('page' => 'GWU_add-Questionnaire-page',
@@ -258,6 +267,8 @@ if (!class_exists('GWUQuestion')) {
                 $text = ( isset($_POST['question_text']) ? $_POST['question_text'] : '' );
                 $Mandatory = ( isset($_POST['Mandatory']) ? $_POST['Mandatory'] : '' );
                 $answersChoices = ( isset($_POST['p_choice']) ? $_POST['p_choice'] : '' );
+                $flagNames = ( isset($_POST['p_flagName']) ? $_POST['p_flagName'] : '' );
+                $flagValues = ( isset($_POST['p_flagValue']) ? $_POST['p_flagValue'] : '' );
 
                 global $wpdb;
                 //save question
@@ -267,20 +278,57 @@ if (!class_exists('GWUQuestion')) {
                     'Mandatory' => $Mandatory
                         ), array('QuestionnaireID' => $QuestionnaireID, 'QuestSequence' => $QuestionSeq));
 
-	       $this->updateQuestionnaireModifedDate($QuestionnaireID);
-                $counter = 1;
+                $this->updateQuestionnaireModifedDate($QuestionnaireID);
+                $optionNumber = 1;
 
                 if ($type == 'Multiple Choice, Single Value' || $type == 'Multiple Choice, Multiple Value') {
+                    $currentAnswersChoices = $this->Wrapper->listAnswerChoice($QuestionnaireID, $QuestionSeq);
+                    foreach ($answersChoices as $index => $choice) {
+                        if (trim($choice) != '') {
+                            $wpdb->replace('gwu_answerChoice', array(
+                                'AnsValue' => $choice, 'QuestionnaireID' => $QuestionnaireID, 'QuestSequence' => $QuestionSeq,
+                                'OptionNumber' => $optionNumber, 'Deleted' => 'false')
+                            );
 
-                    foreach ($answersChoices as $choice) {
+                            if (trim($flagNames[$index]) != '') {
+                                $wpdb->replace('gwu_flag', array(
+                                    'FlagName' => $flagNames[$index], 'FlagValue' => $flagValues[$index], 'QuestionnaireID' => $QuestionnaireID, 'QuestSequence' => $QuestionSeq,
+                                    'OptionNumber' => $optionNumber, 'Deleted' => 'false'));
+                            } else {
+                                $flagExist = $this->Wrapper->getFlagsByQuestionnaireQuestionOption($QuestionnaireID, $QuestionSeq, $optionNumber);
+                                if ($flagExist != false) {
+                                    $wpdb->delete('gwu_flag', array(
+                                        'QuestionnaireID' => $QuestionnaireID, 'QuestSequence' => $QuestionSeq,
+                                        'OptionNumber' => $optionNumber));
+                                }
+                            }
 
-                        $wpdb->replace('gwu_answerChoice', array(
-                            'AnsValue' => $choice, 'QuestionnaireID' => $QuestionnaireID, 'QuestSequence' => $QuestionSeq,
-                            'OptionNumber' => $counter, 'Deleted' => 'false')
-                        );
+                            $optionNumber++;
+                        } else {
+                            $answerExist = $this->Wrapper->getAnswerChoiceByQuestionnaireQuestionOption($QuestionnaireID, $QuestionSeq, $optionNumber);
+                            if ($answerExist != false) {
+                                $wpdb->delete('gwu_flag', array(
+                                    'QuestionnaireID' => $QuestionnaireID, 'QuestSequence' => $QuestionSeq,
+                                    'OptionNumber' => $optionNumber));
 
+                                $wpdb->delete('gwu_answerChoice', array(
+                                    'QuestionnaireID' => $QuestionnaireID, 'QuestSequence' => $QuestionSeq,
+                                    'OptionNumber' => $optionNumber));
+                            }
+                        }
+                    }
+                    //if the user remove one of the answer, 
+                    //the answer choice should be shited
+                    //delete the redudcant answer choice that result from shifting
+                    while ($optionNumber <= count($currentAnswersChoices)) {
+                        $wpdb->delete('gwu_flag', array(
+                            'QuestionnaireID' => $QuestionnaireID, 'QuestSequence' => $QuestionSeq,
+                            'OptionNumber' => $optionNumber));
 
-                        $counter++;
+                        $wpdb->delete('gwu_answerChoice', array(
+                            'QuestionnaireID' => $QuestionnaireID, 'QuestSequence' => $QuestionSeq,
+                            'OptionNumber' => $optionNumber));
+                        $optionNumber++;
                     }
                 } elseif ($type == 'NPS') {
 
@@ -305,15 +353,15 @@ if (!class_exists('GWUQuestion')) {
             exit;
         }
 
-	public function updateQuestionnaireModifedDate($QuestionnaireID)
-	{
-	    global $wpdb;
-	      $cureentDataTime = date('Y-m-d H:i:s');
-		//save question
-		$wpdb->update('gwu_questionnaire', array(
-		    'DateModified' => $cureentDataTime
-			), array('QuestionnaireID' => $QuestionnaireID));
-	}
+        public function updateQuestionnaireModifedDate($QuestionnaireID) {
+            global $wpdb;
+            $cureentDataTime = date('Y-m-d H:i:s');
+            //save question
+            $wpdb->update('gwu_questionnaire', array(
+                'DateModified' => $cureentDataTime
+                    ), array('QuestionnaireID' => $QuestionnaireID));
+        }
+
     }
 
 }

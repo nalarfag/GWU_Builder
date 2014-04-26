@@ -57,6 +57,12 @@ class GWWrapper
 		return GWFlag::find($keys);
 	
 	}
+        
+        public static function getFlagsByQuestionnaireQuestionOption($QuestionnaireID,$questSequence,$optionNumber) {
+	
+		$keys = array('QuestionnaireID' => $QuestionnaireID,'QuestSequence'=> $questSequence, 'OptionNumber'=>$optionNumber);
+		return GWFlag::find($keys);
+	}
 	
 	public static function getFlagValuesByQuestionnaire($QuestionnaireID, $FlagName) {
 	
@@ -203,7 +209,7 @@ class GWWrapper
 		$questionnaire->set_AllowMultiple($allowMultiple);
 		$questionnaire->set_AllowAnnonymous($allowAnnonymous);
 		$questionnaire->set_DateCreated($dateCreated);
-		$questionnaire->set_DateModified($dateModified);
+		$questionnaire->set_DateModified($DateModified);
 		$questionnaire->set_InactiveDate($inactiveDate);
 		$questionnaire->set_IntroText($introText);
 		$questionnaire->set_ThankyouText($thankyouText);
@@ -260,7 +266,12 @@ class GWWrapper
 		$keys = array('QuestionnaireID'=>$questionnaireID);
 		return 	GWAnswerChoice::find($keys);
 	}
-	
+        
+        public static function getAnswerChoiceByQuestionnaireQuestionOption($QuestionnaireID,$questSequence,$optionNumber){
+		$keys = array('QuestionnaireID' => $QuestionnaireID,'QuestSequence'=> $questSequence, 'OptionNumber'=>$optionNumber);
+		return 	GWAnswerChoice::find($keys);
+	}
+
 	public static function saveAnswerChoice($questionnaireID, $questSequence, $optionNumber, $ansValue, $deleted = 'false') {
 
 

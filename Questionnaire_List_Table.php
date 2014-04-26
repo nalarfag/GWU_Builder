@@ -91,11 +91,25 @@ class Questionnaire_List_Table extends WP_List_Table {
         if ($item->PublishFlag != true) {
             $output = '<a id="publish" href=' . add_query_arg(array('page' => 'GWU_Questionnaire-mainMenu-page',
                         'action' => 'publish', 'qid' => $item->QuestionnaireID
-                            ), admin_url('admin.php')) . ' ">Publish</a>';
+                            ), admin_url('admin.php')) . ' ">Publish Questionnaire</a>';
         } else {
-            $Link = get_permalink($item->PostId);
-            $output = '<a " href=' . $Link . '">' . $Link . '</a>';
+
+
+            //Build row actions
+            if ($item->PostId == -1)
+                $output = '<a id="reactivate" href=' . add_query_arg(array('page' => 'GWU_Questionnaire-mainMenu-page',
+                            'action' => 'reactivate', 'qid' => $item->QuestionnaireID
+                                ), admin_url('admin.php')) . ' ">Republish Questionnaire</a>';
+            else {
+                $Link = get_permalink($item->PostId);
+                $output = '<a href="' . $Link . '">' . $Link . '</a>';
+                $actions = array(
+                    'deactivate' => sprintf('<a id="deactivate" href="?page=%s&action=%s&qid=%s">Deactivate link</a>', $_REQUEST['page'], 'deactivate', $item->QuestionnaireID),
+                );
+            }
         }
+        $output.= '<br/><br/><br/>'. $this->row_actions($actions);
+
 
         //Return the title contents
         return $output;

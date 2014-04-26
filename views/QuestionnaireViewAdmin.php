@@ -55,7 +55,7 @@
                 e.preventDefault();
                 var url = ($(this).attr('href'));
                 id = getURLParameter(url, 'qid');
-              //  console.debug(id);
+                //  console.debug(id);
                 $("#dialog-confirm-multiple").dialog('open');
                 return false;
             }
@@ -66,8 +66,8 @@
             e.preventDefault();
             var url = ($(this).attr('href'));
             id = getURLParameter(url, 'qid');
-         //   console.debug(id);
-         //   debugger;
+            //   console.debug(id);
+            //   debugger;
             $.ajax({
                 type: "POST",
                 url: ajax_url,
@@ -81,10 +81,10 @@
                 success: function(data) {
                     //   window.location.reload(true);
                     // $("#"+data).remove();
-                     $("#QuestionnaireView").load(location.href + " #QuestionnaireView");
+                    $("#QuestionnaireView").load(location.href + " #QuestionnaireView");
                     if(data==true)
-                         $("#Notice").html('<div class="updated"><p>The questionnaire was successfully published</p></div>');
-                     else
+                        $("#Notice").html('<div class="updated"><p>The questionnaire was successfully published</p></div>');
+                    else
                         $("#Notice").html('<div class="updated"><p>Faild to publish the questionnaire</p></div>');
 
                 }
@@ -92,8 +92,69 @@
             });
             
         });
-        
-         $(document).on("click","a#duplicate",function(e,ui){
+        $(document).on("click","a#deactivate",function(e,ui){
+
+            e.preventDefault();
+            var url = ($(this).attr('href'));
+            id = getURLParameter(url, 'qid');
+            //   console.debug(id);
+            //   debugger;
+            $.ajax({
+                type: "POST",
+                url: ajax_url,
+                action: 'deactivate_questionnaire',
+                data:
+                    {
+                    action: 'deactivate_questionnaire',
+                    id:id
+                }
+                ,
+                success: function(data) {
+                    //   window.location.reload(true);
+                    // $("#"+data).remove();
+                    $("#QuestionnaireView").load(location.href + " #QuestionnaireView");
+                    if(data==true)
+                        $("#Notice").html('<div class="updated"><p>The questionnaire link was successfully deactivated</p></div>');
+                    else
+                        $("#Notice").html('<div class="updated"><p>Faild to deactivate the questionnaire link</p></div>');
+
+                }
+
+            });
+            
+        });
+        $(document).on("click","a#reactivate",function(e,ui){
+
+            e.preventDefault();
+            var url = ($(this).attr('href'));
+            id = getURLParameter(url, 'qid');
+            //   console.debug(id);
+            //   debugger;
+            $.ajax({
+                type: "POST",
+                url: ajax_url,
+                action: 'reactivate_questionnaire',
+                data:
+                    {
+                    action: 'reactivate_questionnaire',
+                    id:id
+                }
+                ,
+                success: function(data) {
+                    //   window.location.reload(true);
+                    // $("#"+data).remove();
+                    $("#QuestionnaireView").load(location.href + " #QuestionnaireView");
+                    if(data==true)
+                        $("#Notice").html('<div class="updated"><p>The questionnaire was successfully republished</p></div>');
+                    else
+                        $("#Notice").html('<div class="updated"><p>Faild to republished the questionnaire link</p></div>');
+
+                }
+
+            });
+            
+        });
+        $(document).on("click","a#duplicate",function(e,ui){
 
             e.preventDefault();
             var url = ($(this).attr('href'));
@@ -113,8 +174,8 @@
                 success: function(data) {
                     //   window.location.reload(true);
                     // $("#"+data).remove();
-                     $("#QuestionnaireView").load(location.href + " #QuestionnaireView");
-                         $("#Notice").html('<div class="updated"><p>The questionnaire was successfully duplicated</p></div>');
+                    $("#QuestionnaireView").load(location.href + " #QuestionnaireView");
+                    $("#Notice").html('<div class="updated"><p>The questionnaire was successfully duplicated</p></div>');
                 }
 
             });
@@ -130,7 +191,6 @@ $NewQuestionnaireAddress = add_query_arg(array(
     'page' => 'GWU_add-Questionnaire-page',
     'id' => 'newQuestionnaire'
         ), admin_url('admin.php'));
-$deleteNotice = '<div class="updated"><p>Test Plugin Notice</p></div>';
 ?>          
 
 <div  class="wrap">
@@ -139,12 +199,12 @@ $deleteNotice = '<div class="updated"><p>Test Plugin Notice</p></div>';
     <div id="Notice"></div>
 
     <div id="QuestionnaireView">
-    <?php
-    //show the Table of Questionnaire
-    $wp_list_table = new Questionnaire_List_Table();
-    $wp_list_table->prepare_items();
-    $wp_list_table->display();
-    ?>
+        <?php
+        //show the Table of Questionnaire
+        $wp_list_table = new Questionnaire_List_Table();
+        $wp_list_table->prepare_items();
+        $wp_list_table->display();
+        ?>
     </div> </div>
 
 

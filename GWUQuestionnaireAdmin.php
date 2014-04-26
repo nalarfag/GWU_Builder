@@ -83,10 +83,12 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
             add_action('admin_post_question_handler', array(&$this->gwuquestion, 'QuestionHandler'));
             add_action('admin_post_add_new_Questionnaire', array(&$this->gwuquestionnaire, 'AddNewQuestionnaire'));
             add_action('admin_post_edit_Questionnaire', array(&$this->gwuquestionnaire, 'EditQuestionnaire'));
-	    add_action( 'wp_ajax_delete_question', array(&$this->gwuquestion, 'DeleteQuestion' ));
+			add_action( 'wp_ajax_delete_question', array(&$this->gwuquestion, 'DeleteQuestion' ));
             add_action( 'wp_ajax_delete_questionnaire', array(&$this->gwuquestionnaire, 'DeleteQuestionnaire' ));
             add_action( 'wp_ajax_publish_questionnaire', array(&$this->gwuquestionnaire, 'PublishQuestionnaire' ));
             add_action( 'wp_ajax_duplicate_questionnaire', array(&$this->gwuquestionnaire, 'DuplicateQuestionnaire' ));
+            add_action( 'wp_ajax_reactivate_questionnaire', array(&$this->gwuquestionnaire, 'ReactivateQuestionnaire' ));
+            add_action( 'wp_ajax_deactivate_questionnaire', array(&$this->gwuquestionnaire, 'DeactivateQuestionnaire' ));
 			add_action('admin_post_save_condition', array($this->gwucondition, 'SaveCondition'));
 			add_action( 'wp_ajax_get_flag_values', array($this->gwucondition, 'getFlagValues') );
 

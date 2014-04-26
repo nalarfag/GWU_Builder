@@ -58,6 +58,13 @@ class GWWrapper
 	
 	}
 	
+	public static function getFlagValuesByQuestionnaire($QuestionnaireID, $FlagName) {
+	
+		$keys = array('QuestionnaireID' => $QuestionnaireID, 'FlagName' => $FlagName);
+		return GWFlag::find($keys);
+	
+	}
+	
 	public static function saveFlag($optionNumber, $questSequence, $questionnaireID, $flagName, $flagValue, $deleted = 'false'){
 		$gwFlag = new GWFlag();
 		//$gwFlag->set_FlagID($flagID);

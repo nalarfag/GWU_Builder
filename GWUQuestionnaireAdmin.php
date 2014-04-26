@@ -27,6 +27,7 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
         protected $pluginUrl;
         protected $gwuquestion;
         protected $gwuquestionnaire;
+		protected $gwucondition;
 
 
         public function __construct() {
@@ -46,6 +47,7 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
             $this->pluginUrl = WP_PLUGIN_URL . '/GWU_Builder';
             $this->gwuquestion=new GWUQuestion();
             $this->gwuquestionnaire= new GWUQuestionnaire();
+			$this->gwucondition=new GWUCondition();
         }
 
         public function GWU_add_Questionnaire_menu_links() {
@@ -85,6 +87,8 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
             add_action( 'wp_ajax_delete_questionnaire', array(&$this->gwuquestionnaire, 'DeleteQuestionnaire' ));
             add_action( 'wp_ajax_publish_questionnaire', array(&$this->gwuquestionnaire, 'PublishQuestionnaire' ));
             add_action( 'wp_ajax_duplicate_questionnaire', array(&$this->gwuquestionnaire, 'DuplicateQuestionnaire' ));
+			add_action('admin_post_save_condition', array($this->gwucondition, 'SaveCondition'));
+			add_action( 'wp_ajax_get_flag_values', array($this->gwucondition, 'getFlagValues') );
 
 
         }
@@ -142,7 +146,12 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
                         include_once $this->pluginPath . '/views/EditQuestion.php';
 
                 
-            }
+            }  elseif (isset($_GET['id']) && is_numeric($_GET['Qid']) &&
+                    ( $_GET['id'] == 'Qlogic' || is_numeric($_GET['Qno']) )) {
+					
+					include_once $this->pluginPath . '/views/flag.php';
+					
+			}
             
         }
 

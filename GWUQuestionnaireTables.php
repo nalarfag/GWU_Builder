@@ -53,9 +53,11 @@ if (!class_exists('GWUQuestionnaireTables')) {
               `IntroText` text NULL,
               `ThankyouText` text NULL,
               `PostId` VARCHAR(200) NULL,
-              `PublishFlag` BOOL NULL,.
+              `PublishFlag` BOOL NULL,
               `PublishDate` DATE NULL,
               `Deleted` BOOL NULL,
+              `OwnerId` INTEGER UNSIGNED NULL,
+              `EditorId` INTEGER UNSIGNED NULL
               PRIMARY KEY(`QuestionnaireID`)
         )ENGINE = INNODB;';
             $Question_creation_query =

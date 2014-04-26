@@ -5,51 +5,100 @@
  * Date: 4/18/14
  * Time: 1:56 PM
  */
+
+
+use WordPress\ORM\GWBaseModel;
+if (isset($_GET['id'])&& $_GET['id'] == 'newassignment'){
+    include_once dirname(__FILE__) . '/AddAssignment.php';
+}
+else{
+$blogusers = get_users();
+
 $NewUserAddress = add_query_arg(array(
-        'page' => 'GWU_view-Users-page',
-        'id' => 'newUser'
-        ),admin_url('admin.php')
-);
+    'page' => 'GWU_view-Users-page',
+    'id' => 'newassignment'
+), admin_url('admin.php'));
+
+
+
 ?>
+
+
 
 <div class = "wrapper">
 
 
-    <h1>All Users</h1>
-    <br><div class=table>
-        <br>
-        <table class="wp-list-table widefat fixed pages"  width="90%" border="1">
+  <h1>All Users</h1>
+      <div class="table">
+          <table class="wp-list-table widefat fixed pages"  width="90%" border="1">
             <tbody>
-            <thead>
-            <tr>
-                <th width="20%">Username</th>
-                <th width="35%">Email</th>
-                <th width="30%">role</th>
-                <th width="15%">Name</th>
-            </tr> </thead>
-            <tfoot>
+              <thead>
+                <tr>
+                  <th width="20%">Username</th>
+                  <th width="35%">Email</th>
+                  <th width="20%">Role</th>
+                  <th width="15%">Name</th>
+                
+                </tr>
+              </thead>
+              <tfoot>
 
-            <?php
-            //foreach (as)
-            ?>
 
-            <tr>
-                <td>1</td>
-                <td>2</td>
-                <td>3</td>
-                <td>4</td>
-            </tr>
-            </tfoot>
+
+
+                <?php
+/*[ID] => 1
+[user_login] => admin
+[user_pass] => $P$Bxudi6gJMk2GRt2ed3xvZ06c1BPZXi/
+[user_nicename] => admin
+[user_email] => admin@host.com
+[user_url] => http://localhost/
+[user_registered] => 2010-06-29 07:08:55
+[user_activation_key] =>
+[user_status] => 0
+[display_name] => Richard Branson
+ */
+
+              foreach ($blogusers as $user) {
+
+                  echo '<tr>';
+                  echo  '<td>' . $user->user_login . '</td>';
+                echo '<td>' . $user->user_email . '</td>';
+                echo '<td>';
+
+                $userMeta = get_userdata( $user->ID );
+                global $wpdb;
+                $capabilities = $userMeta->{$wpdb->prefix . 'capabilities'};
+
+                if ( !isset( $wp_roles ) )
+                    $wp_roles = new WP_Roles();
+
+                foreach ( $wp_roles->role_names as $role => $name ) :
+
+                    if ( array_key_exists( $role, $capabilities ) )
+                        echo $role;
+                endforeach;
+
+                echo '</td>';
+
+                echo '<td>' . $user->display_name . '</td>';
+                echo '</tr>';
+            }
+?>
+
+              </tfoot>
             </tbody>
-        </table>
-        <span><strong>Please go back to User Menu for adding new users</strong></span>
-        <a class="addnewuser" href="<?php echo $NewUserAddress; ?>">Add New User</a>
+          </table>
+
+          <button>
+            <a class="addnewuser" style = "text-decoration:none;margin-top:10px;" href="http://localhost/wordpress/wp-admin/user-new.php">Add New User</a>
+          </button>
+          <button>
+            <a class="addnewassignment" style="text-decoration:none;margin-top:10px;" href="<?php echo $NewUserAddress; ?>">Add New Assignment
+            </a>
+          </button>
+        </div>
+
+
     </div>
-
-
-
-
-
-
-
-
+<?php }?>

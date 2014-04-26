@@ -116,7 +116,7 @@ $adminURL= admin_url('admin-post.php');
                 </th>
                 </tr>
                     <?php
-                $answerchoices = $Wrapper->listAnswerChoice($QuestionnaireID, $QuestionSeq);
+                $answerchoices =  $this->Wrapper->listAnswerChoice($QuestionnaireID, $QuestionSeq);
 
                 if ($type == 'Text Box') {
                       echo '  <input type="hidden" name="QuestioType" value="essay" />';

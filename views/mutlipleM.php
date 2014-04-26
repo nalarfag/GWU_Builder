@@ -14,6 +14,7 @@ $QuestionNum = GWUQuestion::getNextQuestionNumber($_GET['Qid']);
 require dirname(__FILE__) . '/Header.php';
 ?>
 <div class='content_q'> 
+    <div class='wrap'>
     <form id="add_question"  method="post" action="<?php echo $adminURL; ?>">
         <input type="hidden" name="action" value="add_new_question" />
         <input type="hidden" name="answer_type" value="Multiple Choice, Multiple Value" />
@@ -42,11 +43,11 @@ require dirname(__FILE__) . '/Header.php';
                     <input type="text" id="question_text" name="question_text" size="50" />
 
                 </td>
-                <td></td>
+                <td><span class="val_flags"></span></td>
             </tr>
-            <tr><td> Answers Choices:<span class="val_qchoice"></span></td><td>Flag name</td><td>Flag value</td></tr>
+            <tr><td> Answers Choices:<span class="val_qchoice"></span></td><td>Flag name &nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;&nbsp;Flag value</td></tr>
             <tr>
-                <td>
+                <td width="431px">
 
 
                     <div id="p_choices">
@@ -66,37 +67,28 @@ require dirname(__FILE__) . '/Header.php';
 
                 </td>
                 <td>
-                             <div id="p_flagsName">
+                             <div id="p_flags">
 
                         <p> <label for="p_flagsName"><input type="text" id="p_flagName_1"
 							  size="6" maxlength="20" name="p_flagName[]" value=""
                                                           placeholder="flag name" /></label>
+                            <label for="p_flagsValue"><input type="text" id="p_flagValue_1"
+							  size="6" maxlength="20" name="p_flagValue[]" value=""
+                                                          placeholder="flag value" /></label>
                         </p>
                         <p> <label for="p_flagsName"><input type="text" id="p_flagName_2"
 							  size="6" maxlength="20"  name="p_flagName[]" value=""
                                                           placeholder="flag name" /></label>
+                             <label for="p_flagsValue"><input type="text" id="p_flagValue_2"
+							  size="6" maxlength="20"  name="p_flagValue[]" value=""
+                                                          placeholder="flag value" /></label>
                         </p>
 
                     </div> 
                                             </br>
 
                 </td>
-                  <td>
-                             <div id="p_flagsValue">
-
-                        <p> <label for="p_flagsValue"><input type="text" id="p_flagValue_1"
-							  size="6" maxlength="20" name="p_flagValue[]" value=""
-                                                          placeholder="flag value" /></label>
-                        </p>
-                        <p> <label for="p_flagsValue"><input type="text" id="p_flagValue_2"
-							  size="6" maxlength="20"  name="p_flagValue[]" value=""
-                                                          placeholder="flag value" /></label>
-                        </p>
-
-                    </div> 
-                                              </br>
-
-                </td>
+                  
             </tr>
             <tr>
                 <td class="style1">Mandatory: 
@@ -127,6 +119,7 @@ require dirname(__FILE__) . '/Header.php';
 
 
     </form>
+    </div>
 </div>
 
 <?php require dirname(__FILE__) . '/Footer.php'; ?>

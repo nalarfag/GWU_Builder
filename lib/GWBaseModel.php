@@ -74,7 +74,7 @@ abstract class GWBaseModel
 			$property    = substr($function, 4);
 
 			if (array_key_exists($property, $model_props)) {
-				file_put_contents("C:/Program Files (x86)/Ampps/www/wp/wp-content/plugins/GWU_Builder/models/log.txt", "value: ".$arguments[0], FILE_APPEND);
+				//file_put_contents("C:/Program Files (x86)/Ampps/www/wp/wp-content/plugins/GWU_Builder/models/log.txt", "value: ".$arguments[0], FILE_APPEND);
 				$this->{$property} = $arguments[0];
 			}
 		}

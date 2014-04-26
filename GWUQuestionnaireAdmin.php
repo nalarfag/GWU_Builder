@@ -85,6 +85,8 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
             add_action( 'wp_ajax_delete_questionnaire', array(&$this->gwuquestionnaire, 'DeleteQuestionnaire' ));
             add_action( 'wp_ajax_publish_questionnaire', array(&$this->gwuquestionnaire, 'PublishQuestionnaire' ));
             add_action( 'wp_ajax_duplicate_questionnaire', array(&$this->gwuquestionnaire, 'DuplicateQuestionnaire' ));
+            add_action( 'wp_ajax_reactivate_questionnaire', array(&$this->gwuquestionnaire, 'ReactivateQuestionnaire' ));
+            add_action( 'wp_ajax_deactivate_questionnaire', array(&$this->gwuquestionnaire, 'DeactivateQuestionnaire' ));
 
 
         }

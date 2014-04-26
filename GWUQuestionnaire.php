@@ -43,12 +43,14 @@ if (!class_exists('GWUQuestionnaire')) {
 
             //if the questionnaire id is valid we should get its title
             if ($result != null) {
+                $page = get_page_by_title('Published Questionnairs');
                 $my_post = array(
                     'post_title' => $result->Title,
                     'post_content' => '[questionnaire id="' . $qId . '"]',
                     'post_status' => 'publish',
                     'post_type' => 'page',
-                    'comment_status' => 'closed'
+                    'comment_status' => 'closed',
+                    'post_parent' => $page->ID
                 );
                 //insert a post with options and get the new post id
                 $postId = wp_insert_post($my_post);
@@ -67,6 +69,63 @@ if (!class_exists('GWUQuestionnaire')) {
                 } else {
                     echo false;
                 }
+            }
+            die();
+        }
+
+        public function DeactivateQuestionnaire() {
+            $divID = ( isset($_POST['id']) ? $_POST['id'] : '' );
+            $divIDArray = explode('_', $divID);
+            $QuestionnaireID = $divIDArray[0];
+            $questionnaire = $this->Wrapper->getQuestionnaire($QuestionnaireID);
+
+            wp_delete_post($questionnaire[0]->get_PostId());
+            $cureentDataTime = date('Y-m-d H:i:s');
+            global $wpdb;
+            $success = $wpdb->update(
+                    'gwu_questionnaire', array(
+                'PostId' => -1,
+                'InactiveDate' => $cureentDataTime
+                    ), array('QuestionnaireID' => $QuestionnaireID)
+            );
+            if ($success) {
+
+                echo true;
+            } else {
+                echo false;
+            }
+            die();
+        }
+
+        public function ReactivateQuestionnaire() {
+             $divID = ( isset($_POST['id']) ? $_POST['id'] : '' );
+            $divIDArray = explode('_', $divID);
+            $QuestionnaireID = $divIDArray[0];
+            $questionnaire = $this->Wrapper->getQuestionnaire($QuestionnaireID);
+
+           $page = get_page_by_title('Published Questionnairs');
+                $my_post = array(
+                    'post_title' => $questionnaire[0]->get_Title(),
+                    'post_content' => '[questionnaire id="' . $QuestionnaireID . '"]',
+                    'post_status' => 'publish',
+                    'post_type' => 'page',
+                    'comment_status' => 'closed',
+                    'post_parent' => $page->ID
+                );
+                //insert a post with options and get the new post id
+                $postId = wp_insert_post($my_post);
+            global $wpdb;
+            $success = $wpdb->update(
+                    'gwu_questionnaire', array(
+                 'PostId' => $postId,
+                'InactiveDate' => null
+                    ), array('QuestionnaireID' => $QuestionnaireID)
+            );
+            if ($success) {
+
+                echo true;
+            } else {
+                echo false;
             }
             die();
         }
@@ -135,13 +194,15 @@ if (!class_exists('GWUQuestionnaire')) {
             $divID = ( isset($_POST['id']) ? $_POST['id'] : '' );
             $divIDArray = explode('_', $divID);
             $QuestionnaireID = $divIDArray[0];
+            $questionnaire = $this->Wrapper->getQuestionnaire($QuestionnaireID);
 
-
+            wp_delete_post($questionnaire[0]->get_PostId());
             global $wpdb;
 
             $wpdb->delete('gwu_questionnaire', array(
                 'QuestionnaireID' => $QuestionnaireID
             ));
+
 
             die();
         }

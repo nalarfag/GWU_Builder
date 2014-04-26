@@ -1,172 +1,270 @@
 <?php
-include_once dirname(__FILE__).'/models/GWWrapper.php';
+
 use WordPress\ORM\Model\GWWrapper;
-add_shortcode('flag','Create_flag');
-function Create_flag($atts)
-{
-	extract(shortcode_atts(array("QuestionnaireID"=>'1', "QuestionNO"=>'1'),$atts));
-	$Wrapper=new GWWrapper();
-	$Questions=$Wrapper->listQuestion($QuestionnaireID);
-    //$CurrentQuestion=$Wrapper->getQuestion($QuestionNO,$QuestionnaireID);
-	$fno='0';
-	if(isset($_POST['flagnumber']))
-	$fno=$_POST['flagnumber'];
-	$fno++;
 
-$output='
+$adminURL = admin_url('admin-post.php');
+$delbtnurl = WP_PLUGIN_URL . '/GWU_Builder/images/delete.png';
 
-<html >
-<head>
-<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-<title>Add logic:</title>
+$Wrapper=new GWWrapper();
+$QuestionnaireID=$_GET['Qid']; 
+$QuestionSeq=$_GET['qno']; 
+$Questions=$Wrapper->listQuestion($QuestionnaireID);
+$Question=$Wrapper->getQuestion($QuestionSeq,$QuestionnaireID)[0];
+$condition = null;
+$conditions = array();
 
-</head>
-<body id="main_body" >
+$flags = $Wrapper->getFlagsByQuestionnaire($QuestionnaireID);
+$flags = array_unique($flags);
+
+if(isset($Question) and $Question->get_ConditionID() !== null) {
+	$condition=$Wrapper->getCondition($Question->get_ConditionID())[0];
+	$conditions = ConditionParser::parseCondition($condition->get_LogicStatement());
+	//var_dump($conditions);
+}
+//$conditionsCounter=count($conditions);
+$conditionsCounter=0;
+
+
+function array_filter_callback($element) {
+	if($element->get_QuestSequence() > $_GET['qno']) {
+		return TRUE;
+	} else {
+		return FALSE;
+	}
+}
+
+$Questions = array_filter($Questions, 'array_filter_callback');
+
+?>
+
+<script  type='text/javascript'>
+
+	var noOfConditions = <?php echo $conditionsCounter; ?>;
+
+	function removeCondition(removeConditionBtn) {
+		var conditionDiv = removeConditionBtn.parentNode;
+		var parentDiv = conditionDiv.parentNode;
+		parentDiv.removeChild(conditionDiv);
+		noOfConditions = noOfConditions - 1;
+	}
 	
+	jQuery( document ).ready( function($) {
+	
+		
+		$(document).on('change','.select_test',function(){
+						
+			var data = {
+					action: 'get_flag_values',
+					QuestionnaireID: <?php echo $QuestionnaireID; ?>,
+					FlagName: $(this).val()
+				};
+			if($(this).val() != "") {
+			
+			var flag_tag = this;
+				jQuery.ajax({
+					type: "post",
+					url: ajaxurl,
+					data: data,
+					dataType: 'json',
+					success: function(response){
+							var id = $(flag_tag).attr('id').split('_')[1];
+							$('#flagValues_' + id).html("");
+							if(response.success) {
+								$.each(response.result, function(key, obj) {
+									$('#flagValues_' + id).append('<option value="' + obj.FlagValue + '">' + obj.FlagValue + '</option>');
+								});
+							}
+					},
+				});
+			} else {
+				$('#flagValues_' + $(this).attr('id').split('_')[1]).html("");
+			}
+
+		});
+		
+		
+		$("#logicform").submit(function() {
+		
+			var conditionString = '';
+		
+			$("#conditionsDiv").children().each(function() {
+		
+				$(this).children().each(function() {
+			
+					if($(this).attr('id').indexOf('flagNames_') > -1) {
+						conditionString += '( ' + $(this).val();
+					} else if($(this).attr('id').indexOf('flagValues_') > -1) {
+						conditionString += ' ' + $(this).val() + ' )';
+					} else if($(this).attr('id').indexOf('logicalOperator_') > -1) {
+							conditionString += $(this).val() + ' ';
+					} else {
+						conditionString += ' ' + $(this).val();
+					}
+			
+				});
+		
+			});
+		
+			$("#logicalCondition").val(conditionString);
+		
+		});
+		
+	});
+	
+	function cancelAndReturnToQuestionnaire(){
+	
+		window.location = '<?php echo admin_url("admin.php?page=GWU_add-Questionnaire-page&id=view&Qid=".$QuestionnaireID);?>';
+		
+	}
+	
+	function addConditionLine() {
+	
+			noOfConditions = noOfConditions + 1;
+			var flagNames='<select class="element select medium select_test" id="flagNames_' + noOfConditions + '" name="flagNames_' + noOfConditions + '" ">';
+			flagNames+='<option value="">(Select Flag)</option>';
+			var flagValues='<select class="element select medium" id="flagValues_' + noOfConditions + '" name="flagValues_' + noOfConditions + '">';
+			
+			<?php
+				
+				
+				if(!empty($flags)) {
+					foreach ($flags as $flag) {
+			?>
+						flagNames+='<option value="<?php echo $flag->get_FlagName(); ?>"><?php echo $flag->get_FlagName(); ?></option>';
+						
+			<?php
+					}
+				}
+			?>
+		
+			flagNames += '</select>';
+			flagValues += '</select>';
+			var operator='<select class="element select medium" id="operator_' + noOfConditions + '" name="operator_' + noOfConditions + '">';
+			operator += '<option value="=="> == (equals)</option>';
+			operator += '<option value=">="> >= (greater than equals)</option>';
+			operator += '<option value="<="> <= (less than equals)</option>';
+			operator += '<option value=">"> > (greater than)</option>';
+			operator += '<option value="<"> < (less than)</option>';
+			operator += '</select>';
+			
+			var removeCondition = '<input type="image" id="removeCondition_' 
+				+ noOfConditions + '" name="removeCondition_' + noOfConditions 
+				+ '" value="" onClick="removeCondition(this)" src="<?php echo $delbtnurl; ?>" style="position:absolute;"/>';
+		
+			var logicalOperator = '<select id="logicalOperator_' + noOfConditions + '" name="logicalOperator_' + noOfConditions + '">';
+			logicalOperator += '<option value="and"> AND </option>';
+			logicalOperator += '<option value="or"> OR </option>';
+			logicalOperator += '</select>';
+			
+			if(noOfConditions > 1) {
+				jQuery("#conditionsDiv").append('<div id="condition_' + noOfConditions + '">' + logicalOperator + flagNames + operator + flagValues + removeCondition + '</div>');
+			} else {
+				jQuery("#conditionsDiv").append('<div id="condition_' + noOfConditions + '" style="padding-left:1.6cm;">' + flagNames + operator + flagValues + removeCondition + '</div>');
+			}
+	
+	}
+	
+	jQuery( document ).ready( function($) {
+	
+		<?php
+
+			foreach($conditions as $c) {
+		?>
+		
+		//Start
+		
+			addConditionLine();
+			
+			<?php
+				$flagValues = $Wrapper->getFlagValuesByQuestionnaire($QuestionnaireID, $c->getFlagName());
+				foreach($flagValues as $flagValue) {
+			?>
+				$("#flagValues_" + noOfConditions).append('<option value="<?php echo $flagValue->get_FlagValue(); ?>"><?php echo $flagValue->get_FlagValue(); ?></option>');
+						
+			<?php
+				}
+			?>
+
+			$("#operator_" + noOfConditions).val(<?php echo '"'.$c->getConditionOperator().'"'; ?>);
+			$("#flagNames_" + noOfConditions).val(<?php echo '"'.$c->getFlagName().'"'; ?>);
+			$("#flagValues_" + noOfConditions).val(<?php echo '"'.$c->getFlagValue().'"'; ?>);
+			if(noOfConditions > 1) {
+				$("#logicalOperator_" + noOfConditions-1).val(<?php echo '"'.$c->getLogicalOperator().'"'; ?>);
+			}
+		
+		//End
+		
+		<?php
+			}
+		?>
+	
+		<?php
+			foreach ($Questions as $Q) {
+		?>
+			$('#jumpOnSuccess').append('<option value="<?php echo $Q->get_QuestSequence(); ?>"><?php echo $Q->get_QuestionNumber(); ?></option>');
+			$('#jumpOnFailure').append('<option value="<?php echo $Q->get_QuestSequence(); ?>"><?php echo $Q->get_QuestionNumber(); ?></option>');
+		<?php
+			}
+			
+			if($condition != null and $condition->get_JumpQNoOnSuccess() != null) {
+		?>
+				$("#jumpOnSuccess").val('<?php echo $condition->get_JumpQNoOnSuccess(); ?>');
+		<?php
+			}
+			
+			if($condition != null and $condition->get_JumpQNoOnFailure() != null) {
+		?>
+				$("#jumpOnFailure").val('<?php echo $condition->get_JumpQNoOnFailure(); ?>');
+		<?php
+			}
+		?>
+	
+	});
+	
+
+</script>
+
 	
 <div id="form_container">
 	
-		<h1><a>Add logic:</a></h1>
-		<form id="logicform" class="logic"  method="post" action="">
-		<input type="hidden"	name="flagnumber" value="'.$fno.'">		
-					<div class="form_description">
-			
-			</div>						
-			<ul >
-			
-					<li id="li_1" >';	
-		
-		for($i=1;$i<$fno+1;$i++)
-		
-		{
 				
-		$output.='<h2>Create flag conditon  '.$i.':</h2>
-			<p>Define the logic for the selected question:</p>';
-			
-			if($i>1)
-	{
-			$output.='<li id="li_7" >
-		<label class="description" for="element_7"> </label>
-		<div>
-		<select class="element select medium" id="element_7" name="element_7"> 
-			<option value="" selected="selected"></option>
-<option value="1" >and</option>
-<option value="2" >or</option>
-
-		</select>';
-	}
-		$output.='</div> 
-		</li>
-			<li id="li_6" >
-		<label class="description" for="element_6">enter flag name: </label>
-		<div>
-			<input id="element_1" name="element_1" class="element text medium" type="text" maxlength="255" value=""/> 
-		</div> 
-		</li>	
+	<h3>Define the logic for question number <?php echo $Question->get_QuestionNumber();?></h3>
+	<form id="logicform" class="logic"  method="post" action="<?php echo $adminURL; ?>">
+		<input type="hidden" name="action" value="save_condition" />
+		<input type="hidden" name="QuestionnaireID" value="<?php echo $QuestionnaireID; ?>"/>
 		
-			<label class="description" for="element_1">Select Flag :</label>
-				
-		<div>
-		<select class="element select medium" id="element_1" name="element_1"> 
-			<option value="" selected="selected"></option>
-<option value="1" >F1</option>
-<option value="2" >F2</option>
-<option value="3" >F3</option>
-
-		</select>
-		</div> 
-		</li>	
-		<label class="description" for="element_8">Select Question:</label>
-				
-		<div>
-		<select class="element select medium" id="element_8" name="element_8"> 
-			<option value="" selected="selected"></option>';
-			$j='1';
-			if(!empty($Questions))
-			{
-			foreach($Questions as $Question)
-			{
-				
-				$output.='<option value="'.$j.'" >'.$question->get_SequenceNumber().$question->get_Text().'</option>';
-			    $j+=1; 
-			}}
-
-		$output.='</select>
-		</div> 
-		</li>			<li id="li_2" >
-		<label class="description" for="element_2">Condition: </label>
-		<div>
-		<select class="element select medium" id="element_2" name="element_2"> 
-			<option value="" selected="selected"></option>
-<option value="1" >= (equals)</option>
-<option value="2" ><= (greater than equals)</option>
-<option value="3" >>= (less than equals)</option>
-<option value="4" >< (greater than)</option>
-<option value="5" >>(less than)</option>
-
-		</select>
-		</div> 
-		</li>		<li id="li_3" >
-		<label class="description" for="element_3">Answer choice: </label>
-		<div>
-		<select class="element select medium" id="element_3" name="element_3"> 
-			<option value="" selected="selected"></option>';
-			$AnswerChoices=$Wrapper->listAnswerChoice($QuestionnaireID,$QuestionNO);
-			$j='1';
-			if(!empty($AnswerChoices))
-			{
-			foreach($AnswerChoices as $AnswerChoice)
-			
-			{
-				
-				$output.='<option value="'.$j.'" >'.$AnswerChoice->get_OptionNumber().$AnswerChoice->get_AnsValue().'</option>';
-			    $j+=1; 
-			}}
-$output.='
-		</select>
-		</div> 
-		</li>
+		<?php
+			if($condition != null){
+		?>
+			<input type="hidden" name="ConditionID" value="<?php echo $condition->get_ConditionID(); ?>" />
+		<?php
+			}
+		?>
 		
+		<input type="hidden" name="QuestionSeq" value="<?php echo $QuestionSeq; ?>"/>
+		<input type="hidden" name="logicalCondition" id="logicalCondition" value=""/>
 		
-        <li><input id="saveForm" class="button_text" type="submit" name="submit" value="Add another logic" />';	
-		}
+		<div id="conditionsDiv">
 		
-		$output.='
-		
-        <h2>Set logic:</h2>
-        <p>Set the logic for the selected question:</p>	
-        <li id="li_4" >
-		<label class="description" for="element_4">If the logic is true, then jump to: </label>
+		</div>
+		<input type="button" id="addCondition" name="addCondition" value="Add Condition" onClick="addConditionLine()"/>
+		<br/>
+		<br/>
 		<div>
-		<select class="element select medium" id="element_4" name="element_4"> 
-			<option value="" selected="selected"></option>
-<option value="1" >Question number</option>
-<option value="2" >go to Thank You page</option>
-
-		</select>
-		</div> 
-		</li>		<li id="li_5" >
-		<label class="description" for="element_5">otherwise jump to: </label>
+			<label for="jumpOnSuccess">Select Question number to branch to on success:</label>
+			<select id="jumpOnSuccess" name="jumpOnSuccess">
+				<option value="">(Select Question)</option>
+			</select>
+		</div>
 		<div>
-		<select class="element select medium" id="element_5" name="element_5"> 
-			<option value="" selected="selected"></option>
-<option value="1" >Question number</option>
-<option value="2" >go to Thank You page</option>
-
-		</select>
-		</div> 
-		</li>
-			
-					<li class="buttons">
-			    <input type="hidden" name="form_id" value="826940" />
-			    
-				<input id="saveForm" class="button_text" type="submit" name="submit" value="Create form" />
-		</li>
-			</ul>
-		</form>	
-	</div>
-	</body>
-</html>
-';
-return $output;}
-?>
+			<label for="jumpOnFailure">Select Question number to branch to on failure:</label>
+			<select id="jumpOnFailure" name="jumpOnFailure">
+				<option value="">(Select Question)</option>
+			</select>
+		</div>
+		<div>
+			<input type="submit" id="save" name="save" value="Save"/>
+			<input type="button" id="cancel" name="cancel" value="Cancel" onClick="cancelAndReturnToQuestionnaire()"/>
+		</div>
+	</form>	
+</div>

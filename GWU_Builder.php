@@ -21,6 +21,7 @@ require_once 'GWUQuestionnaire.php';
 require_once 'GWUCondition.php';
 require_once 'GWURole.php';
 require_once 'GWUUsercap.php';
+require_once 'GWUCustomform.php';
 require_once 'models/GWCondition.php';
 require_once 'models/ConditionParser.php';
 

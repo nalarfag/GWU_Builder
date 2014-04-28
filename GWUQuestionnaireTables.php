@@ -127,7 +127,7 @@ if (!class_exists('GWUQuestionnaireTables')) {
                   ON UPDATE CASCADE
         ) ENGINE = INNODB;
 ';
-            $query = 'ALTER TABLE  `gwu_answerChoice` ADD INDEX (  `OptionNumber` );';
+            $query = 'ALTER TABLE  `gwu_answerChoice` ADD INDEX gwu_answerChoice_index (  `OptionNumber` );';
             $Flag_creation_query =
                     '
                     CREATE TABLE IF NOT EXISTS  gwu_flag (
@@ -197,7 +197,7 @@ if (!class_exists('GWUQuestionnaireTables')) {
             $wpdb->query($Flag_creation_query);
             $wpdb->query($Response_creation_query);
 
-                $this->Questionnaire_insert_sample();
+              //  $this->Questionnaire_insert_sample();
             //  $this->Flag_Condition_Insert();
         }
 

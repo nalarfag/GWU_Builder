@@ -58,8 +58,15 @@ $NewUserAddress = add_query_arg(array(
 [user_status] => 0
 [display_name] => Richard Branson
  */
+ 
+ $current_user = wp_get_current_user();
+if ( !($current_user instanceof WP_User) )
+   return;
+$roles = $current_user->roles; 
+
 
               foreach ($blogusers as $user) {
+              if( current_user_can( 'manage_options' ) ){ 
 
                   echo '<tr>';
                   echo  '<td>' . $user->user_login . '</td>';
@@ -84,6 +91,7 @@ $NewUserAddress = add_query_arg(array(
                 echo '<td>' . $user->display_name . '</td>';
                 echo '</tr>';
             }
+            }
 ?>
 
               </tfoot>
@@ -91,7 +99,7 @@ $NewUserAddress = add_query_arg(array(
           </table>
 
           <button>
-            <a class="addnewuser" style = "text-decoration:none;margin-top:10px;" href="http://localhost/wordpress/wp-admin/user-new.php">Add New User</a>
+            <a class="addnewuser" style = "text-decoration:none;margin-top:10px;" href="../wordpress/wp-admin/user-new.php">Add New User</a>
           </button>
           <button>
             <a class="addnewassignment" style="text-decoration:none;margin-top:10px;" href="<?php echo $NewUserAddress; ?>">Add New Assignment

@@ -336,7 +336,8 @@ class GWWrapper
 		}
 		$newQuestionnaireId = GWWrapper::saveQuestionnaire($newQuestionnaireTitle['Title'], $existingQuestionnaire[0]->get_Topic(), 
 		$existingQuestionnaire[0]->get_CreatorName(), $existingQuestionnaire[0]->get_AllowMultiple(), $existingQuestionnaire[0]->get_AllowAnnonymous(), 
-		date('Y-m-d H:i:s'), date('Y-m-d H:i:s'), '', $existingQuestionnaire[0]->get_IntroText(), $existingQuestionnaire[0]->get_ThankyouText(), -1, '', '');
+		date('Y-m-d H:i:s'), date('Y-m-d H:i:s'), '', $existingQuestionnaire[0]->get_IntroText(), $existingQuestionnaire[0]->get_ThankyouText(), -1, '', ''
+                        ,$existingQuestionnaire[0]->get_OwnerId(),$existingQuestionnaire[0]->get_EditorId());
 		
 		$newQuestionnaireId = $newQuestionnaireId['QuestionnaireID'];
 		$questions = GWWrapper::getQuestionsByQuestionnaire($questionnaireID);

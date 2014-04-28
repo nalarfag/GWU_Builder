@@ -98,26 +98,26 @@ if (!class_exists('GWUQuestionnaire')) {
         }
 
         public function ReactivateQuestionnaire() {
-             $divID = ( isset($_POST['id']) ? $_POST['id'] : '' );
+            $divID = ( isset($_POST['id']) ? $_POST['id'] : '' );
             $divIDArray = explode('_', $divID);
             $QuestionnaireID = $divIDArray[0];
             $questionnaire = $this->Wrapper->getQuestionnaire($QuestionnaireID);
 
-           $page = get_page_by_title('Published Questionnairs');
-                $my_post = array(
-                    'post_title' => $questionnaire[0]->get_Title(),
-                    'post_content' => '[questionnaire id="' . $QuestionnaireID . '"]',
-                    'post_status' => 'publish',
-                    'post_type' => 'page',
-                    'comment_status' => 'closed',
-                    'post_parent' => $page->ID
-                );
-                //insert a post with options and get the new post id
-                $postId = wp_insert_post($my_post);
+            $page = get_page_by_title('Published Questionnairs');
+            $my_post = array(
+                'post_title' => $questionnaire[0]->get_Title(),
+                'post_content' => '[questionnaire id="' . $QuestionnaireID . '"]',
+                'post_status' => 'publish',
+                'post_type' => 'page',
+                'comment_status' => 'closed',
+                'post_parent' => $page->ID
+            );
+            //insert a post with options and get the new post id
+            $postId = wp_insert_post($my_post);
             global $wpdb;
             $success = $wpdb->update(
                     'gwu_questionnaire', array(
-                 'PostId' => $postId,
+                'PostId' => $postId,
                 'InactiveDate' => null
                     ), array('QuestionnaireID' => $QuestionnaireID)
             );
@@ -150,16 +150,15 @@ if (!class_exists('GWUQuestionnaire')) {
         public function AddNewQuestionnaire() {
 
             // Place all user submitted values in an array
-            $Questionnaire_data = array();
 
-            $Questionnaire_data['Title'] = ( isset($_POST['questionnaire_title']) ? $_POST['questionnaire_title'] : '' );
-            $questionnaire_date['PostId'] = -1;
-            $Questionnaire_data['Topic'] = ( isset($_POST['topic']) ? $_POST['topic'] : '' );
-            $Questionnaire_data['AllowAnonymous'] = ( isset($_POST['anonymous']) ? $_POST['anonymous'] : '' );
-            $Questionnaire_data['AllowMultiple'] = ( isset($_POST['multiple']) ? $_POST['multiple'] : '' );
-            $Questionnaire_data['DateDate'] = date('Y-m-d H:i:s');
+            $Title = ( isset($_POST['questionnaire_title']) ? $_POST['questionnaire_title'] : '' );
+            $PostId = -1;
+            $Topic = ( isset($_POST['topic']) ? $_POST['topic'] : '' );
+            $AllowAnonymous = ( isset($_POST['anonymous']) ? $_POST['anonymous'] : '' );
+            $AllowMultiple = ( isset($_POST['multiple']) ? $_POST['multiple'] : '' );
+            $DateDate = date('Y-m-d H:i:s');
             $current_user = wp_get_current_user();
-            $Questionnaire_data['CreaterName'] = $current_user->user_login;
+            $CreaterName = $current_user->user_login;
 
             //Temp data because UI is not yet modified to capture the following fields.
             $dateModified = date('Y-m-d H:i:s');
@@ -170,7 +169,24 @@ if (!class_exists('GWUQuestionnaire')) {
             $publishFlag = '';
             $publishDate = '';
 
-            $Questionnaire = $this->Wrapper->saveQuestionnaire($Questionnaire_data['Title'], $Questionnaire_data['Topic'], $Questionnaire_data['CreaterName'], $Questionnaire_data['AllowAnonymous'], $Questionnaire_data['AllowMultiple'], $Questionnaire_data['DateDate'], $dateModified, $inactiveDate, $introText, $thankyouText, $Questionnaire_data['PostId'], $publishFlag, $publishDate);
+            //user is an editor
+            if (current_user_can('edit_survey')) {
+                $EditorID = get_current_user_id();
+                $OwnerID = get_user_meta($EditorID, 'ownerID', true);
+            } //user is owner or adminstrator
+            elseif (current_user_can('own_survey')) {
+                $EditorID = get_current_user_id();
+                $OwnerID = get_current_user_id();
+            }
+
+
+
+
+
+            $Questionnaire = $this->Wrapper->saveQuestionnaire($Title, $Topic, $CreaterName, 
+                    $AllowAnonymous, $AllowMultiple, $DateDate, $dateModified, 
+                    $inactiveDate, $introText, $thankyouText, $PostId, $publishFlag, 
+                    $publishDate, $OwnerID, $EditorID);
 
 
             // Redirect the page to the admin form

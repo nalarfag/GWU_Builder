@@ -26,6 +26,8 @@ class GWQuestionnaire extends GWBaseModel
     protected $PublishFlag;
     protected $PublishDate;
     protected $Deleted;
+    protected $OwnerId;
+    protected $EditorId;
 
 
     public static function get_primary_key()
@@ -55,7 +57,9 @@ class GWQuestionnaire extends GWBaseModel
             'ThankyouText',
             'Link',
             'PublishFlag',
-            'PublishDate'
+            'PublishDate',
+                'OwnerId',
+                'EditorId'
         );
         return $searchableFields;
     }

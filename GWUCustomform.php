@@ -31,7 +31,17 @@ function my_save_extra_profile_fields( $user_id ) {
 		return false;
 
 	/* Copy and paste this line for additional fields. Make sure to change 'twitter' to the field ID. */
-	update_usermeta( $user_id, 'owner', $_POST['owner'] );
+	update_user_meta( $user_id, 'owner', $_POST['owner'] );
+}
+
+add_action('user_register', 'save_custom_user_profile_fields');
+function save_custom_user_profile_fields($user_id){
+    # again do this only if you can
+    if(!current_user_can('manage_options' ))
+        return false;
+
+    # save my custom field
+    add_user_meta($user_id, 'ownerID', get_current_user_id());
 }
 
 

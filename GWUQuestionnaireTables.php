@@ -57,7 +57,7 @@ if (!class_exists('GWUQuestionnaireTables')) {
               `PublishDate` DATE NULL,
               `Deleted` BOOL NULL,
               `OwnerId` INTEGER UNSIGNED NULL,
-              `EditorId` INTEGER UNSIGNED NULL
+              `EditorId` INTEGER UNSIGNED NULL,
               PRIMARY KEY(`QuestionnaireID`)
         )ENGINE = INNODB;';
             $Question_creation_query =
@@ -197,7 +197,7 @@ if (!class_exists('GWUQuestionnaireTables')) {
             $wpdb->query($Flag_creation_query);
             $wpdb->query($Response_creation_query);
 
-            //    $this->Questionnaire_insert_sample();
+                $this->Questionnaire_insert_sample();
             //  $this->Flag_Condition_Insert();
         }
 

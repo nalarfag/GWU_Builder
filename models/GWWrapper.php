@@ -201,7 +201,7 @@ class GWWrapper
 		return GWQuestionnaire::find($keys);
 	}
 	
-	public static function saveQuestionnaire($Title, $Topic, $creatorName, $allowMultiple, $allowAnnonymous, $dateCreated, $DateModified, $inactiveDate, $introText, $thankyouText, $PostId, $publishFlag, $publishDate, $deleted = 'false') {
+	public static function saveQuestionnaire($Title, $Topic, $creatorName, $allowMultiple, $allowAnnonymous, $dateCreated, $DateModified, $inactiveDate, $introText, $thankyouText, $PostId, $publishFlag, $publishDate, $OwnerId,$EditorId,$deleted = 'false') {
 		$questionnaire = new GWQuestionnaire();
 		$questionnaire->set_Title($Title);
 		$questionnaire->set_Topic($Topic);
@@ -217,6 +217,8 @@ class GWWrapper
 		$questionnaire->set_PostId($PostId);
 		$questionnaire->set_PublishFlag($publishFlag);
 		$questionnaire->set_PublishDate($publishDate);
+                $questionnaire->set_EditorId($EditorId);
+                $questionnaire->set_OwnerId($OwnerId);
 		$questionnaire->set_Deleted($deleted);
 		
 		

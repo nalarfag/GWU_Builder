@@ -74,7 +74,7 @@ $Questions = array_filter($Questions, 'array_filter_callback');
 									$('#flagValues_' + id).append('<option value="' + obj.FlagValue + '">' + obj.FlagValue + '</option>');
 								});
 							}
-					},
+					}
 				});
 			} else {
 				$('#flagValues_' + $(this).attr('id').split('_')[1]).html("");

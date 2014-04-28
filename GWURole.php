@@ -18,6 +18,7 @@ use WordPress\ORM\Model\GWWrapper;
             //$question = $Wrapper->listQuestion($QuestionnaireID,true);
             //get the default administrator role
             $role = & get_role( 'administrator' );
+            $role -> add_cap( 'own_survey' );
 
 
             //create the custom role owner
@@ -61,12 +62,12 @@ use WordPress\ORM\Model\GWWrapper;
             );
                 $role = & get_role('survey_editor');
                 $role -> add_cap('read');
-                $role -> add_cap('manage_options');
                 $role -> add_cap( 'delete_pages');
                 $role -> add_cap( 'edit_pages');
                 $role -> add_cap( 'create_pages' );
                 $role -> add_cap( 'publish_pages' );
                 $role -> add_cap( 'edit_survey' );
+                $role->remove_cap('manage_options');
 
             //remove the unnecessary roles
             remove_role('subscriber');

@@ -10,12 +10,12 @@ function my_show_extra_profile_fields( $user ) { ?>
 
   <tr>
     <th>
-      <label for="company">Company</label>
+      <label for="owner">Owner</label>
     </th>
 
     <td>
-      <input type="text" name="company" id="company" value=""<?php echo esc_attr( get_the_author_meta( 'company', $user->ID ) ); ?>" class="regular-text" /><br />
-      <span class="description">Please enter your Company name.</span>
+      <input type="text" name="owner" id="owner" value=""<?php echo esc_attr( get_the_author_meta( 'owner', $user->ID ) ); ?>" class="regular-text" /><br />
+      <span class="description">Please enter your Owner's name.</span>
     </td>
   </tr>
 
@@ -31,7 +31,7 @@ function my_save_extra_profile_fields( $user_id ) {
 		return false;
 
 	/* Copy and paste this line for additional fields. Make sure to change 'twitter' to the field ID. */
-	update_usermeta( $user_id, 'company', $_POST['company'] );
+	update_usermeta( $user_id, 'owner', $_POST['owner'] );
 }
 
 

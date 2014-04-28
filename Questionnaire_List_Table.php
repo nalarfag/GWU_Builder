@@ -91,7 +91,7 @@ class Questionnaire_List_Table extends WP_List_Table {
         if ($item->PublishFlag != true) {
             $output = '<a id="publish" href=' . add_query_arg(array('page' => 'GWU_Questionnaire-mainMenu-page',
                         'action' => 'publish', 'qid' => $item->QuestionnaireID
-                            ), admin_url('admin.php')) . ' ">Publish Questionnaire</a>';
+                            ), admin_url('admin.php')) . ' ">Publish</a>';
         } else {
 
 
@@ -99,7 +99,7 @@ class Questionnaire_List_Table extends WP_List_Table {
             if ($item->PostId == -1)
                 $output = '<a id="reactivate" href=' . add_query_arg(array('page' => 'GWU_Questionnaire-mainMenu-page',
                             'action' => 'reactivate', 'qid' => $item->QuestionnaireID
-                                ), admin_url('admin.php')) . ' ">Republish Questionnaire</a>';
+                                ), admin_url('admin.php')) . ' ">Republish</a>';
             else {
                 $Link = get_permalink($item->PostId);
                 $output = '<a href="' . $Link . '">' . $Link . '</a>';
@@ -192,6 +192,19 @@ class Questionnaire_List_Table extends WP_List_Table {
         /* -- Preparing your query -- */
         $query = "SELECT * FROM gwu_questionnaire";
 
+        /* where cluase for editor or onwer*/
+         if (current_user_can('edit_survey')) {
+            $EditorID = get_current_user_id();
+             $whereCondition= '`EditorID`='.$EditorID;
+            } //user is owner or adminstrator
+            elseif (current_user_can('own_survey')) {
+             
+                $OwnerID = get_current_user_id();
+                $whereCondition= '`OwnerID`='.$OwnerID;
+            }
+
+         $query.=' WHERE ' . $whereCondition;
+        
         /* -- Ordering parameters -- */
         //Parameters that are going to be used to order the result
         $orderby = !empty($_GET["orderby"]) ? mysql_real_escape_string($_GET["orderby"]) : 'ASC';

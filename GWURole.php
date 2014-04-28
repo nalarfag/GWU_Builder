@@ -19,6 +19,7 @@ use WordPress\ORM\Model\GWWrapper;
             //get the default administrator role
             $role = & get_role( 'administrator' );
             $role -> add_cap( 'own_survey' );
+            $role-> add_cap( 'manage_surveys' );
 
 
             //create the custom role owner
@@ -48,6 +49,7 @@ use WordPress\ORM\Model\GWWrapper;
             $role -> add_cap( 'edit_users' );
             $role -> add_cap( 'delete_users' );
             $role -> add_cap( 'own_survey' );
+             $role-> add_cap( 'manage_surveys' );
              
             
           
@@ -66,15 +68,17 @@ use WordPress\ORM\Model\GWWrapper;
                 $role -> add_cap( 'edit_pages');
                 $role -> add_cap( 'create_pages' );
                 $role -> add_cap( 'publish_pages' );
-                $role -> add_cap( 'edit_survey' );
+                $role -> add_cap( 'edit_survey' ); 
+                $role-> add_cap( 'manage_surveys' );
                 $role->remove_cap('manage_options');
+                
 
             //remove the unnecessary roles
             remove_role('subscriber');
             remove_role('editor');
             remove_role('author');
             remove_role('contributor');
-             
+            
         }
 
 

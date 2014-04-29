@@ -62,25 +62,22 @@ $NewUserAddress = add_query_arg(array(
  $current_user = wp_get_current_user();
 if ( !($current_user instanceof WP_User) )
    return;
-function filter_two_roles($user){
-  $roles = array('owner','survey_editor');
-  return in_array($user->roles[0],$roles);
-}
+  
  
 $user_ID = get_current_user_id();
 
-            /*foreach
-             $args = array('role' => 'owner',
+           
+             $args = array('role' => 'survey_editor',
                            'meta_key' => 'ownerID',
                            'meta_value' => $user_ID);
+
+           
+            
                            
-             $blogusers = get_users($args);*/
+             $blogusers = get_users($args);
+                  foreach ($blogusers as $user) 
              
-             $users = get_users('fields=all_with_meta');
-             //sort by ownerID
-             usort($users, create_function('$a, $b', 'if($a->ownerID == $b->ownerID) { return 0;} return ($a->ownerID > $b->ownerID) ? 1 : -1;'));
-// Iterate through users, filtering out the ones which don't have the roles we want 
-foreach(array_filter($users, 'filter_two_roles') as $user) {
+             {
     // Your code
       echo '<tr>';
                   echo  '<td>' . $user->user_login . '</td>';
@@ -105,7 +102,7 @@ foreach(array_filter($users, 'filter_two_roles') as $user) {
                 echo '</tr>';
 }
               
-              //foreach ($blogusers as $user) {
+         
               
                 
              
@@ -117,7 +114,7 @@ foreach(array_filter($users, 'filter_two_roles') as $user) {
     </table>
 
     <button>
-      <a class="addnewuser" style = "text-decoration:none;margin-top:10px;" href="../wp-admin/user-new.php">Add New User</a>
+      <a class="addnewuser" style = "text-decoration:none;margin-top:10px;" href="../wordpress/wp-admin/user-new.php">Add New User</a>
     </button>
     <button>
       <a class="addnewassignment" style="text-decoration:none;margin-top:10px;" href=""

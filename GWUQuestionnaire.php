@@ -218,6 +218,19 @@ if (!class_exists('GWUQuestionnaire')) {
             $wpdb->delete('gwu_questionnaire', array(
                 'QuestionnaireID' => $QuestionnaireID
             ));
+            
+             $wpdb->delete('wp_question_response', array(
+                'question_dim_questionnaire_id' => $QuestionnaireID
+            ));
+
+            $wpdb->delete('wp_question_dim', array(
+                'questionnaire_id' => $QuestionnaireID
+            ));
+
+            $wpdb->delete('wp_questionnaire_dim', array(
+                'questionnaire_id' => $QuestionnaireID
+            ));
+
 
 
             die();

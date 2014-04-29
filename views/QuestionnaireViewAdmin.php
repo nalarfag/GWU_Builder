@@ -81,8 +81,11 @@
                 success: function(data) {
                     //   window.location.reload(true);
                     // $("#"+data).remove();
+		    var response=$(data);
+		    var success=response.filter('#success').text();
+
                     $("#QuestionnaireView").load(location.href + " #QuestionnaireView");
-                    if(data==true)
+		    if(success=='true')
                         $("#Notice").html('<div class="updated"><p>The questionnaire was successfully published</p></div>');
                     else
                         $("#Notice").html('<div class="updated"><p>Faild to publish the questionnaire</p></div>');
@@ -112,8 +115,11 @@
                 success: function(data) {
                     //   window.location.reload(true);
                     // $("#"+data).remove();
+		    var response=$(data);
+		    var success=response.filter('#success').text();
+		    //console.debug(success);
                     $("#QuestionnaireView").load(location.href + " #QuestionnaireView");
-                    if(data==true)
+		    if(success=='true')
                         $("#Notice").html('<div class="updated"><p>The questionnaire link was successfully deactivated</p></div>');
                     else
                         $("#Notice").html('<div class="updated"><p>Faild to deactivate the questionnaire link</p></div>');
@@ -143,11 +149,14 @@
                 success: function(data) {
                     //   window.location.reload(true);
                     // $("#"+data).remove();
+		    var response=$(data);
+		    var success=response.filter('#success').text();
+		    //console.debug(success);
                     $("#QuestionnaireView").load(location.href + " #QuestionnaireView");
-                    if(data==true)
+		    if(success=='true')
                         $("#Notice").html('<div class="updated"><p>The questionnaire was successfully republished</p></div>');
                     else
-                        $("#Notice").html('<div class="updated"><p>Faild to republished the questionnaire link</p></div>');
+			$("#Notice").html('<div class="updated"><p>Failed to republished the questionnaire link</p></div>');
 
                 }
 
@@ -159,7 +168,7 @@
             e.preventDefault();
             var url = ($(this).attr('href'));
             id = getURLParameter(url, 'qid');
-            console.debug(id);
+	    // console.debug(id);
             debugger;
             $.ajax({
                 type: "POST",

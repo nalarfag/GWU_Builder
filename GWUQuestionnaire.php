@@ -65,9 +65,9 @@ if (!class_exists('GWUQuestionnaire')) {
                 );
                 if ($success) {
 
-                    echo true;
+		    echo '<div id="success">true</div>';
                 } else {
-                    echo false;
+		    echo '<div id="success">false</div>';
                 }
             }
             die();
@@ -90,9 +90,9 @@ if (!class_exists('GWUQuestionnaire')) {
             );
             if ($success) {
 
-                echo true;
+		echo '<div id="success">true</div>';
             } else {
-                echo false;
+		echo '<div id="success">false</div>';
             }
             die();
         }
@@ -122,10 +122,9 @@ if (!class_exists('GWUQuestionnaire')) {
                     ), array('QuestionnaireID' => $QuestionnaireID)
             );
             if ($success) {
-
-                echo true;
+		echo '<div id="success">true</div>';
             } else {
-                echo false;
+		echo '<div id="success">false</div>';
             }
             die();
         }
@@ -183,10 +182,7 @@ if (!class_exists('GWUQuestionnaire')) {
 
 
 
-            $Questionnaire = $this->Wrapper->saveQuestionnaire($Title, $Topic, $CreaterName, 
-                    $AllowAnonymous, $AllowMultiple, $DateDate, $dateModified, 
-                    $inactiveDate, $introText, $thankyouText, $PostId, $publishFlag, 
-                    $publishDate, $OwnerID, $EditorID);
+	    $Questionnaire = $this->Wrapper->saveQuestionnaire($Title, $Topic, $CreaterName, $AllowAnonymous, $AllowMultiple, $DateDate, $dateModified, $inactiveDate, $introText, $thankyouText, $PostId, $publishFlag, $publishDate, $OwnerID, $EditorID);
 
 
             // Redirect the page to the admin form

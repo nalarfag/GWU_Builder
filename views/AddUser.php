@@ -29,24 +29,24 @@ $NewUserAddress = add_query_arg(array(
 
 
   <h1>All Users</h1>
-      <div class="table">
-          <table class="wp-list-table widefat fixed pages"  width="90%" border="1">
-            <tbody>
-              <thead>
-                <tr>
-                  <th width="20%">Username</th>
-                  <th width="35%">Email</th>
-                  <th width="20%">Role</th>
-                  <th width="15%">Name</th>
-                
-                </tr>
-              </thead>
-              <tfoot>
+  <div class="table">
+    <table class="wp-list-table widefat fixed pages"  width="90%" border="1">
+      <tbody>
+        <thead>
+          <tr>
+            <th width="20%">Username</th>
+            <th width="35%">Email</th>
+            <th width="20%">Role</th>
+            <th width="15%">Name</th>
+
+          </tr>
+        </thead>
+        <tfoot>
 
 
 
 
-                <?php
+          <?php
 /*[ID] => 1
 [user_login] => admin
 [user_pass] => $P$Bxudi6gJMk2GRt2ed3xvZ06c1BPZXi/
@@ -62,13 +62,27 @@ $NewUserAddress = add_query_arg(array(
  $current_user = wp_get_current_user();
 if ( !($current_user instanceof WP_User) )
    return;
-$roles = $current_user->roles; 
+function filter_two_roles($user){
+  $roles = array('owner','survey_editor');
+  return in_array($user->roles[0],$roles);
+}
+ 
+$user_ID = get_current_user_id();
 
-
-              foreach ($blogusers as $user) {
-              if( current_user_can( 'manage_options' ) ){ 
-
-                  echo '<tr>';
+            /*foreach
+             $args = array('role' => 'owner',
+                           'meta_key' => 'ownerID',
+                           'meta_value' => $user_ID);
+                           
+             $blogusers = get_users($args);*/
+             
+             $users = get_users('fields=all_with_meta');
+             //sort by ownerID
+             usort($users, create_function('$a, $b', 'if($a->ownerID == $b->ownerID) { return 0;} return ($a->ownerID > $b->ownerID) ? 1 : -1;'));
+// Iterate through users, filtering out the ones which don't have the roles we want 
+foreach(array_filter($users, 'filter_two_roles') as $user) {
+    // Your code
+      echo '<tr>';
                   echo  '<td>' . $user->user_login . '</td>';
                 echo '<td>' . $user->user_email . '</td>';
                 echo '<td>';
@@ -81,7 +95,6 @@ $roles = $current_user->roles;
                     $wp_roles = new WP_Roles();
 
                 foreach ( $wp_roles->role_names as $role => $name ) :
-
                     if ( array_key_exists( $role, $capabilities ) )
                         echo $role;
                 endforeach;
@@ -90,23 +103,29 @@ $roles = $current_user->roles;
 
                 echo '<td>' . $user->display_name . '</td>';
                 echo '</tr>';
-            }
-            }
+}
+              
+              //foreach ($blogusers as $user) {
+              
+                
+             
+            
 ?>
 
-              </tfoot>
-            </tbody>
-          </table>
+        </tfoot>
+      </tbody>
+    </table>
 
-          <button>
-            <a class="addnewuser" style = "text-decoration:none;margin-top:10px;" href="../wordpress/wp-admin/user-new.php">Add New User</a>
-          </button>
-          <button>
-            <a class="addnewassignment" style="text-decoration:none;margin-top:10px;" href="<?php echo $NewUserAddress; ?>">Add New Assignment
-            </a>
-          </button>
-        </div>
+    <button>
+      <a class="addnewuser" style = "text-decoration:none;margin-top:10px;" href="../wp-admin/user-new.php">Add New User</a>
+    </button>
+    <button>
+      <a class="addnewassignment" style="text-decoration:none;margin-top:10px;" href=""
+        <?php echo $NewUserAddress; ?>">Add New Assignment
+      </a>
+    </button>
+  </div>
 
 
-    </div>
+</div>
 <?php }?>

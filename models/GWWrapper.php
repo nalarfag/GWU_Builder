@@ -387,6 +387,11 @@ class GWWrapper
 			}
 		}
 	}	
+	public static function listResponsesBySessionId($SessionID) {
+		 $keys = array('SessionID' => $SessionID);
+		return GWResponse::find($keys);
+	
+	}
 }	
 
 ?>

@@ -3,6 +3,67 @@
 include_once dirname( __FILE__ ) . '/models/GWWrapper.php';
 use WordPress\ORM\Model\GWWrapper;
 add_shortcode('questionnaire', 'Response_questions');
+/*get next question sequence function*/
+function getNextQuestion($SessionID,$ConditionID)
+{
+	    $Wrapper= new GWWrapper();
+		$FlagValues = array();
+	 //1) get all the responses for this session id..i.e we need listResponses($SessionID)
+	 //2) iterate all the responses and get the flag values
+     //3) store all the flagnames value
+	 
+		$arr_responsID = $Wrapper->listResponsesBySessionId($SessionID);
+		foreach($arr_responsID as $temp) {
+			$ResponseId = $temp->get_ResponseID();
+			$arrAllResponses = $Wrapper->getFlagsByQuestionnaireQuestionOption($temp->get_QuestionnaireID(),$temp->get_QuestSequence(),$temp->get_OptionNumber());
+			//$flagObject= new GWFlag();
+			 $flagObject = $arrAllResponses[0];
+			 $FlagName = $flagObject->get_FlagName();
+			 $FlagValue = $flagObject->get_FlagValue();
+			 $FlagValues[$FlagName]= $FlagValue;
+		}
+		$Conditions=$Wrapper->getCondition($ConditionID);
+		$Condition=$Conditions[0];
+		$LogicString= $Condition->get_LogicStatement();
+		$AndParts=explode(" or ",$LogicString);//compute "and" first
+        $IfSucess = FALSE;//if one "and" is true,it's true
+        $NextSeqNum = '1';
+        foreach ($AndParts as $AndPart)
+        {
+		  $IfAndSucess = TRUE;//if one value in and is false,it's false
+		  $ValueParts = explode(" and ",$AndPart);//compute each value in and
+		  foreach ($ValueParts as $ValuePart) {
+			  $Parts = explode(" ",$ValuePart);
+			  If(!isset($FlagValues[$Parts[1]]))
+			        $IfAndSucess = FALSE;
+			  elseif($Parts[2] == '==')
+			  {If($FlagValues[$Parts[1]] <> $Parts[3])
+				    $IfAndSucess = FALSE;
+			  	}
+			  elseif($Parts[2] == '>=')
+			     {If($FlagValues[$Parts[1]] < $Parts[3])
+				    $IfAndSucess = FALSE;}
+			  elseif($Parts[2] == '<=')
+			     {If($FlagValues[$Parts[1]] > $Parts[3])
+				    $IfAndSucess = FALSE;}
+			  elseif($Parts[2] == '>')
+			    {If($FlagValues[$Parts[1]] <= $Parts[3])
+				    $IfAndSucess = FALSE;}
+			  elseif($Parts[2] == '<')
+			    {If($FlagValues[$Parts[1]] >= $Parts[3])
+				    $IfAndSucess = FALSE;}
+			}
+		If($IfAndSucess == TRUE)
+		{
+		   $IfSucess = TRUE;}   						
+     }
+     If($IfSucess)
+        $NextSeqNum= $Condition->get_JumpQNoOnSuccess();
+     else{
+	    $NextSeqNum= $Condition->get_JumpQNoOnFailure();}
+	return $NextSeqNum;		
+}
+/*get ip function*/
 function Get_IP()
 {
 	if ($_SERVER["HTTP_X_FORWARDED_FOR"])
@@ -22,11 +83,23 @@ function Get_IP()
 	return $ip;
 
 }
+/*remove edit button function*/
+function wpse_remove_edit_post_link( $link ) 
+{
+    return '';
+}
+add_filter('edit_post_link', 'wpse_remove_edit_post_link');
+
+/*main funciton to show the questionnaire one by one*/
 function Response_questions($atts)
 {
 	extract(shortcode_atts(array( "id"=> '1'),$atts));
-	$Wrapper= new GWWrapper();
+	$Wrapper= new GWWrapper();//use orm
 	$QSession = null;
+	$QuestionnaireID = $id;	//Get questionnaire id
+	//get the questionaire information through the $id
+	$Questionnaires=$Wrapper->getQuestionnaire($QuestionnaireID);
+	$Questionnaire=$Questionnaires[0];
 	/*if there is no session for qno then set it to zero.this parts is for the case have Qsession but do not have sqno*/
 	if(!isset($_SESSION['sqno']))
 	{
@@ -44,6 +117,11 @@ function Response_questions($atts)
 	}
 	/*this part is to record the session for the first time*/
 	if(!isset($_SESSION['QSession'])) {	//Create new Session object
+	    $current_user= wp_get_current_user();
+	    if($current_user->user_login=='' && $Questionnaire->get_AllowAnnonymous()==0)
+		{
+			return 'Sorry, you need to login to do this survey';
+		}
 		$sessionID = $Wrapper->saveSession($current_user->user_login, Get_IP(), 'Washington', 'USA', '00:00:00.000000', date('Y-m-d'),0);
 		$QSessions = $Wrapper->getSession($sessionID['SessionID']);
 		$QSession = $QSessions[0];
@@ -54,10 +132,10 @@ function Response_questions($atts)
 	}
 	
 	
-	/*get the questionaire information through the $id, write down title*/
+
 
 	
-    $QuestionnaireID = $id;	//Get questionnaire id
+
 	$Questions=$Wrapper->listQuestion($QuestionnaireID);
 	if(empty($Questions))
              {
@@ -67,15 +145,14 @@ function Response_questions($atts)
              {
                   $totalQuestionNum= sizeof($Questions);
              }
-    $Questionnaires=$Wrapper->getQuestionnaire($QuestionnaireID);
-	$Questionnaire=$Questionnaires[0];
-	
-    $output='<p><font color="#545454"><small>Questionnaire:</small></font><br/> <font size="20px"><strong>'.$Questionnaire->get_Title().'</strong></font></p><br/>';
+
+	/* write down questionnaire title*/
+    $output='<p><font color="#545454"><small>Questionnaire:</small></font><br/> <big><strong>'.$Questionnaire->get_Title().'</strong></big></p><br/>';
 	/*Check if it's the first question*/
 	/*if it's new, set the $qno=0 else store last questionno in $qno */
 	
 	$qno=$_SESSION['sqno'];
-	if($qno != '0' && $_POST["qno"]==$qno)
+	if($qno != '0' && $_POST["qno"]==$qno && $_POST["IfJump"]!= 1)
 	{
 		
 		$questions=$Wrapper->getQuestion($qno, $QuestionnaireID);
@@ -103,10 +180,13 @@ function Response_questions($atts)
 	}/*$QSession->get_SessionID()*/
 	
 	/*if last question is the final question show thankyou*/
-	if($qno == $totalQuestionNum && $_POST["qno"]==$qno)	//Test this condition to check if the last question is displayed properly.
+	if($qno == $totalQuestionNum && $_POST["qno"]==$qno)	
 	{
+		$gwsession = $_SESSION['QSession'];	//Get GWSession object from browser session
+		$gwsession->set_SurveyCompleted(1);	//set properties to be updated
+		$gwsession->update();	//This will update the GWSession object in the database
 		unset($_SESSION['QSession']);
-		$output = 'Thank your for participating our survey';
+		return 'Thank your for participating our survey';
 		
 	}
 	/*else $qno +=1 Get the question and answerchoice from the database with $qno and $QuestionnaireID 
@@ -117,25 +197,106 @@ function Response_questions($atts)
 		{
 			$qno += 1;
 		    $_SESSION['sqno'] = $qno;
+			$QueFoCons=$Wrapper->getQuestion($qno, $QuestionnaireID);
+			$QueFoCon=$QueFoCons[0];
+			if($QueFoCon->get_ConditionID() != null )
+			{
+				$JumpNum =	getNextQuestion($QSession->get_SessionID(),$QueFoCon->get_ConditionID());
+				while($JumpNum != $qno)
+				{
+					$qno = $JumpNum;
+					$QueFoCons=$Wrapper->getQuestion($qno, $QuestionnaireID);
+			        $QueFoCon=$QueFoCons[0];
+					if($QueFoCon->get_ConditionID() != null )
+						$JumpNum =	getNextQuestion($QSession->get_SessionID(),$QueFoCon->get_ConditionID());
+				}
+				$_SESSION['sqno'] = $qno;
+			}
+			
 		}	
 	    $questions=$Wrapper->getQuestion($qno, $QuestionnaireID);
         $question=$questions[0];
 		$Answerchoices=$Wrapper->listAnswerChoice($QuestionnaireID,$qno);
 		$Actions=$Wrapper->listActions($QuestionnaireID,$qno);
+		$IfMandatory='';
+		If($question->get_Mandatory()==1)
+		{
+			$IfMandatory='style="display: none"';
+		}
+		/*show question text*/
+		$output .= '<form action="" method="post">
+		            <strong>'.$qno.". ".$question->get_Text().'</strong><br/>
+		            <input type="checkbox" value=1 name="IfJump" '.$IfMandatory.'/><font '.$IfMandatory.'>Jump This quesion</font><hr/>';
+		/*show action*/
+		if(!empty($Actions))
+	    {
+			  	$output .='<body onload="LoadAction()"><p>references:<br/>
+			  	<script type="text/javascript">
+                var links = new Array();
+                var types = new Array();
+                var num = '.sizeof($Actions).';';
+                foreach ($Actions as $Action) {
+                	$output .='links['.$Action->get_Sequence().'-1]="'.$Action->get_LinkToAction().'";
+                	types['.$Action->get_Sequence().'-1] = "'.$Action->get_ActionType().'";';
+                    
+                }
+                $output .='function LoadAction() {
+                  document.getElementById("ActSeq").value = "0";
+                  document.getElementById("ActVid").style.display = "none";
+                  document.getElementById("ActImg").style.display = "none";
+                  document.getElementById("NextAct").style.display = "none";
+                  if (types[0] == "Image") {
+                       document.getElementById("ActImg").style.display = "inline";
+                       document.getElementById("ActImg").src = links[0];
+                  }
+                  else if (types[0] == "Video") {
+                      document.getElementById("ActVid").style.display = "inline";
+                      document.getElementById("ActVid").src = links[0];
+                  }
+                  if (num != 1) {
+                    document.getElementById("NextAct").style.display = "inline";
+                   }
+               }
+               function changeaction() {
+                  document.getElementById("ActSeq").value++;
+                  document.getElementById("ActVid").style.display = "none";
+                  document.getElementById("ActImg").style.display = "none";
+                  document.getElementById("NextAct").style.display = "none";
+                  var ActSeq = document.getElementById("ActSeq").value;
+                  if (ActSeq != num - 1) {
+                       document.getElementById("NextAct").style.display = "inline";
+                  }
+                  if (types[ActSeq] == "Image") {
+                    document.getElementById("ActImg").style.display = "inline";
+                    document.getElementById("ActImg").src = links[ActSeq];
+                 }
+                 else if (types[ActSeq] == "Video") {
+                    document.getElementById("ActVid").style.display = "inline";
+                    document.getElementById("ActVid").src = links[ActSeq];
+                 }
+               }
+               </script>
+               <input type="hidden" id="ActSeq" value="0"/>              
+               <img  style="max-height: 415px; max-width: 560px" id="ActImg" src=""  alt="not" />
+               <iframe id="ActVid"  style="height: 415px; width: 560px" src=""  allowfullscreen></iframe><br/>
+               <button id="NextAct" onclick="changeaction()" type="button">next</button>
+               </p><hr/></body>
+               ';
+				
+		 }
 	    /*show the qno's quesion depends on it's type*/
 	    if($question->get_AnsType()=='Text Box')
 		          {
-			          $output .='<form action="" method="post">
+			          $output .='
 			          <input type="hidden" name="qno" value="'.$qno.'"/>
-	                 <strong>'.$qno.". ".$question->get_Text().'</strong><hr/>
+	                 
 	                  <textarea  cols="30" rows="5" name="response" ></textarea><br/>
                       <br/><input type="submit" value="next"></form>';
 				  }
 		     elseif($question->get_AnsType()=='Multiple Choice, Single Value')
 		          {
-			         $output .='<form action="" method="post">
-			            <input type="hidden" name="qno" value="'.$qno.'"/>
-	                    <strong>'.$qno.". ".$question->get_Text().'</strong><hr/>';
+			         $output .='
+			            <input type="hidden" name="qno" value="'.$qno.'"/>';
 						if(empty($Answerchoices))
 						{
 							$output .='<br/>your data is invalid because there is no answerchoice';
@@ -159,9 +320,8 @@ function Response_questions($atts)
 		           }
 		       elseif($question->get_AnsType()=='Multiple Choice, Multiple Value')
 		         {
-			         $output .='<form action="" method="post">
-			             <input type="hidden" name="qno" value="'.$qno.'"/>
-	                     <strong>'.$qno.". ".$question->get_Text().'</strong><hr/>';
+			         $output .='
+			             <input type="hidden" name="qno" value="'.$qno.'"/>';
 						 if(empty($Answerchoices))
 						{
 							$output .='<br/>your data is invalid because there is no answerchoice';
@@ -178,9 +338,8 @@ function Response_questions($atts)
 		            }
 		      else 
 		        {
-			         $output .= '<form action="" method="post">
-			               <input type="hidden" name="qno" value="'.$qno.'"/>
-	                       <strong>'.$qno.". ".$question->get_Text().'</strong><hr/><table><tr><td></td>';
+			         $output .= '
+			               <input type="hidden" name="qno" value="'.$qno.'"/><table><tr><td></td>';
 						if(empty($Answerchoices)||sizeof($Answerchoices)<13)
 						{
 							$output .='<br/>your data is invalid because the answerchoices is not enough, please update your db';
@@ -204,23 +363,7 @@ function Response_questions($atts)
 						}
                         $output .= '<br/><br/><input type="submit" value="next"></form>';
 				}
-              if(!empty($Actions))
-			  {
-			  	$output .='<hr/><p>references:<br/>';
-				foreach ($Actions as $Action) 
-				{
-					if($Action->get_ActionType()=='Image')
-					{
-						$output.='<img src="'.$Action->get_LinkToAction().'"><br/><br/>';
-					}
-					else if($Action->get_ActionType()=='Video')
-					{
-						$output.='<video width="320" height="240" controls>
-                               <source src="'.$Action->get_LinkToAction().'" type="video/mp4"></video><br/><br/>';
-					}
-				}
-                $output .='</p>';
-			  }
+
 			  
 			
 		}

@@ -36,7 +36,7 @@ use WordPress\ORM\Model\GWWrapper;
         );   
             $role = & get_role('owner');
             $role -> add_cap('read');
-            $role -> add_cap('manage_options');
+            
             $role -> add_cap( 'delete_others_pages' );
             $role -> add_cap( 'delete_pages');
             $role -> add_cap( 'edit_pages');
@@ -49,7 +49,8 @@ use WordPress\ORM\Model\GWWrapper;
             $role -> add_cap( 'edit_users' );
             $role -> add_cap( 'delete_users' );
             $role -> add_cap( 'own_survey' );
-             $role-> add_cap( 'manage_surveys' );
+            $role-> add_cap( 'manage_surveys' );
+            $role->remove_cap('manage_options');
              
             
           
@@ -85,19 +86,21 @@ use WordPress\ORM\Model\GWWrapper;
 
     }
      
-   add_action('pre_user_query','GWU_pre_user_query');
+  add_action('pre_user_query','GWU_pre_user_query');
     function GWU_pre_user_query($user_search) {
+   
     $user = wp_get_current_user();
 
     if ( $user->roles[0] != 'administrator' ) {
         global $wpdb;
 
         $user_search->query_where =
-            str_replace('WHERE 1=1',"WHERE 1=2"
-                /*"WHERE 1=1 AND {$wpdb->users}.ID IN (
+            str_replace('WHERE 1=1',
+                "WHERE 1=1 AND {$wpdb->users}.ID IN (
                  SELECT {$wpdb->usermeta}.user_id FROM $wpdb->usermeta
-                    WHERE {$wpdb->usermeta}.meta_key = '{$wpdb->prefix}user_level'
-                   AND {$wpdb->usermeta}.meta_value < 10)"*/,
+                    WHERE {$wpdb->usermeta}.meta_key = '{$wpdb->prefix}capabilities'
+                    AND {$wpdb->usermeta}.meta_value NOT LIKE '%owner%'
+                    AND {$wpdb->usermeta}.meta_value NOT LIKE '%administrator%')",
                 $user_search->query_where
             );
 

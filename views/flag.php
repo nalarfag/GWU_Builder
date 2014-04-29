@@ -26,7 +26,7 @@ $conditionsCounter=0;
 
 
 function array_filter_callback($element) {
-	if($element->get_QuestSequence() > $_GET['qno']) {
+	if($element->get_QuestSequence() >= $_GET['qno']) {
 		return TRUE;
 	} else {
 		return FALSE;
@@ -83,22 +83,47 @@ $Questions = array_filter($Questions, 'array_filter_callback');
 		});
 		
 		
-		$("#logicform").submit(function() {
+		$("#logicform").submit(function(event) {
 		
 			var conditionString = '';
-		
+			var validationError = false;
 			$("#conditionsDiv").children().each(function() {
 		
 				$(this).children().each(function() {
 			
 					if($(this).attr('id').indexOf('flagNames_') > -1) {
-						conditionString += '( ' + $(this).val();
+						if($(this).val()) {
+							$("#errorMsg_" + $(this).attr('id').split("_")[1]).html('');
+							conditionString += '( ' + $(this).val();
+						} else {
+							$("#errorMsg_" + $(this).attr('id').split("_")[1]).html('Select Flag name');
+							validationError = true;
+						}
 					} else if($(this).attr('id').indexOf('flagValues_') > -1) {
-						conditionString += ' ' + $(this).val() + ' )';
+						if($(this).val()) {
+							$("#errorMsg_" + $(this).attr('id').split("_")[1]).html('');
+							conditionString += ' ' + $(this).val() + ' )';
+						} else {
+							
+							$("#errorMsg_" + $(this).attr('id').split("_")[1]).html('Select Flag value');
+							validationError = true;
+						}
 					} else if($(this).attr('id').indexOf('logicalOperator_') > -1) {
+						if($(this).val()) {
+							$("#errorMsg_" + $(this).attr('id').split("_")[1]).html('');
 							conditionString += $(this).val() + ' ';
+						} else {
+							$("#errorMsg_" + $(this).attr('id').split("_")[1]).html('Select logical operator');
+							validationError = true;
+						}
 					} else {
-						conditionString += ' ' + $(this).val();
+						if($(this).val()) {
+							$("#errorMsg_" + $(this).attr('id').split("_")[1]).html('');
+							conditionString += ' ' + $(this).val();
+						} else {
+							//$("#errorMsg_" + $(this).attr('id').split("_")[1]).html('Select conditional operator');
+							//validationError = true;
+						}
 					}
 			
 				});
@@ -107,6 +132,23 @@ $Questions = array_filter($Questions, 'array_filter_callback');
 		
 			$("#logicalCondition").val(conditionString);
 		
+			if(validationError) {
+				event.preventDefault();
+			}
+			
+			if($('#jumpOnSuccess').val()) {
+				$('#jumpOnSuccessError').html('');
+			} else {
+				$('#jumpOnSuccessError').html('Select question to jumpto on success');
+				event.preventDefault();
+			}
+			
+			if($('#jumpOnFailure').val()) {
+				$('#jumpOnFailureError').html('');
+			} else {
+				$('#jumpOnFailureError').html('Select question to jumpto on failure');
+				event.preventDefault();
+			}
 		});
 		
 	});
@@ -156,10 +198,12 @@ $Questions = array_filter($Questions, 'array_filter_callback');
 			logicalOperator += '<option value="or"> OR </option>';
 			logicalOperator += '</select>';
 			
+			var errorMessage = '<div id="errorMsg_'+ noOfConditions + '" style="color:red"></div>';
+			
 			if(noOfConditions > 1) {
-				jQuery("#conditionsDiv").append('<div id="condition_' + noOfConditions + '">' + logicalOperator + flagNames + operator + flagValues + removeCondition + '</div>');
+				jQuery("#conditionsDiv").append('<div id="condition_' + noOfConditions + '">' + logicalOperator + flagNames + operator + flagValues + removeCondition + errorMessage + '</div>');
 			} else {
-				jQuery("#conditionsDiv").append('<div id="condition_' + noOfConditions + '" style="padding-left:1.6cm;">' + flagNames + operator + flagValues + removeCondition + '</div>');
+				jQuery("#conditionsDiv").append('<div id="condition_' + noOfConditions + '" style="padding-left:1.6cm;">' + flagNames + operator + flagValues + removeCondition + errorMessage + '</div>');
 			}
 	
 	}
@@ -255,12 +299,14 @@ $Questions = array_filter($Questions, 'array_filter_callback');
 			<select id="jumpOnSuccess" name="jumpOnSuccess">
 				<option value="">(Select Question)</option>
 			</select>
+			<label id="jumpOnSuccessError" style="color:red"></label>
 		</div>
 		<div>
 			<label for="jumpOnFailure">Select Question number to branch to on failure:</label>
 			<select id="jumpOnFailure" name="jumpOnFailure">
 				<option value="">(Select Question)</option>
 			</select>
+			<label id="jumpOnFailureError" style="color:red"></label>
 		</div>
 		<div>
 			<input type="submit" id="save" name="save" value="Save"/>

@@ -210,6 +210,7 @@ if (!class_exists('GWUQuestion')) {
             //string to hold the HTML code for output
             $questions = $this->Wrapper->listQuestion($QuestionnaireID);
             $Questionnaire = $this->Wrapper->getQuestionnaire($QuestionnaireID);
+	    $PublishedFlag=$Questionnaire[0]->get_PublishFlag();
 
             if ($questions == false) {
                 echo' <h2>    <a class="add-new-h2" 

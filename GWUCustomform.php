@@ -37,7 +37,7 @@ function my_save_extra_profile_fields( $user_id ) {
 add_action('user_register', 'save_custom_user_profile_fields');
 function save_custom_user_profile_fields($user_id){
     # again do this only if you can
-    if(!current_user_can('manage_options' ))
+    if(!current_user_can('own_survey' ))
         return false;
 
     # save my custom field

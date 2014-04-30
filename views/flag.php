@@ -14,7 +14,11 @@ $condition = null;
 $conditions = array();
 
 $flags = $Wrapper->getFlagsByQuestionnaire($QuestionnaireID);
-$flags = array_unique($flags);
+if(is_array($flags)) {
+	$flags = array_unique($flags);
+} else {
+	$flags = array();
+}
 
 if(isset($Question) and $Question->get_ConditionID() !== null) {
 	$condition=$Wrapper->getCondition($Question->get_ConditionID())[0];
@@ -111,7 +115,7 @@ $Questions = array_filter($Questions, 'array_filter_callback');
 					} else if($(this).attr('id').indexOf('logicalOperator_') > -1) {
 						if($(this).val()) {
 							$("#errorMsg_" + $(this).attr('id').split("_")[1]).html('');
-							conditionString += $(this).val() + ' ';
+							conditionString += ' ' + $(this).val() + ' ';
 						} else {
 							$("#errorMsg_" + $(this).attr('id').split("_")[1]).html('Select logical operator');
 							validationError = true;

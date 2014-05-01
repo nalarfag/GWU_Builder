@@ -13,15 +13,17 @@ function getNextQuestion($SessionID,$ConditionID)
      //3) store all the flagnames value
 	 
 		$arr_responsID = $Wrapper->listResponsesBySessionId($SessionID);
+                if($arr_responsID!=null){
 		foreach($arr_responsID as $temp) {
 			$ResponseId = $temp->get_ResponseID();
 			$arrAllResponses = $Wrapper->getFlagsByQuestionnaireQuestionOption($temp->get_QuestionnaireID(),$temp->get_QuestSequence(),$temp->get_OptionNumber());
 			//$flagObject= new GWFlag();
+                         if($arrAllResponses!=null){
 			 $flagObject = $arrAllResponses[0];
 			 $FlagName = $flagObject->get_FlagName();
 			 $FlagValue = $flagObject->get_FlagValue();
-			 $FlagValues[$FlagName]= $FlagValue;
-		}
+			 $FlagValues[$FlagName]= $FlagValue;}
+		}}
 		$Conditions=$Wrapper->getCondition($ConditionID);
 		$Condition=$Conditions[0];
 		$LogicString= $Condition->get_LogicStatement();
@@ -226,7 +228,7 @@ function Response_questions($atts)
 		/*show question text*/
 		$output .= '<form action="" method="post">
 		            <strong>'.$qno.". ".$question->get_Text().'</strong><br/>
-		            <input type="checkbox" value=1 name="IfJump" '.$IfMandatory.'/><font '.$IfMandatory.'>Jump This quesion</font><hr/>';
+		            <input type="checkbox" value=1 name="IfJump" '.$IfMandatory.'/><font '.$IfMandatory.'>Skip this quesion</font><hr/>';
 		/*show action*/
 		if(!empty($Actions))
 	    {

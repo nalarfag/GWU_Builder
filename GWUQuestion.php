@@ -202,6 +202,10 @@ if (!class_exists('GWUQuestion')) {
             }
             if (isset($_POST['addAction'])) {
                 echo 'action';
+		wp_redirect(add_query_arg(array('page' => 'GWU_add-Questionnaire-page',
+                            'id' => 'Qaction', 'Qid' => $QuestionnaireID,
+                            'qno' => $questSequence
+                                ), admin_url('admin.php')));
             }
         }
 

@@ -192,9 +192,20 @@ abstract class GWBaseModel
 	 */
 	public function delete()
 	{
+                //file_put_contents("/var/www/html/wordpress/wp-content/plugins/GWU_Builder/models/log.txt", 'Entered delete function........', FILE_APPEND);
 		global $wpdb;
+                $props = $this->properties();
+		// Flatten complex objects
+		$props = $this->flatten_props($props);
+                $keys =  array();
+                foreach(static::get_primary_key() as $key){
+                        $keys[$key] = $props[$key];
+                        //file_put_contents("/var/www/html/wordpress/wp-content/plugins/GWU_Builder/models/log.txt", $keys[$key], FILE_APPEND);
+		}
+                
+                
 
-		return $wpdb->delete(static::get_table(), array(static::get_primary_key() => $this->{static::get_primary_key()}));
+		return $wpdb->delete(static::get_table(), $keys);
 	}
 
 	/**

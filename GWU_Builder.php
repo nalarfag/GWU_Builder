@@ -19,6 +19,7 @@ require_once 'Questionnaire_List_Table.php';
 require_once 'GWUQuestion.php';
 require_once 'GWUQuestionnaire.php';
 require_once 'GWUCondition.php';
+require_once 'GWUAction.php';
 require_once 'GWURole.php';
 require_once 'GWUUsercap.php';
 require_once 'GWUCustomform.php';

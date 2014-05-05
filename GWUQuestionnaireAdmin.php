@@ -21,6 +21,7 @@ use WordPress\ORM\Model\GWWrapper;
  */
 if (!class_exists('GWUQuestionnaireAdmin')) {
 
+//wp_enqueue_media();
     class GWUQuestionnaireAdmin {
 
         protected $pluginPath;
@@ -28,13 +29,17 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
         protected $gwuquestion;
         protected $gwuquestionnaire;
         protected $gwucondition;
-
+        protected $gwuaction;
 
         public function __construct() {
 
             /**
              * Add a new menu under Manage, visible for all users with template viewing level.
              */
+            //wp_enqueue_media();
+           /* if (function_exists('wp_enqueue_media')) {
+                wp_enqueue_media();
+            }*/
             add_action('admin_menu', array($this, 'GWU_add_Questionnaire_menu_links'));
 
             // Register function to be called when administration pages init takes place
@@ -45,9 +50,10 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
 
             // Set Plugin URL
             $this->pluginUrl = WP_PLUGIN_URL . '/GWU_Builder';
-            $this->gwuquestion=new GWUQuestion();
-            $this->gwuquestionnaire= new GWUQuestionnaire();
-            $this->gwucondition=new GWUCondition();
+            $this->gwuquestion = new GWUQuestion();
+            $this->gwuquestionnaire = new GWUQuestionnaire();
+            $this->gwucondition = new GWUCondition();
+            $this->gwuaction = new GWUAction();
         }
 
         public function GWU_add_Questionnaire_menu_links() {
@@ -56,68 +62,61 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
                     , plugins_url('images/GWUQuestionnaire.png', __FILE__));
 
             add_submenu_page('GWU_Questionnaire-mainMenu-page', 'Add New Questionnaire ', 'Add New Questionnaire', 'edit_pages', 'GWU_add-Questionnaire-page', array($this, 'GWU_add_Questionnaire_mainpage_callback'));
-                   add_submenu_page('GWU_Questionnaire-mainMenu-page', 'View Users ', 'View Users', 'create_users', 'GWU_view-Users-page', array($this, 'GWU_view_Users_mainpage_callback'));
-
-            }
+            add_submenu_page('GWU_Questionnaire-mainMenu-page', 'View Users ', 'View Users', 'create_users', 'GWU_view-Users-page', array($this, 'GWU_view_Users_mainpage_callback'));
+        }
 
         public function GWU_Questionnaire_mainpage_callback() {
-             //if current user is not admin, onwer, or survey editor 
-             if(!current_user_can('manage_surveys' ))
-                {
-                wp_die( 'Insufficient permissions to access this page' );           
-                 }
+            //if current user is not admin, onwer, or survey editor 
+            if (!current_user_can('manage_surveys')) {
+                wp_die('Insufficient permissions to access this page');
+            }
             $this->gwuquestionnaire->ShowAllQuestionnaire();
         }
 
         public function GWU_add_Questionnaire_mainpage_callback() {
 
-             //if current user is not admin, onwer, or survey editor 
-             if(!current_user_can('manage_surveys' ))
-                {
-                wp_die( 'Insufficient permissions to access this page' );           
-                 }
+            //if current user is not admin, onwer, or survey editor 
+            if (!current_user_can('manage_surveys')) {
+                wp_die('Insufficient permissions to access this page');
+            }
             $this->AddQuestionnairePageHandler();
         }
-        
-             public function GWU_view_Users_mainpage_callback(){
+
+        public function GWU_view_Users_mainpage_callback() {
             //if current user is not admin, onwer, or survey editor 
-             if(!current_user_can('own_survey' ))
-                {
-                wp_die( 'Insufficient permissions to access this page' );           
-                 }
-                include_once dirname(__FILE__) . '/views/AddUser.php';
-            
+            if (!current_user_can('own_survey')) {
+                wp_die('Insufficient permissions to access this page');
+            }
+            include_once dirname(__FILE__) . '/views/AddUser.php';
         }
 
         // Register functions to be called when bugs are saved
         function GWU_Questionnaire_admin_init() {
-           
+
             add_action('admin_post_add_new_question', array(&$this->gwuquestion, 'AddNewQuestion'));
             add_action('admin_post_edit_question', array(&$this->gwuquestion, 'EditQuestion'));
             add_action('admin_post_question_handler', array(&$this->gwuquestion, 'QuestionHandler'));
             add_action('admin_post_add_new_Questionnaire', array(&$this->gwuquestionnaire, 'AddNewQuestionnaire'));
             add_action('admin_post_edit_Questionnaire', array(&$this->gwuquestionnaire, 'EditQuestionnaire'));
-	    add_action( 'wp_ajax_delete_question', array(&$this->gwuquestion, 'DeleteQuestion' ));
-            add_action( 'wp_ajax_delete_questionnaire', array(&$this->gwuquestionnaire, 'DeleteQuestionnaire' ));
-            add_action( 'wp_ajax_publish_questionnaire', array(&$this->gwuquestionnaire, 'PublishQuestionnaire' ));
-            add_action( 'wp_ajax_duplicate_questionnaire', array(&$this->gwuquestionnaire, 'DuplicateQuestionnaire' ));
-            add_action( 'wp_ajax_reactivate_questionnaire', array(&$this->gwuquestionnaire, 'ReactivateQuestionnaire' ));
-            add_action( 'wp_ajax_deactivate_questionnaire', array(&$this->gwuquestionnaire, 'DeactivateQuestionnaire' ));
-	    add_action('admin_post_save_condition', array($this->gwucondition, 'SaveCondition'));
-            add_action( 'wp_ajax_get_flag_values', array($this->gwucondition, 'getFlagValues') );
-
-
+            add_action('wp_ajax_delete_question', array(&$this->gwuquestion, 'DeleteQuestion'));
+            add_action('wp_ajax_delete_questionnaire', array(&$this->gwuquestionnaire, 'DeleteQuestionnaire'));
+            add_action('wp_ajax_publish_questionnaire', array(&$this->gwuquestionnaire, 'PublishQuestionnaire'));
+            add_action('wp_ajax_duplicate_questionnaire', array(&$this->gwuquestionnaire, 'DuplicateQuestionnaire'));
+            add_action('wp_ajax_reactivate_questionnaire', array(&$this->gwuquestionnaire, 'ReactivateQuestionnaire'));
+            add_action('wp_ajax_deactivate_questionnaire', array(&$this->gwuquestionnaire, 'DeactivateQuestionnaire'));
+            add_action('admin_post_save_condition', array($this->gwucondition, 'SaveCondition'));
+            add_action('wp_ajax_get_flag_values', array($this->gwucondition, 'getFlagValues'));
+            add_action('wp_ajax_save_action', array($this->gwuaction, 'saveAction'));
+            add_action('admin_post_done_action', array($this->gwuaction, 'doneAction'));
+            add_action('wp_ajax_delete_gw_action', array($this->gwuaction, 'removeAction'));
         }
 
-    
-
-        
         public function AddQuestionnairePageHandler() {
-    
+
             // Add questionnaire if no parameter sent in URL -->
             if (empty($_GET['id']) || $_GET['id'] == 'newQuestionnaire') {
-                
-                
+
+
                 include_once $this->pluginPath . '/views/AddQuestionnaire.php';
             } elseif (isset($_GET['id']) && ( $_GET['id'] == 'view' && is_numeric($_GET['Qid']) )) {
 
@@ -125,11 +124,10 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
                 $this->gwuquestionnaire->ShowOneQuestionnaire($QuestionnaireID);
             } elseif (isset($_GET['id']) && ( $_GET['id'] == 'edit' && is_numeric($_GET['Qid']) )) {
 
-                $Wrapper= new GWWrapper(); 
-                
-               include_once $this->pluginPath . '/views/AddQuestionnaire.php';
-            } 
-            elseif (isset($_GET['id']) && is_numeric($_GET['Qid']) &&
+                $Wrapper = new GWWrapper();
+
+                include_once $this->pluginPath . '/views/AddQuestionnaire.php';
+            } elseif (isset($_GET['id']) && is_numeric($_GET['Qid']) &&
                     ( $_GET['id'] == 'new' || is_numeric($_GET['Qno']) )) {
 
                 $mode = 'new';
@@ -152,27 +150,22 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
                     if (isset($_GET['type']) && $_GET['type'] == 'NPS') {
                         include_once $this->pluginPath . '/views/NPS.php';
                     }
-                } 
-            }
-            
-            elseif (isset($_GET['id']) && is_numeric($_GET['Qid']) &&
+                }
+            } elseif (isset($_GET['id']) && is_numeric($_GET['Qid']) &&
                     ( $_GET['id'] == 'editQ' || is_numeric($_GET['Qno']) )) {
 
-                $Wrapper= new GWWrapper(); 
-                        include_once $this->pluginPath . '/views/EditQuestion.php';
-
-                
-            }  elseif (isset($_GET['id']) && is_numeric($_GET['Qid']) &&
+                $Wrapper = new GWWrapper();
+                include_once $this->pluginPath . '/views/EditQuestion.php';
+            } elseif (isset($_GET['id']) && is_numeric($_GET['Qid']) &&
                     ( $_GET['id'] == 'Qlogic' || is_numeric($_GET['Qno']) )) {
-					
-					include_once $this->pluginPath . '/views/flag.php';
-					
-			}
-            
+
+                include_once $this->pluginPath . '/views/flag.php';
+            } elseif (isset($_GET['id']) && is_numeric($_GET['Qid']) &&
+                    ( $_GET['id'] == 'Qaction' || is_numeric($_GET['Qno']) )) {
+
+                include_once $this->pluginPath . '/views/AddAction.php';
+            }
         }
-
-
-       
 
     }
 

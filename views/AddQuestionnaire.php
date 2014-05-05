@@ -85,18 +85,18 @@ $Topics = array('', 'Employee Feedback', 'Volunteer Feedback', 'Education',
             </tr>
 
             <tr>
-                <td>can this survey be taken by anonymous user?</td>
+                <td>Can this survey be taken by anonymous user?</td>
                 <td class="style1">
                     <span>
                         <input id="anonymous_1" name="anonymous" class="element radio" 
                                type="radio" value="1" <?php if ($AllowAnnonymous == true) {
     echo "checked";
 } ?> />
-                        <label class="choice" for="anonymous_1">yes</label>
+                        <label class="choice" for="anonymous_1">Yes</label>
                         <input id="anonymous_2" name="anonymous" class="element radio" type="radio" value="0"  <?php if ($AllowAnnonymous == false) {
     echo "checked";
 } ?>/>
-                        <label class="choice" for="anonymous_2">no</label>
+                        <label class="choice" for="anonymous_2">No</label>
 
                     </span>
 
@@ -104,7 +104,7 @@ $Topics = array('', 'Employee Feedback', 'Volunteer Feedback', 'Education',
             </tr>
 
             <tr id="mutlipleRadio" style="display:none">
-                <td>can user take the survey multiple times</td>
+                <td>Can user take the survey multiple times</td>
 
                 <td class="style1">
                     <span>
@@ -112,11 +112,11 @@ $Topics = array('', 'Employee Feedback', 'Volunteer Feedback', 'Education',
                                type="radio" value="1" <?php if ($AllowMultiple == true) {
     echo "checked";
 } ?> />
-                        <label class="choice" for="multiple_1">yes</label>
+                        <label class="choice" for="multiple_1">Yes</label>
                         <input id="multiple_2" name="multiple" class="element radio" type="radio" value="0" <?php if ($AllowMultiple == false) {
     echo "checked";
 } ?>/>
-                        <label class="choice" for="multiple_2">no</label>
+                        <label class="choice" for="multiple_2">No</label>
 
                     </span> 
 
@@ -124,11 +124,13 @@ $Topics = array('', 'Employee Feedback', 'Volunteer Feedback', 'Education',
             </tr>
 
             <tr>
-                <td>questionnaire topic:</td>
+                <td>Questionnaire Topic:</td>
 
                 <td class="style1">
 
-                    <select class="element select medium" id="topic" name="topic"> 
+                   
+                    <input id="topic" name="topic" list="topics" />
+                    <datalist id="topics">
                         <?php
                         for ($i = 0; $i < count($Topics); $i++) {
                             echo '<option value="' . $Topics[$i] . '" '
@@ -137,7 +139,7 @@ $Topics = array('', 'Employee Feedback', 'Volunteer Feedback', 'Education',
                             . '</option>';
                         }
                         ?>
-                    </select>
+                    </datalist>
                 </td><td></td>
             </tr>
 
@@ -145,8 +147,7 @@ $Topics = array('', 'Employee Feedback', 'Volunteer Feedback', 'Education',
                 <td></td>
                 <td align="right"> 
                     <input type="submit" name="cancel" value="Cancel" class="button-primary"/>
-                    <input type="submit" name="save" value="Save" 
-                           class="button-primary"/>
+                    <input type="submit" name="save" value="Save" class="button-primary"/>
                 </td>
                 <td></td>
             </tr>

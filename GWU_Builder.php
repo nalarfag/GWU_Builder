@@ -1,10 +1,10 @@
 <?php
 
 /*
-  Plugin Name:  GWU Builder Plugin
+  Plugin Name:  QuestionPeach - Builder
   Plugin URI:
-  Description: This plugin create the necessary tables for the builder part of the Questionnaire plugin, create admin page for adding questionnaire
-  Version: 1.4
+  Description: Create questionnaires with different type of questions that has some features such as branching and actions. The created questionnaire can be edited, deleted, duplicated, or published. The questionnaires can be executed using the published link by anyone if the questionnaires is anonymous or by registered user if the questionnaires is not anonymous.
+  Version: 1.5
   Author: Builder team
   Author URI:
  */
@@ -13,8 +13,8 @@ include_once dirname(__FILE__) . '/GWUQuestionnaireTables.php';
 include_once dirname(__FILE__) . '/GWUQuestionnaireAdmin.php';
 include_once dirname(__FILE__) . '/response.php';
 require_once 'Questionnaire_List_Table.php';
-
-
+require_once 'PageTemplater.php';
+require_once 'ExcludePublishedQuestionnaire.php';
 
 require_once 'GWUQuestion.php';
 require_once 'GWUQuestionnaire.php';
@@ -69,6 +69,11 @@ function CreateQuestionnairsPublishedLists() {
         $insert = wp_insert_post($QuestionnairsPublishedList);
     }
 }
+
+
+// Create tmeplate for Questionnairs
+
+add_action( 'plugins_loaded', array( 'PageTemplater', 'get_instance' ) );
 
 if (class_exists('GWUQuestionnaireAdmin')) {
     $QuestionnaireAdmin = new GWUQuestionnaireAdmin();

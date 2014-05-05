@@ -4,9 +4,9 @@
 if (!defined('WP_UNINSTALL_PLUGIN'))
     exit();
 
-bulider_drop_table();
+builder_drop_table();
 
-function bulider_drop_table() {
+function builder_drop_table() {
 
 
 /*
@@ -17,6 +17,9 @@ global $wpdb;
     $wpdb->query("Drop Table gwu_answerChoice");
     $wpdb->query("Drop Table gwu_action");
     $wpdb->query("Drop Table gwu_condition");
+    $wpdb->query("Drop Table gwu_question");
+    $wpdb->query("Drop Table gwu_questionnaire");
+    $wpdb->query("Drop Table gwu_answerChoice");
     $wpdb->query("Drop Table gwu_question");
     $wpdb->query("Drop Table gwu_questionnaire");
 */

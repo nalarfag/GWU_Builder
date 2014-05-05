@@ -50,10 +50,13 @@ if (!class_exists('GWUQuestionnaire')) {
                     'post_status' => 'publish',
                     'post_type' => 'page',
                     'comment_status' => 'closed',
-                    'post_parent' => $page->ID
+		    'post_parent' => $page->ID,
                 );
                 //insert a post with options and get the new post id
                 $postId = wp_insert_post($my_post);
+		if ($postId) {
+		    update_post_meta($postId, '_wp_page_template', 'Questionnaire-template.php');
+		}
                 $cureentDataTime = date('Y-m-d H:i:s');
                 //save post page id into questionnaire's property, PostId
                 $success = $wpdb->update(
@@ -114,6 +117,9 @@ if (!class_exists('GWUQuestionnaire')) {
             );
             //insert a post with options and get the new post id
             $postId = wp_insert_post($my_post);
+	    if ($postId) {
+		update_post_meta($postId, '_wp_page_template', 'Questionnaire-template.php');
+	    }
             global $wpdb;
             $success = $wpdb->update(
                     'gwu_questionnaire', array(
@@ -178,7 +184,7 @@ if (!class_exists('GWUQuestionnaire')) {
                 $OwnerID = get_current_user_id();
             }
 
-             if (isset($_POST['cancel'])) {
+	    if (isset($_POST['cancel'])) {
                 // Redirect the page to the main questionnaire page
                 wp_redirect(add_query_arg(array('page' => 'GWU_Questionnaire-mainMenu-page'
                                 ), admin_url('admin.php')));
@@ -189,7 +195,8 @@ if (!class_exists('GWUQuestionnaire')) {
 
 
 
-	    $Questionnaire = $this->Wrapper->saveQuestionnaire($Title, $Topic, $CreaterName, $AllowAnonymous, $AllowMultiple, $DateDate, $dateModified, $inactiveDate, $introText, $thankyouText, $PostId, $publishFlag, $publishDate, $OwnerID, $EditorID);}
+		$Questionnaire = $this->Wrapper->saveQuestionnaire($Title, $Topic, $CreaterName, $AllowAnonymous, $AllowMultiple, $DateDate, $dateModified, $inactiveDate, $introText, $thankyouText, $PostId, $publishFlag, $publishDate, $OwnerID, $EditorID);
+	    }
 
 
             // Redirect the page to the admin form
@@ -221,8 +228,8 @@ if (!class_exists('GWUQuestionnaire')) {
             $wpdb->delete('gwu_questionnaire', array(
                 'QuestionnaireID' => $QuestionnaireID
             ));
-            
-             $wpdb->delete('wp_question_response', array(
+
+	    $wpdb->delete('wp_question_response', array(
                 'question_dim_questionnaire_id' => $QuestionnaireID
             ));
 
@@ -242,7 +249,7 @@ if (!class_exists('GWUQuestionnaire')) {
         //edit the Questionnaire based on the new value
         public function EditQuestionnaire() {
 
-           $QuestionnaireID = ( isset($_POST['QuestionnaireID']) ? $_POST['QuestionnaireID'] : '' );
+	    $QuestionnaireID = ( isset($_POST['QuestionnaireID']) ? $_POST['QuestionnaireID'] : '' );
 
             if (isset($_POST['cancel'])) {
                 // Redirect the page to the main questionnaire page

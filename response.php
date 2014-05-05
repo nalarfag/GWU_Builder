@@ -13,16 +13,19 @@ function getNextQuestion($SessionID,$ConditionID)
      //3) store all the flagnames value
 	 
 		$arr_responsID = $Wrapper->listResponsesBySessionId($SessionID);
-                if($arr_responsID!=null){
+		if($arr_responsID!=null){
 		foreach($arr_responsID as $temp) {
 			$ResponseId = $temp->get_ResponseID();
 			$arrAllResponses = $Wrapper->getFlagsByQuestionnaireQuestionOption($temp->get_QuestionnaireID(),$temp->get_QuestSequence(),$temp->get_OptionNumber());
 			//$flagObject= new GWFlag();
-                         if($arrAllResponses!=null){
-			 $flagObject = $arrAllResponses[0];
+			if($arrAllResponses!=null)
+			{
+				$flagObject = $arrAllResponses[0];
 			 $FlagName = $flagObject->get_FlagName();
 			 $FlagValue = $flagObject->get_FlagValue();
-			 $FlagValues[$FlagName]= $FlagValue;}
+			 $FlagValues[$FlagName]= $FlagValue;
+			}
+			 
 		}}
 		$Conditions=$Wrapper->getCondition($ConditionID);
 		$Condition=$Conditions[0];
@@ -149,7 +152,8 @@ function Response_questions($atts)
              }
 
 	/* write down questionnaire title*/
-    $output='<p><font color="#545454"><small>Questionnaire:</small></font><br/> <big><strong>'.$Questionnaire->get_Title().'</strong></big></p><br/>';
+    $output='';
+     //   <p><font color="#545454"><small>Questionnaire:</small></font><br/> <big><strong>'.$Questionnaire->get_Title().'</strong></big></p><br/>';
 	/*Check if it's the first question*/
 	/*if it's new, set the $qno=0 else store last questionno in $qno */
 	
@@ -232,55 +236,150 @@ function Response_questions($atts)
 		/*show action*/
 		if(!empty($Actions))
 	    {
+	    	    $max=0;
+				$links=array();
+				$types = array();
+	    	    foreach ($Actions as $Action) {
+					if($Action->get_Sequence()>$max)
+					   $max=$Action->get_Sequence();
+					
+				}
+				for($i=1;$i<=$max;$i++)//put the action order by sequence, put the action with same sequence together
+				{
+					foreach ($Actions as $Action) {
+						if($Action->get_Sequence()==$i)
+						{
+							if(!isset($links[$i]))
+							 {
+							 	$links[$i] = array();
+								$types[$i] = array();
+								$links[$i][0] = $Action->get_LinkToAction();
+								$types[$i][0] = $Action->get_ActionType();
+							 }
+							 else 
+							 {
+							 	$j=0;
+								while(isset($links[$i][$j]))
+								{
+									$j++;
+							    }
+								$links[$i][$j] = $Action->get_LinkToAction();
+								$types[$i][$j] = $Action->get_ActionType();
+							 }
+						}
+					}
+				}
 			  	$output .='<body onload="LoadAction()"><p>references:<br/>
+			  	<style type="text/css">
+                img
+                {
+                    max-height: 415px;
+                    max-width: 560px
+                }
+                </style>
 			  	<script type="text/javascript">
                 var links = new Array();
                 var types = new Array();
-                var num = '.sizeof($Actions).';';
-                foreach ($Actions as $Action) {
-                	$output .='links['.$Action->get_Sequence().'-1]="'.$Action->get_LinkToAction().'";
-                	types['.$Action->get_Sequence().'-1] = "'.$Action->get_ActionType().'";';
-                    
+                var num = '.sizeof($links).';
+                ';
+				$j=0;
+				for($i=1;$i<=$max;$i++)
+				{
+					if(isset($links[$i]))
+					{
+						$output .='links['.$j.'] = new Array();
+						types['.$j.'] = new Array();';
+						for($z=0;$z<sizeof($links[$i]);$z++)
+						{
+							$output .='links['.$j.']['.$z.']="'.$links[$i][$z].'";
+							types['.$j.']['.$z.']="'.$types[$i][$z].'"
+							';
+						}
+					    $j++;
+					}
+				}
+                $output .='
+                function ClearAllNode(parentNode)
+                {
+                    while (parentNode.firstChild) 
+                    {
+                    var oldNode = parentNode.removeChild(parentNode.firstChild);
+                    oldNode = null;
+                    }
                 }
-                $output .='function LoadAction() {
-                  document.getElementById("ActSeq").value = "0";
-                  document.getElementById("ActVid").style.display = "none";
-                  document.getElementById("ActImg").style.display = "none";
-                  document.getElementById("NextAct").style.display = "none";
-                  if (types[0] == "Image") {
-                       document.getElementById("ActImg").style.display = "inline";
-                       document.getElementById("ActImg").src = links[0];
-                  }
-                  else if (types[0] == "Video") {
-                      document.getElementById("ActVid").style.display = "inline";
-                      document.getElementById("ActVid").src = links[0];
-                  }
-                  if (num != 1) {
-                    document.getElementById("NextAct").style.display = "inline";
-                   }
+                function LoadAction() 
+                {
+                     document.getElementById("ActSeq").value = "0";
+                     var ShowAct= document.getElementById("ShowAct");
+                     ClearAllNode(ShowAct);
+                     document.getElementById("NextAct").style.display = "none";
+                     var NewAct=Array();
+                     for(var i=0;i<links[0].length;i++)
+                     {
+                     	if(types[0][i]=="Image")
+                     	{
+                     		NewAct[i] = document.createElement("img")
+                     		NewAct[i].src=links[0][i];
+                     		NewAct[i].alt = "not";
+                     		ShowAct.appendChild(NewAct[i]);
+                     		var newline= document.createElement("br"); 
+                     		ShowAct.appendChild(newline); 
+						}
+						else if(types[0][i]=="Video")
+						{
+							NewAct[i] = document.createElement("iframe")
+							NewAct[i].style.width = "560px";
+							NewAct[i].style.height = "415px";
+							NewAct[i].src=links[0][i];
+							ShowAct.appendChild(NewAct[i]);
+							var newline= document.createElement("br"); 
+							ShowAct.appendChild(newline); 
+						}
+					 }
+					 if (num != 1) 
+					 {
+					 	document.getElementById("NextAct").style.display = "inline"
+					 }
                }
-               function changeaction() {
-                  document.getElementById("ActSeq").value++;
-                  document.getElementById("ActVid").style.display = "none";
-                  document.getElementById("ActImg").style.display = "none";
-                  document.getElementById("NextAct").style.display = "none";
-                  var ActSeq = document.getElementById("ActSeq").value;
-                  if (ActSeq != num - 1) {
-                       document.getElementById("NextAct").style.display = "inline";
-                  }
-                  if (types[ActSeq] == "Image") {
-                    document.getElementById("ActImg").style.display = "inline";
-                    document.getElementById("ActImg").src = links[ActSeq];
-                 }
-                 else if (types[ActSeq] == "Video") {
-                    document.getElementById("ActVid").style.display = "inline";
-                    document.getElementById("ActVid").src = links[ActSeq];
-                 }
+               function changeaction() 
+               {
+               	document.getElementById("ActSeq").value++;
+               	var ShowAct= document.getElementById("ShowAct");
+               	ClearAllNode(ShowAct);
+               	document.getElementById("NextAct").style.display = "none";
+               	var ActSeq = document.getElementById("ActSeq").value;
+               	if (ActSeq != num - 1) 
+               	{
+               		document.getElementById("NextAct").style.display = "inline"
+				}
+				var NewAct=Array();
+				for(var i=0;i<links[ActSeq].length;i++)
+				{
+					if(types[ActSeq][i]=="Image")
+					{
+						NewAct[i] = document.createElement("img")
+						NewAct[i].src = links[ActSeq][i];
+						NewAct[i].alt = "not";
+						ShowAct.appendChild(NewAct[i]);
+						var newline = document.createElement("br");
+						ShowAct.appendChild(newline); 
+					}
+					else if(types[ActSeq][i]=="Video")
+					{
+						NewAct[i] = document.createElement("iframe")
+						NewAct[i].style.width = "560px";
+						NewAct[i].style.height = "415px";
+						NewAct[i].src = links[ActSeq][i];
+						ShowAct.appendChild(NewAct[i]);
+						var newline = document.createElement("br");
+						ShowAct.appendChild(newline); 
+					}
+				}
                }
                </script>
-               <input type="hidden" id="ActSeq" value="0"/>              
-               <img  style="max-height: 415px; max-width: 560px" id="ActImg" src=""  alt="not" />
-               <iframe id="ActVid"  style="height: 415px; width: 560px" src=""  allowfullscreen></iframe><br/>
+               <input type="hidden" id="ActSeq" value="0"/>  
+               <div id="ShowAct">
+               </div>          
                <button id="NextAct" onclick="changeaction()" type="button">next</button>
                </p><hr/></body>
                ';
@@ -366,16 +465,12 @@ function Response_questions($atts)
                         $output .= '<br/><br/><input type="submit" value="next"></form>';
 				}
 
-			  
+			 
 			
 		}
-		
-	/*return html*/	
+             /*return html*/	
 	
-	return $output;	
-            
-	
-	
+	        return $output;	 
 }
 
 

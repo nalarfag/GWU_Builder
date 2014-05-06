@@ -50,6 +50,7 @@ use WordPress\ORM\Model\GWWrapper;
             $role -> add_cap( 'delete_users' );
             $role -> add_cap( 'own_survey' );
             $role-> add_cap( 'manage_surveys' );
+            $role-> add_cap( 'upload_files' );
             $role->remove_cap('manage_options');
              
             
@@ -71,6 +72,7 @@ use WordPress\ORM\Model\GWWrapper;
                 $role -> add_cap( 'publish_pages' );
                 $role -> add_cap( 'edit_survey' ); 
                 $role-> add_cap( 'manage_surveys' );
+                $role-> add_cap( 'upload_files' );
                 $role->remove_cap('manage_options');
                 
 

@@ -210,8 +210,8 @@ foreach ($actions as $c) {
 
         saveButton.disabled = true;
         jQuery('#upLoadMedia_' + id).attr("disabled", "true");
-        jQuery("#file_" + noOfActions).attr("readonly", "true");
-        jQuery("#seqNo_" + noOfActions).attr("readonly", "true");
+        jQuery("#file_" + id).attr("readonly", "true");
+        jQuery("#seqNo_" + id).attr("readonly", "true");
     }
 
 

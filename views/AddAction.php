@@ -230,7 +230,7 @@ foreach ($actions as $c) {
         fileChooser = '<input type ="hidden" name="actionID_' + noOfActions + '" id="actionID_' + noOfActions + '" />  <label for="file">File to upload:</label>   <input id="file_' + noOfActions + '" type="text" name="file_' + noOfActions + '"> &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp';
         fileChooser += '<input type="text" name="seqNo_' + noOfActions + '" id="seqNo_' + noOfActions + '"" size="3"/>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp';
         fileChooser += '<input type="button" name="saveMedia_' + noOfActions + '" id="saveMedia_' + noOfActions + '" value="save" onClick="saveMedia(this)"/>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp';
-        fileChooser += '<input type="button" name="upLoadMedia_' + noOfActions + '" id="upLoadMedia_' + noOfActions + '" value="Up" onClick="uploadMedia(this)"/>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp';
+        fileChooser += '<input type="button" name="upLoadMedia_' + noOfActions + '" id="upLoadMedia_' + noOfActions + '" value="Browse" onClick="uploadMedia(this)"/>&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp&nbsp';
         fileChooser += '<input type="button" name="deleteMedia_' + noOfActions + '" id="deleteMedia_' + noOfActions + '" value="" onClick="removeAction(this)" disabled="true" class="deleteBtn"/>&nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp &nbsp';
         fileChooser += '<span id="span_' + noOfActions + '" name="span_' + noOfActions + '"style="color:red"></span>';
 

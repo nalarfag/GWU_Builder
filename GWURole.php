@@ -75,11 +75,11 @@ use WordPress\ORM\Model\GWWrapper;
                 
 
             //remove the unnecessary roles
-            remove_role('subscriber');
+           /* remove_role('subscriber');
             remove_role('editor');
             remove_role('author');
             remove_role('contributor');
-            
+            */
         }
 
 

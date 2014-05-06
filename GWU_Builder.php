@@ -1,11 +1,11 @@
 <?php
 
 /*
-  Plugin Name:  QuestionPeach - Builder
+  Plugin Name:  QuestionPeach 
   Plugin URI:
-  Description: Create questionnaires with different type of questions that has some features such as branching and actions. The created questionnaire can be edited, deleted, duplicated, or published. The questionnaires can be executed using the published link by anyone if the questionnaires is anonymous or by registered user if the questionnaires is not anonymous.
-  Version: 1.5
-  Author: Builder team
+  Description: Create questionnaires with different types of questions that have some features such as branching and actions. The created questionnaire can be edited, deleted, duplicated, or published. The questionnaires can be executed using the published link by anyone if the questionnaires are anonymous or by registered user if the questionnaires are not anonymous. The plugin offers analysis capabilities like graphical view of results, results based on selected dates or responders or responders’ locations, and create custom made reports based on these filters.
+  Version: 1.6
+  Author: Builder and Analyzer team
   Author URI:
  */
 
@@ -43,6 +43,8 @@ require_once 'models/GWFlagCheck.php';
 require_once 'models/GWFlagSet.php';
 require_once 'models/GWResponse.php';
 require_once 'models/GWSession.php';
+require_once 'Analyzer.php';
+
 
 global $wpdb_allow_null;
 $wpdb_allow_null = new wpdbfixed(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST);
@@ -50,6 +52,15 @@ $wpdb_allow_null = new wpdbfixed(DB_USER, DB_PASSWORD, DB_NAME, DB_HOST);
 if (class_exists('GWUQuestionnaireTables')) {
     $QuestionnaireTables = new GWUQuestionnaireTables();
     register_activation_hook(__FILE__, array(&$QuestionnaireTables, 'Questionnaire_create_table'));
+    $Analyzer = new Analyzer();
+   // $Analyzer->analyzer_install();
+    
+/* Runs when plugin is activated */
+register_activation_hook(__FILE__,array($Analyzer ,'analyzer_install'));
+
+/* Runs on plugin deactivation*/
+register_deactivation_hook( __FILE__, array($Analyzer ,'analyzer_remove') );
+
 }
 
 register_activation_hook(__FILE__, 'CreateQuestionnairsPublishedLists');
@@ -112,5 +123,13 @@ function myStartSession() {
 function myEndSession() {
     session_destroy();
 }
+
+
+/////////////////////// register_activation_hooks ////////////////////////////////
+register_activation_hook(__FILE__, 'analyzer_create_tbl');
+register_deactivation_hook(__FILE__, 'analyzer_drop_tbl');
+register_activation_hook(__FILE__, 'analyzer_migration');
+register_activation_hook(__FILE__, 'analyzer_cron_job_activation');
+register_deactivation_hook(__FILE__, 'analyzer_cron_job_deactivation');
 
 ?>

@@ -9,7 +9,7 @@ builder_drop_table();
 function builder_drop_table() {
 
 
-/*
+
 global $wpdb;
     $wpdb->query("Drop Table gwu_response");
     $wpdb->query("Drop Table gwu_session");
@@ -22,7 +22,7 @@ global $wpdb;
     $wpdb->query("Drop Table gwu_answerChoice");
     $wpdb->query("Drop Table gwu_question");
     $wpdb->query("Drop Table gwu_questionnaire");
-*/
+
 }
 
 ?>

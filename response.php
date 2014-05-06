@@ -186,7 +186,7 @@ function Response_questions($atts)
 	}/*$QSession->get_SessionID()*/
 	
 	/*if last question is the final question show thankyou*/
-	if($qno == $totalQuestionNum && $_POST["qno"]==$qno)	
+	if($qno == $totalQuestionNum && $_POST["qno"]==$qno ||$totalQuestionNum == 0)	
 	{
 		$gwsession = $_SESSION['QSession'];	//Get GWSession object from browser session
 		$gwsession->set_SurveyCompleted(1);	//set properties to be updated

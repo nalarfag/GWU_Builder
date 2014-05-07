@@ -45,6 +45,17 @@ if (!class_exists('GWUCondition')) {
 					$question->set_ConditionID(intval($conditionID['ConditionID']));
 					$question->update();
 				}
+			} else {
+				if(isset($_POST['ConditionID'])) {
+			
+					$question = $Wrapper->getQuestion($QuestionSeq, $QuestionnaireID)[0];
+					$question->set_ConditionID(NULL);
+					$question->update();
+			
+					$condition = $Wrapper->getCondition(intval($_POST['ConditionID']))[0];
+					$condition->delete();
+				
+				}
 			}
 			
 			wp_redirect(add_query_arg(array('page' => 'GWU_add-Questionnaire-page',

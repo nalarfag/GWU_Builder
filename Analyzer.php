@@ -677,7 +677,7 @@ function simpleSessionStart() {
 function getQuestionnaireList(){
 	global $wpdb;
 	$msg = '';
-        $msg.='<input class="button-primary" type="submit" name="Refresh" value="Refresh" />';
+      //  $msg.='<input class="button-primary" type="submit" name="Refresh" value="Refresh" />';
 
 	$url =  plugins_url( 'findQuestionnair.php' , __FILE__ );
 	$questionnaire=$_GET['questionnaire'];
@@ -709,11 +709,11 @@ function getQuestionnaireList(){
 	$saved_end_date_id=$end;
 	
 		
-	/*$sql = 'SELECT questionnaire_id as id , title
-	FROM wp_questionnaire_dim where creator_name=$saved_user_name  order by questionnaire_id DESC';*/
+	$sql = "SELECT questionnaire_id as id , title
+	FROM wp_questionnaire_dim where OwnerId=$saved_user_id  order by questionnaire_id DESC";
 	
-	$sql = 'SELECT questionnaire_id as id , title
-	FROM wp_questionnaire_dim  order by questionnaire_id DESC';
+	/*$sql = 'SELECT questionnaire_id as id , title
+	FROM wp_questionnaire_dim  order by questionnaire_id DESC';*/
 	$res = $wpdb->get_results($sql);
 	
 	if($session == 'refresh'){
@@ -751,7 +751,7 @@ function getQuestionnaireList(){
 		$msg =$msg.'<table class="table"><tr class="tr1">
 		<td class="td"><strong>Questionnaire</strong></td>
 		<td class="td" colspan="3">
-		<select name="questionnaire" onChange="reload(this.form)"> <option value="-1"> Select Questionnaire </option>';
+		<select name="questionnaire" style="width:408px; overflow:auto;" onChange="reload(this.form)"> <option value="-1"> Select Questionnaire </option>';
 		foreach ($res as $rs) {
 			if($rs->id == $questionnaire){
 				$msg = $msg.'<option selected value="'.$rs->id.'">'.$rs->title.'</option>';
@@ -772,7 +772,7 @@ function getQuestionnaireList(){
 			
 			$result = mysql_query("select question_id, question_text from wp_question_dim
 				where questionnaire_id = $questionnaire");
-			$msg = $msg.'	<select name="question" onChange="reload(this.form)"><option value=""> Select Question </option>';
+			$msg = $msg.'	<select name="question" style="width:408px;overflow:auto;"onChange="reload(this.form)"><option value=""> Select Question </option>';
 			while($rows = mysql_fetch_assoc($result)) {
 				if($rows['question_id'] == $question){
 					$msg = $msg.'<option selected value="'.$rows['question_id'].'">'.$rows['question_text'].'</option>';
@@ -1164,7 +1164,8 @@ function getQuestionnaireList(){
 		
 	} else {
 		if(!empty($saved_user_name) && $saved_user_id > 0){
-		        $msg = $msg.'<p class="one"><br><b>You do not have any questionnaire in the system.</b><br>&nbsp;</p>';
+		        $msg = $msg.'<p class="one"><br><b>You do not have any questionnaire in the system.</b><br>&nbsp;
+                            <center><input class="button-primary" type="submit" name="Refresh" value="Refresh" /></center></p>';
 		} else {
 			$msg = $msg.'<p class="one"><br><b>Please login to access your questionnaire.</b><br>&nbsp;</p>';
 		}
@@ -2024,8 +2025,8 @@ function analyzer_refresh()
 	$wpdb->query($sql_3);
 	$wpdb->query($sql_4);
 	$wpdb->query($sql_5);
-	echo "hi";
-	//echo '<script type="text/javascript">self.location="/questionpeach-analyzer-gui/?action=refresh";</script>';
+	
+	echo '<script type="text/javascript">self.location="/questionpeach-analyzer-gui/?action=refresh";</script>';
 	
 }
 

@@ -144,7 +144,7 @@ if (!class_exists('GWUQuestionnaire')) {
             //Top-level menu -->
             echo '<div id="Questionnaire-general" class="wrap">
                 <h2>' . $questionnaire[0]->get_Title() . '
-                </h2> <br/>';
+                </h2><br/>';
 
             $this->gwuquestion->ViewQuestionsForAdmin($QuestionnaireID);
 

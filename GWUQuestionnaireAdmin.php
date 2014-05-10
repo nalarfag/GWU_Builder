@@ -4,6 +4,7 @@ include_once dirname(__FILE__) . '/models/GWQuestion.php';
 include_once dirname(__FILE__) . '/models/GWQuestionnaire.php';
 include_once dirname(__FILE__) . '/models/GWAnswerChoice.php';
 include_once dirname(__FILE__) . '/models/GWWrapper.php';
+include_once dirname(__FILE__) . '/Analyzer.php';
 
 if (!defined('GWU_BUILDER_DIR'))
     define('GWU_BUILDER_DIR', WP_PLUGIN_DIR . '\\' . GWU_Builder);
@@ -58,11 +59,13 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
 
         public function GWU_add_Questionnaire_menu_links() {
 
-            add_menu_page('View Questionnaires', 'View Questionnaires', 'edit_pages', 'GWU_Questionnaire-mainMenu-page', array($this, 'GWU_Questionnaire_mainpage_callback')
+            add_menu_page('Survey', 'Survey', 'edit_pages', 'GWU_Questionnaire-mainMenu-page', array($this, 'GWU_Questionnaire_mainpage_callback')
                     , plugins_url('images/GWUQuestionnaire.png', __FILE__));
 
-            add_submenu_page('GWU_Questionnaire-mainMenu-page', 'Add New Questionnaire ', 'Add New Questionnaire', 'edit_pages', 'GWU_add-Questionnaire-page', array($this, 'GWU_add_Questionnaire_mainpage_callback'));
-            add_submenu_page('GWU_Questionnaire-mainMenu-page', 'View Users ', 'View Users', 'create_users', 'GWU_view-Users-page', array($this, 'GWU_view_Users_mainpage_callback'));
+            add_submenu_page('GWU_Questionnaire-mainMenu-page', 'Add New Survey ', 'Add New Survey', 'edit_pages', 'GWU_add-Questionnaire-page', array($this, 'GWU_add_Questionnaire_mainpage_callback'));
+             add_submenu_page('GWU_Questionnaire-mainMenu-page', 'Analyze Survey ', 'Analyze Survey', 'edit_pages', 'GWU_view-Analyzer-page', array($this, 'GWU_view_Analyzer_mainpage_callback'));
+            add_submenu_page('GWU_Questionnaire-mainMenu-page', 'Users ', 'Users', 'create_users', 'GWU_view-Users-page', array($this, 'GWU_view_Users_mainpage_callback'));
+
         }
 
         public function GWU_Questionnaire_mainpage_callback() {
@@ -89,6 +92,26 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
             }
             include_once dirname(__FILE__) . '/views/AddUser.php';
         }
+        public function GWU_view_Analyzer_mainpage_callback(){
+
+                        $admin = new Analyzer();
+         
+			$_p['post_title'] = $the_page_title;
+			$_p['post_content'] = $admin->{'creatUI'}();
+			$_p['post_status'] = 'publish';
+			$_p['post_type'] = 'page';
+			$_p['comment_status'] = 'closed';
+			$_p['ping_status'] = 'closed';
+			$_p['post_category'] = array(1); // the default 'Uncatrgorised'
+			
+			// Insert the post into the database
+			$the_page_id = wp_insert_post( $_p );
+         
+        //createUI
+       
+        
+        }
+
 
         // Register functions to be called when bugs are saved
         function GWU_Questionnaire_admin_init() {

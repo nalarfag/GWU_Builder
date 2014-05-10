@@ -20,7 +20,7 @@ function getNextQuestion($SessionID,$ConditionID)
 			//$flagObject= new GWFlag();
 			if($arrAllResponses!=null)
 			{
-				$flagObject = $arrAllResponses[0];
+			 $flagObject = $arrAllResponses[0];
 			 $FlagName = $flagObject->get_FlagName();
 			 $FlagValue = $flagObject->get_FlagValue();
 			 $FlagValues[$FlagName]= $FlagValue;
@@ -232,7 +232,7 @@ function Response_questions($atts)
 		/*show question text*/
 		$output .= '<form action="" method="post">
 		            <strong>'.$qno.". ".$question->get_Text().'</strong><br/>
-		            <input type="checkbox" value=1 name="IfJump" '.$IfMandatory.'/><font '.$IfMandatory.'>Skip this quesion</font><hr/>';
+		            <input type="checkbox" value=1 name="IfJump" '.$IfMandatory.'/><font '.$IfMandatory.'>Skip this question</font><hr/>';
 		/*show action*/
 		if(!empty($Actions))
 	    {
@@ -400,7 +400,7 @@ function Response_questions($atts)
 			            <input type="hidden" name="qno" value="'.$qno.'"/>';
 						if(empty($Answerchoices))
 						{
-							$output .='<br/>your data is invalid because there is no answerchoice';
+							$output .='<br/>Your data is invalid because there is no answerchoice';
 						}
 						else
 						{
@@ -425,7 +425,7 @@ function Response_questions($atts)
 			             <input type="hidden" name="qno" value="'.$qno.'"/>';
 						 if(empty($Answerchoices))
 						{
-							$output .='<br/>your data is invalid because there is no answerchoice';
+							$output .='<br/>Your data is invalid because there is no answerchoice';
 						}
 						else
 						{
@@ -443,7 +443,7 @@ function Response_questions($atts)
 			               <input type="hidden" name="qno" value="'.$qno.'"/><table><tr><td></td>';
 						if(empty($Answerchoices)||sizeof($Answerchoices)<13)
 						{
-							$output .='<br/>your data is invalid because the answerchoices is not enough, please update your db';
+							$output .='<br/>Your data is invalid because the answerchoices is not enough, please update your database';
 						}
 						else
 						{ 

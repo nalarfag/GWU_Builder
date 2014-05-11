@@ -1,4 +1,4 @@
-<?php
+﻿<?php
 
 /*
   Plugin Name:  QuestionPeach 
@@ -53,7 +53,7 @@ if (class_exists('GWUQuestionnaireTables')) {
     $QuestionnaireTables = new GWUQuestionnaireTables();
     register_activation_hook(__FILE__, array(&$QuestionnaireTables, 'Questionnaire_create_table'));
     $Analyzer = new Analyzer();
-   // $Analyzer->analyzer_install();
+   
     
 /* Runs when plugin is activated */
 register_activation_hook(__FILE__,array($Analyzer ,'analyzer_install'));
@@ -82,7 +82,7 @@ function CreateQuestionnairsPublishedLists() {
 }
 
 
-// Create tmeplate for Questionnairs
+// Create template for Questionnaires
 
 add_action( 'plugins_loaded', array( 'PageTemplater', 'get_instance' ) );
 
@@ -105,12 +105,26 @@ function queue_my_admin_scripts() {
     wp_enqueue_style('wp-jquery-ui-dialog');
 }
 
+//Add action link to plugin list
+add_filter('plugin_action_links', 'plugin_action_links', 10, 2);
+ 
+function plugin_action_links($links, $file) {
+ 
+    if ($file == plugin_basename(__FILE__)) {
+        $settings_link = '<a href="../wp-admin/admin.php?page=GWU_view-Settings-page">Settings</a>';
+        array_unshift($links, $settings_link);
+    }
+ 
+    return $links;
+}
+
 // Use [show_GWU_Questionnaire_tables] to show data dictionary 
 // of the Questionnaire Tables
 //Actions to create a session
 add_action('init', 'myStartSession', 1);
 add_action('wp_logout', 'myEndSession');
 add_action('wp_login', 'myEndSession');
+
 
 //Start session
 function myStartSession() {

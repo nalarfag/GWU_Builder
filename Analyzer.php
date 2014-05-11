@@ -1,6 +1,4 @@
 <?php
-
-
 /**************Global vars******************/
 global $wp_session;
 global $saved_user_analyzer;
@@ -11,13 +9,6 @@ global $saved_responder;
 global $saved_start_date_id;
 global $saved_end_date_id;
 
-/**************Hooks******************/
-
-/* Runs when plugin is activated */
-//register_activation_hook(__FILE__,array('Analyzer','analyzer_install'));
-
-/* Runs on plugin deactivation*/
-//register_deactivation_hook( __FILE__, array('Analyzer','analyzer_remove') );
 
 /**************ShortCode******************/
 add_shortcode( 'QP_JS', 'getJavaScript' );
@@ -30,90 +21,111 @@ add_shortcode( "QP_GeoChart", "getGeoChart" );
 /**************PHP Code******************/
 class Analyzer{
 	
+	public $page_title;
+    public $page_name;
+    public $page_id;
 	
+	public function __construct()
+    {
+      $this->page_title = 'QuestionPeach Analyzer';
+      $this->page_name  = 'uQuestionPeach Analyzer';
+      $this->page_id    = '0';
+
+      register_activation_hook(__FILE__, array($this, 'activate'));
+      register_deactivation_hook(__FILE__, array($this, 'deactivate'));
+      register_uninstall_hook(__FILE__, array($this, 'uninstall'));
+	  add_action('admin_menu', array($this, 'GWU_add_Questionnaire_menu_links'));
+    }
 	/*install function, which create tables and
 	create analyzer user interface (GUI)*/
 	
-	function analyzer_install(){
-		global $wpdb;
-		//ibou's create table code
+	public function GWU_add_Questionnaire_menu_links() {
 		
+              add_menu_page('Analyze Survey', 'Analyze Survey', 'edit_pages', 'questionpeach-analyzer', array($this,'goToAnalyzer'), plugins_url('images/GWUQuestionnaire.png', __FILE__));
+	}
+	
+	public function goToAnalyzer(){
+	$resultMsg = '';
+		$resultMsg = $resultMsg. getCss();
+		$resultMsg = $resultMsg.getJavaScript();
+		$resultMsg = $resultMsg.'<div></div><form id="theForm">
+		<table>
+		<tbody>
+			<tr><td colspan="4">'.getQuestionnaireList().'</td>
+			</tr>	
+		<tbody>
+		</table>
+		<br>
+		<br>	
+	</form>';
+		
+		echo $resultMsg;
+	//echo 'Hello Alemberhan';
+	}
+	
+	function activate(){
+			
 		//alem's create page code
-		
-		
-		$the_page_title = 'QuestionPeach Analyzer GUI';
-		$the_page_name = 'QuestionPeach-analyzer';
-		
-		// the menu entry...
-		delete_option("my_plugin_page_title");
-		add_option("my_plugin_page_title", $the_page_title, '', 'yes');
-		// the slug...
-		delete_option("my_plugin_page_name");
-		add_option("my_plugin_page_name", $the_page_name, '', 'yes');
-		// the id...
-		delete_option("my_plugin_page_id");
-		add_option("my_plugin_page_id", '0', '', 'yes');
-		
-		$the_page = get_page_by_title( $the_page_title );
-		
-		if ( ! $the_page ) {
 			
-			$admin = new Analyzer();
-			// Create post object
-			$_p = array();
-			$_p['post_title'] = $the_page_title;
-			$_p['post_content'] = $admin->{'creatUI'}();
-			$_p['post_status'] = 'publish';
-			$_p['post_type'] = 'page';
-			$_p['comment_status'] = 'closed';
-			$_p['ping_status'] = 'closed';
-			$_p['post_category'] = array(1); // the default 'Uncatrgorised'
-			
-			// Insert the post into the database
-			$the_page_id = wp_insert_post( $_p );
-			
-		}
-		else {
-			// the plugin may have been previously active and the page may just be trashed...
-			$the_page_id = $the_page->ID;
-			//make sure the page is not trashed...
-			$the_page->post_status = 'publish';
-			$the_page_id = wp_update_post( $the_page );
-			
-		}
-		
-		delete_option( 'my_plugin_page_id' );
-		add_option( 'my_plugin_page_id', $the_page_id );
+	  global $wpdb;      
+
+     
 	}
 	
 	/*remove function, which drop tables and
 	remove analyzer user interface (GUI)*/
 	
-	function analyzer_remove(){
-		global $wpdb;
-		
-		//alem's remove page code
-		$the_page_title = 'QuestionPeach Analyzer GUI';
-		$the_page_name = 'QuestionPeach-analyzer';
-		
-		//  the id of our page...
-		$the_page_id = get_option( 'my_plugin_page_id' );
-		if( $the_page_id ) {
-			
-			wp_delete_post( $the_page_id ); // this will trash, not delete
-			
-		}
-		
-		delete_option("my_plugin_page_title");
-		delete_option("my_plugin_page_name");
-		delete_option("my_plugin_page_id");
-	}
+	 public function deactivate()
+    {
+      $this->deletePage();
+      $this->deleteOptions();
+    }
+
+    public function uninstall()
+    {
+      $this->deletePage(true);
+      $this->deleteOptions();
+    }
+	
+	public function query_parser($q)
+    {
+      if(isset($q->query_vars['page_id']) AND (intval($q->query_vars['page_id']) == $this->page_id ))
+      {
+        $q->set($this->_name.'_page_is_called', true);
+      }
+      elseif(isset($q->query_vars['pagename']) AND (($q->query_vars['pagename'] == $this->page_name) OR ($_pos_found = strpos($q->query_vars['pagename'],$this->page_name.'/') === 0)))
+      {
+        $q->set($this->_name.'_page_is_called', true);
+      }
+      else
+      {
+        $q->set($this->_name.'_page_is_called', false);
+      }
+    }
+
+    
+	
+	private function deletePage($hard = false)
+    {
+      global $wpdb;
+
+      $id = get_option($this->_name.'_page_id');
+      if($id && $hard == true)
+        wp_delete_post($id, true);
+      elseif($id && $hard == false)
+        wp_delete_post($id);
+    }
+
+    private function deleteOptions()
+    {
+      delete_option($this->_name.'_page_title');
+      delete_option($this->_name.'_page_name');
+      delete_option($this->_name.'_page_id');
+    }
 	
 	//createUI to create a admin panel for analyzer
 	function creatUI(){
-		$admin = new Analyzer();
 		$resultMsg = '';
-		
 		$resultMsg = $resultMsg. do_shortcode('[QP_CSS]');
 		$resultMsg = $resultMsg.'[QP_JS]';
 		$resultMsg = $resultMsg.'[QP_GeoChart]';
@@ -147,7 +159,7 @@ class Analyzer{
 	
 }
 
-
+//$admin = new Analyzer();
 global $msg;
 global $analyzer_tbls;
 
@@ -409,67 +421,118 @@ function analyzer_migration()
 /////////////////////////////analyzer_migration_cron /////////////////////////////////////////////////
 function analyzer_migration_cron()
 {
-	global $wpdb;
-	
-	$sql_0="INSERT INTO wp_location_dim (city, country)
-	SELECT distinct City, Country
-	FROM gwu_session
-	WHERE City    NOT IN(select distinct city    from wp_location_dim)
-	AND   Country NOT IN(select distinct country from wp_location_dim) ";
-	
-	$sql_1="INSERT INTO wp_question_dim (question_id, questionnaire_id, question_text, ans_type)
-	SELECT gwu_question.questsequence, gwu_question.QuestionnaireID, gwu_question.text, AnsType
-	FROM gwu_question, gwu_questionnaire
-	WHERE gwu_questionnaire.QuestionnaireID = gwu_question.QuestionnaireID
-	AND gwu_questionnaire.PublishDate = date_add(curdate(), interval -1 day) ";
-	
-	
-	$sql_2="INSERT INTO wp_respondee_dim(respondee_id, survey_completed, survey_taken_date, username, ip, duration)
+global $wpdb;
+
+$sql_0="INSERT INTO wp_respondee_dim(respondee_id, survey_completed, survey_taken_date, username, ip, duration)
 	SELECT SessionID, SurveyCompleted, SurveyTakenDate, Username, IP, Duration
 	FROM gwu_session
-	WHERE surveytakendate = date_add(curdate(), interval -1 day) ";
-	
-	
-	$sql_3="INSERT INTO wp_questionnaire_dim (questionnaire_id, topic, date_created, allow_anonymous, allow_multiple, title, creator_name, OwnerId, EditorId)
+	where SessionID in (
+	select SessionID
+	from   gwu_session
+	where SessionID not in(select respondee_id from wp_respondee_dim)); ";
+
+$sql_1="INSERT INTO wp_question_dim (question_id, questionnaire_id, question_text, ans_type)
+	SELECT gwu_question.questsequence, gwu_question.QuestionnaireID, gwu_question.text, AnsType
+	FROM gwu_question
+	WHERE gwu_question.QuestionnaireID in (
+	SELECT gwu_question.QuestionnaireID
+	From gwu_question
+	WHERE gwu_question.QuestionnaireID not in (select questionnaire_id from wp_question_dim)
+	); ";
+
+
+$sql_2="INSERT INTO wp_questionnaire_dim (questionnaire_id, topic, date_created, allow_anonymous, allow_multiple, title, creator_name, OwnerId, EditorId)
 	SELECT QuestionnaireID, Topic, DateCreated, AllowAnnonymous, AllowMultiple, Title, CreatorName, OwnerId, EditorId
 	FROM gwu_questionnaire
-	WHERE PublishDate = date_add(curdate(), interval -1 day) ";
-	
-	
-	$sql_4="INSERT INTO wp_question_response (response_id, response_content, response_type, questionnaire_dim_questionnaire_id, question_dim_questionnaire_id, question_dim_question_id, respondee_dim_respondee_id)
+	WHERE PublishFlag = '1'
+    AND QuestionnaireID in (
+	SELECT QuestionnaireID
+	FROM gwu_questionnaire
+	WHERE QuestionnaireID not in (SELECT questionnaire_id from wp_questionnaire_dim)); ";
+
+
+$sql_3="INSERT INTO wp_question_response (response_id, response_content, response_type, questionnaire_dim_questionnaire_id, question_dim_questionnaire_id, question_dim_question_id, respondee_dim_respondee_id)
 	SELECT ResponseID, ResponseContent, ResponseType, QuestionnaireID, QuestionnaireID, QuestSequence, gwu_response.SessionID
 	FROM gwu_response, gwu_session
 	WHERE gwu_response.SessionID = gwu_session.SessionID
-	AND SurveyTakenDate = date_add(curdate(), interval -1 day) ";
-	
-	
-	$sql_5="UPDATE wp_question_response SET
+	AND ResponseID in (
+	SELECT ResponseID
+	FROM gwu_response
+	WHERE ResponseID not in (SELECT response_id from wp_question_response));";
+
+
+$sql_4="UPDATE wp_question_response SET
 	time_dim_time_id =
 	(SELECT time_id
 	FROM wp_time_dim, gwu_session
 	WHERE wp_question_response.respondee_dim_respondee_id = gwu_session.SessionID
-	AND wp_time_dim.date = gwu_session.SurveyTakenDate) ";
-	
-	
-	$sql_6="UPDATE wp_question_response SET
-	location_dim_location_id =
+	AND wp_time_dim.date = gwu_session.SurveyTakenDate);";
+
+
+$sql_5="UPDATE wp_question_response SET location_dim_location_id =
 	(SELECT location_id
 	FROM wp_location_dim, gwu_session
 	WHERE wp_question_response.respondee_dim_respondee_id = gwu_session.SessionID
 	AND wp_location_dim.country = gwu_session.Country
-	AND wp_location_dim.city = gwu_session.city) ";
+	AND wp_location_dim.city = gwu_session.city); ";
+
+$sql_6="INSERT INTO wp_location_dim (city, country)
+	SELECT distinct City, Country
+	FROM gwu_session;";
 	
+	/*WHERE city    NOT IN(select distinct city    from wp_location_dim)
+	AND   country NOT IN(select distinct country from wp_location_dim);";*/
 	
-	require_once( ABSPATH . '/wp-admin/includes/upgrade.php' );
-	
-	$wpdb->query($wpdb->prepare($sql_0));
-	$wpdb->query($wpdb->prepare($sql_1));
-	$wpdb->query($wpdb->prepare($sql_2));
-	$wpdb->query($wpdb->prepare($sql_3));
-	$wpdb->query($wpdb->prepare($sql_4));
-	$wpdb->query($wpdb->prepare($sql_5));
-	$wpdb->query($wpdb->prepare($sql_6));
-	
+require_once( ABSPATH . '/wp-admin/includes/upgrade.php' );
+
+$wpdb->query($sql_0);
+$wpdb->query($sql_1);
+$wpdb->query($sql_2);
+$wpdb->query($sql_3);
+$wpdb->query($sql_4);
+$wpdb->query($sql_5);
+$wpdb->query($sql_6);
+
+}
+
+/////////////////////////////analyzer_deletion_cron /////////////////////////////////////////////////
+function analyzer_deletion_cron()
+{
+global $wpdb;
+/*$sql_0="DELETE FROM wp_location_dim;";
+$sql_1="DELETE FROM gwu_questionnaire;";
+$sql_2="DELETE FROM gwu_question;";
+$sql_3="DELETE FROM gwu_answerChoice;";
+$sql_4="DELETE FROM gwu_condition;";
+$sql_5="DELETE FROM gwu_response;";
+$sql_6="DELETE FROM gwu_session;";
+$sql_7="DELETE FROM gwu_action;";
+$sql_8="DELETE FROM gwu_flag;";*/
+$sql_9="DELETE FROM wp_respondee_dim;";
+$sql_10="DELETE FROM wp_question_dim;";
+$sql_11="DELETE FROM wp_questionnaire_dim;";
+$sql_12="DELETE FROM wp_location_dim;";
+$sql_13="DELETE FROM wp_question_response;";
+$sql_14="DELETE FROM wp_filters;";
+
+require_once( ABSPATH . '/wp-admin/includes/upgrade.php' );
+
+/*$wpdb->query($sql_0);
+$wpdb->query($sql_1);
+$wpdb->query($sql_2);
+$wpdb->query($sql_3);
+$wpdb->query($sql_4);
+$wpdb->query($sql_5);
+$wpdb->query($sql_6);
+$wpdb->query($sql_7);
+$wpdb->query($sql_8);*/
+$wpdb->query($sql_9);
+$wpdb->query($sql_10);
+$wpdb->query($sql_11);
+$wpdb->query($sql_12);
+$wpdb->query($sql_13);
+$wpdb->query($sql_14);
+
 }
 
 ///////////////////////////// analyzer_get_rec_count($qry) ////////////////////////////////////
@@ -545,44 +608,79 @@ function analyzer_exec_sql($qry, $qry_type)
 	return $msg;
 }
 
-//////////////////////////////////////// analyzer_cron_job_activation functions ////////////////////////////
-
-function analyzer_cron_job_activation()
+//////////////////////////////////////// analyzer_cron_job_migration_activation functions ////////////////////////////
+function analyzer_cron_job_migration_activation() 
 {
-	if(!wp_next_scheduled('analyzer_data_migration'))
-	{
-		wp_schedule_event(current_time('timestamp'), 'everyminute', 'analyzer_data_migration');
-	}
+ if(!wp_next_scheduled('analyzer_data_migration')) 
+ {
+  wp_schedule_event(current_time('timestamp'), 'everyminute', 'analyzer_data_migration');
+ }
+}
+//////////////////////////////////////// analyzer_cron_job__deletion_activation functions ////////////////////////////
+function analyzer_cron_job_deletion_activation() 
+{
+ if(!wp_next_scheduled('analyzer_data_deletion')) 
+ {
+  wp_schedule_event(current_time('timestamp'), 'OnceDaily', 'analyzer_data_deletion');
+ }
 }
 
-function analyzer_task_to_exec()
+function analyzer_task_migrate()  
 {
-	return analyzer_migration_cron();
-	//analyzer_exec_sql('INSERT wp_res_2 SELECT * FROM wp_res_1', 'update');
+ return analyzer_migration_cron();
 }
 
-/////////////////////////////////// analyzer_cron_job_intervals //////////////////////////////////////////////
-function analyzer_cron_job_intervals($schedules)
+function analyzer_task_delete()  
 {
-	$schedules['everyminute'] = array(
-		'interval' => 60,
-		'display' => __( 'Once Every Minute' )
-		);
-	return $schedules;
+ return analyzer_deletion_cron();
 }
 
-////////////////////////////////////// analyzer_cron_job_deactivation ///////////////////////////////////////////
-function analyzer_cron_job_deactivation()
+/////////////////////////////////// analyzer_cron_job_migrate_intervals //////////////////////////////////////////////
+function analyzer_cron_job_migrate_intervals($schedules) 
 {
-	wp_clear_scheduled_hook('analyzer_data_migration');
+ $schedules['everyminute'] = array(
+									'interval' => 60,
+									'display' => __( 'Once Every Minute' )
+								  );
+ return $schedules;
 }
+
+/////////////////////////////////// analyzer_cron_job_delete_intervals //////////////////////////////////////////////
+function analyzer_cron_job_delete_intervals($schedules2) 
+{
+ $schedules2['OnceDaily'] = array(
+									'interval' => 86400,
+									'display' => __( 'Once Daily' )
+								  );
+ return $schedules2;
+}
+
+
+////////////////////////////////////// analyzer_cron_job_migration_deactivation ///////////////////////////////////////////
+function analyzer_cron_job_migration_deactivation() 
+{
+ wp_clear_scheduled_hook('analyzer_data_migration');
+}
+////////////////////////////////////// analyzer_cron_job_deletetion_deactivation ///////////////////////////////////////////
+function analyzer_cron_job_deletion_deactivation() 
+{
+ wp_clear_scheduled_hook('analyzer_data_deletion');
+}
+
 ///////////////////////////////////// analyzer_cron_jobs action hooks //////////////////////////////////////////
-add_action('wp', analyzer_cron_job_activation);
-add_filter('cron_schedules', 'analyzer_cron_job_intervals');
-add_action ('analyzer_data_migration', 'analyzer_task_to_exec');
+add_action('wp', analyzer_cron_job_migration_activation);
+add_action('wp', analyzer_cron_job_deletion_activation);
+add_filter('cron_schedules', 'analyzer_cron_job_migrate_intervals');
+add_filter('cron_schedules', 'analyzer_cron_job_delete_intervals');
+add_action('analyzer_data_migration', 'analyzer_task_migrate'); 
+add_action('analyzer_data_deletion', 'analyzer_task_delete');
 
 
-
+/////////////////////// register_activation_hooks ////////////////////////////////
+register_activation_hook(__FILE__, 'analyzer_cron_job_migration_activation');
+register_activation_hook(__FILE__, 'analyzer_cron_job_deletion_activation');
+register_deactivation_hook(__FILE__, 'analyzer_cron_job_migration_deactivation');
+register_deactivation_hook(__FILE__, 'analyzer_cron_job_deletion_deactivation');
 
 
 /////////////////////////////////// analyzer_utils loop_arr /////////////////////////////////
@@ -658,15 +756,53 @@ function getJavaScript(){
 	var question = form.question.options[form.question.options.selectedIndex].value;
 	var val=form.questionnaire.options[form.questionnaire.options.selectedIndex].value;
 	if(question){
-	self.location=\'/questionpeach-analyzer-gui/?questionnaire=\' + val +\'&question=\'+ question;
+	self.location=\'/wp-admin/admin.php?page=questionpeach-analyzer&questionnaire=\' + val +\'&question=\'+ question;
 	} else {
-	self.location=\'/questionpeach-analyzer-gui/?questionnaire=\' + val;
+	self.location=\'/wp-admin/admin.php?page=questionpeach-analyzer&questionnaire=\' + val;
 	}
 	}
 	
 	
-	
-	
+	function getQueryString() {
+	var result = {};
+	if(!window.location.search.length) return result;
+	var qs = window.location.search.slice(1);
+	var parts = qs.split("&");
+	for(var i=0, len=parts.length; i<len; i++) {
+		var tokens = parts[i].split("=");
+		result[tokens[0]] = decodeURIComponent(tokens[1]);
+	}
+	return result;
+}
+	$(document).ready(function() {
+	$("#theForm").submit(function(e) {
+		//var that = this;
+		var qs = getQueryString();
+		for(var key in qs) {
+			var field = $(document.createElement("input"));
+			field.attr("name", key).attr("type","hidden");
+			field.val(qs[key]);
+			$(this).append(field);
+		}
+	});
+});
+
+$(function () {
+    var doc = new jsPDF();
+    var specialElementHandlers = {
+        "#editor": function (element, renderer) {
+            return true;
+        }
+    };
+
+    $("#generate").click(function () {
+        doc.fromHTML($("#qpresult").html(), 15, 15, {
+            "width": 170,
+                "elementHandlers": specialElementHandlers
+        });
+        doc.save("Report.pdf");
+    });
+});
 	</script>';
 	return $msg;
 }
@@ -676,10 +812,7 @@ function simpleSessionStart() {
 }
 function getQuestionnaireList(){
 	global $wpdb;
-	$msg = '';
-      //  $msg.='<input class="button-primary" type="submit" name="Refresh" value="Refresh" />';
-
-	$url =  plugins_url( 'findQuestionnair.php' , __FILE__ );
+	$msg = '<h3><center>QuestionPeach Analyzer</center></h3>';
 	$questionnaire=$_GET['questionnaire'];
 	$question=$_GET['question'];
 	$location=$_GET['location'];
@@ -698,8 +831,8 @@ function getQuestionnaireList(){
 	$export = $_GET['Export'];
 	$filter = $_GET['filter'];
 	
-	require_once( ABSPATH . 'wp-includes/user.php' );
-	$saved_user_id = get_current_user_id();
+	require_once( ABSPATH.'wp-includes/user.php' );
+	$saved_user_id = intval(get_current_user_id());
 	$saved_user_name = wp_get_current_user();  
 	$saved_questionnaire=$questionnaire;
 	$saved_question=$question;
@@ -710,7 +843,7 @@ function getQuestionnaireList(){
 	
 		
 	$sql = "SELECT questionnaire_id as id , title
-	FROM wp_questionnaire_dim where OwnerId=$saved_user_id  order by questionnaire_id DESC";
+	FROM wp_questionnaire_dim where OwnerId = $saved_user_id  order by questionnaire_id DESC";
 	
 	/*$sql = 'SELECT questionnaire_id as id , title
 	FROM wp_questionnaire_dim  order by questionnaire_id DESC';*/
@@ -732,7 +865,7 @@ function getQuestionnaireList(){
 	} else if(isset($generate) and $generate == 'Generate Report'){
 		$msg = analyzer_generateReport($saved_user_id, $saved_user_name, $filter);
 	} else if(isset($manageFilters) and $manageFilters == 'Manage Filters'){
-		$msg = analyzer_manage_my_filters($saved_user_id, $saved_user_name);
+		$msg = $msg.analyzer_manage_my_filters($saved_user_id, $saved_user_name);
 	} else if(isset($saveFilters) and $saveFilters == 'Save Filters'){
 		analyzer_save_user_report_params($saved_user_id, $saved_questionnaire, $saved_question, $saved_location,
 		$saved_responder, $saved_start_date_id, $saved_end_date_id, $filterName);
@@ -748,10 +881,11 @@ function getQuestionnaireList(){
 		
 		$msg = viewAll($questionnaire);
 	} else if(!empty($res)){
-		$msg =$msg.'<table class="table"><tr class="tr1">
-		<td class="td"><strong>Questionnaire</strong></td>
+		$msg =$msg.'<table style"border: 1px solid black;"><tr class="tr1">
+		<td class="td"><strong>Survey</strong></td>
 		<td class="td" colspan="3">
-		<select name="questionnaire" style="width:408px; overflow:auto;" onChange="reload(this.form)"> <option value="-1"> Select Questionnaire </option>';
+		
+		<select name="questionnaire" onChange="reload(this.form)"> <option value="-1"> Select Survey </option>';
 		foreach ($res as $rs) {
 			if($rs->id == $questionnaire){
 				$msg = $msg.'<option selected value="'.$rs->id.'">'.$rs->title.'</option>';
@@ -772,7 +906,7 @@ function getQuestionnaireList(){
 			
 			$result = mysql_query("select question_id, question_text from wp_question_dim
 				where questionnaire_id = $questionnaire");
-			$msg = $msg.'	<select name="question" style="width:408px;overflow:auto;"onChange="reload(this.form)"><option value=""> Select Question </option>';
+			$msg = $msg.'	<select name="question" onChange="reload(this.form)"><option value=""> Select Question </option>';
 			while($rows = mysql_fetch_assoc($result)) {
 				if($rows['question_id'] == $question){
 					$msg = $msg.'<option selected value="'.$rows['question_id'].'">'.$rows['question_text'].'</option>';
@@ -809,7 +943,7 @@ function getQuestionnaireList(){
 				WHERE R.respondee_id = QR.respondee_dim_respondee_id
 				AND QR.question_dim_questionnaire_id = Q.questionnaire_id
 				AND username <>  'NULL'
-				AND Q.questionnaire_id = $questionnaire");
+				AND Q.questionnaire_id = $questionnaire GROUP BY username");
 			$msg = $msg.'	<select name="responder"><option value=""> Select Responder </option>';
 			while($rows = mysql_fetch_assoc($result)) {
 				if($rows['respondee_id'] == $responder){
@@ -826,19 +960,17 @@ function getQuestionnaireList(){
 			<br><input type="text" name="start" class="datepicker" value="'.$start.'" />
 			<br><strong>End Date:</strong>
 			<br><input type="text" name="end" class="datepicker" value="'.$end.'" /></td>
-			
 			<td class="td1">
 			<input class="button-primary" type="submit" name="Execute" value="Execute" /> 
 			</td>
-			
 			</tr>
 			<tr class="tr1">
 			<td colspan="4"><center> 
 			<strong>Filter Name: </strong>
 			<input type="text" name="filterName" value="" />&nbsp;&nbsp;&nbsp;&nbsp;<input class="button-primary" type="submit" name="saveFilters" value="Save Filters" />&nbsp;&nbsp;&nbsp;&nbsp;
-			<input class="button-primary" type="submit" name="manageFilters" value="Manage Filters" /></center></td>
-			</tr>
-			</table>';
+			<input class="button-primary" type="submit" name="manageFilters" value="Manage Filters" />&nbsp;&nbsp;&nbsp;&nbsp;
+			<input class="button-primary" type="submit" name="Refresh" value="Refresh" /></center></td>
+			</tr>';
 			
 			// For The Questionnaire information
 			$result = mysql_query("SELECT Q.questionnaire_id, Q.title, Q.creator_name, Q.date_created, COUNT( DISTINCT QR.respondee_dim_respondee_id ) total_Response, AVG( R.duration ) AS ave_time
@@ -847,17 +979,15 @@ function getQuestionnaireList(){
 				AND QR.question_dim_questionnaire_id = Q.questionnaire_id
 				AND QR.respondee_dim_respondee_id = R.respondee_id");
 			
+			
 			if(!empty($result)){
 				
-				$msg =$msg.'<table class="table">
+				$msg =$msg.'<tr class="tr1">
+				<td colspan="4">
+				
 				<tr class="tr1">
-				<td width="80%" colspan="2" class="td"><input class="button-primary" type="submit" name="Export" value="Export Data" onclick="exportCSV('.$questionnaire.')"/></td>
-				<td width="10%" class="td"></td>
-				<td width="10%" class="td"><input class="button-primary" type="submit" name="Refresh" value="Refresh" /></td>
-				</tr>
-				<tr class="tr1">
-				<td colspan="4" class="td">
-				<table>
+				<td colspan="4" class="td"><br>
+				<table align="center" border="1" cellpadding="10">
 				<tr>
 				<th>Title</th>
 				<th>Date Created</th>
@@ -873,12 +1003,12 @@ function getQuestionnaireList(){
 					$msg =$msg.'<tr>';
 					$msg = $msg.'<td>'.$rows['title'].'</td><td>'.$rows['date_created'].'</td>
 					<td>'.$rows['creator_name'].'</td><td>'.$rows['total_Response'].'</td>
-					<td><a href="/questionpeach-analyzer-gui/?questionnaire='.$questionnaire.'&ViewAll=ViewResult">View Result</a>
+					<td><a href="/wp-admin/admin.php?page=questionpeach-analyzer&questionnaire='.$questionnaire.'&ViewAll=ViewResult">View Result</a>
 					</td>';
 					$msg =$msg.'</tr>';
 				}
 				
-				$msg = $msg.'</table></td>
+				$msg = $msg.'</table><br></td>
 				</tr><tr>
 				<td class="td" width="20%">&nbsp; </td>
 				<td class="td" width="30%"><p style="text-align:center; border:2px solid black;"><b>Completed</b> <br>'.  $completed.' </p></td>
@@ -887,7 +1017,7 @@ function getQuestionnaireList(){
 				</tr>
 				
 				
-				</table>';
+				</td></tr>';
 			}
 			//Geo Map
 			$result = mysql_query("SELECT count(distinct QR.respondee_dim_respondee_id) total, country FROM wp_question_response QR, wp_location_dim L
@@ -904,17 +1034,10 @@ function getQuestionnaireList(){
 			
 			$country = $country.']';
 			
-			$msg = $msg.'<tr class="tr">
-			<td class="td" colspan="4">
-			<table class="table">
-			<tbody>
-			<tr class="tr1">
-			<td colspan="4" class="td"><center>Response Distribution</center><br>
-			<div id="map_div" style="width: 600px; height: 322px; margin:0 auto;"></div>
-			</td>
-			</tr>
-			</tbody>
-			</table>
+			$msg = $msg.'<tr class="tr1">
+			<td colspan="4">
+			<center>Response Distribution</center><br>
+			<div id="map_div" style="width: 600px; height: 322px; margin:0 auto;"></div><br>
 			</td>
 			</tr>
 			<script type="text/javascript" src="https://www.google.com/jsapi"></script>
@@ -932,8 +1055,8 @@ function getQuestionnaireList(){
 			</script>';
 			
 			//question result
-			$msg=$msg.'<tr class="tr">
-			<td class="td" colspan="4">';
+			$msg=$msg.'<tr class="tr1">
+			<td colspan="4">';
 			if(isset($execute) and $execute == 'Execute'){
 				$msg=$msg.execute($questionnaire,$question,$location,$responder, $start, $end);
 			} else if(isset($question) and strlen($question) > 0){
@@ -961,18 +1084,11 @@ function getQuestionnaireList(){
 							//$question_txt = $rows['question_text'];
 							$text = $text.'<li>'.$rows['response_content'].'</li><br>';
 						}
-						$text = $text.'</ul>';
-						$msg =$msg.'<table class="table">
-						<tbody>
-						<tr class="tr1">
-						<td colspan="4" class="td"><b>'.$question_id.'. '.$question_txt.'</b><br>
+						$text = $text.'</ol>';
+						$msg =$msg.'<b>'.$question_id.'. '.$question_txt.'</b><br>
 						<br>
 						'.$text.'
-						</td>
-						</tr>
-						
-						</tbody>
-						</table>';
+						<br>';
 					} else if(trim($row[3]) == "NPS"){
 						
 						
@@ -1044,9 +1160,7 @@ function getQuestionnaireList(){
 						$dataArray = $dataArray.',["Passives",'.$passives.']';
 						$dataArray = $dataArray.']';
 						
-						$msg =$msg.'<table class="table">
-						<tbody>
-						<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+						$msg =$msg.'<script type="text/javascript" src="https://www.google.com/jsapi"></script>
 						<script type="text/javascript">
 						google.load("visualization", "1", {packages:["corechart"]});
 						google.setOnLoadCallback(drawChart);
@@ -1059,17 +1173,11 @@ function getQuestionnaireList(){
 						var chart = new google.visualization.PieChart(document.getElementById("chart_div"));
 						chart.draw(data, options);
 						}
-						</script><tr class="tr1">
-						<td colspan="4" class="td">
+						</script><br>
 						<div id="chart_div" style="width: 800px; height: 400px; margin:0 auto;"></div>
 						<br>
 						<center><b> NET PROMOTER SCORE (NPS): </b> '.$npsFinal.'<br></center><br>
-						</td>
-						</tr>
-						
-						
-						</tbody>
-						</table>';
+						<br>';
 						
 						
 						
@@ -1089,8 +1197,7 @@ function getQuestionnaireList(){
 						$dataArray = $dataArray.']';
 						
 						
-						$msg=$msg.'<table class="table">
-						<tbody>
+						$msg=$msg.'
 						
 						<script type="text/javascript" src="https://www.google.com/jsapi"></script>
 						<script type="text/javascript">
@@ -1102,17 +1209,16 @@ function getQuestionnaireList(){
 						title: "'.$question_id.'. '.$question_txt.'",
 						vAxis: {title: "Answer",  titleTextStyle: {color: "red"}}
 						};
+
+
+
 						
 						var chart = new google.visualization.BarChart(document.getElementById("chart_div"));
 						chart.draw(data, options);
 						}
-						</script><tr class="tr1">
-						<td colspan="4" class="td">
+						</script><br>
 						<div id="chart_div" style="width: 800px; height: 400px; margin:0 auto;"></div>
-						</td>
-						</tr>
-						</tbody>
-						</table>';
+						<br>';
 						
 						
 					}
@@ -1128,7 +1234,7 @@ function getQuestionnaireList(){
 				}
 			}
 			$msg=$msg.'</td>
-			</tr>';
+			</tr></table>';
 			
 		} else {
 			$msg = $msg.'<tr class="tr1">
@@ -1159,15 +1265,22 @@ function getQuestionnaireList(){
 			</td>
 			
 			
+			</tr>
+			<tr class="tr1">
+			<td colspan="4"><center> 
+			<strong>Filter Name: </strong>
+			<input type="text" name="filterName" value="" />&nbsp;&nbsp;&nbsp;&nbsp;<input class="button-primary" type="submit" name="saveFilters" value="Save Filters" />&nbsp;&nbsp;&nbsp;&nbsp;
+			<input class="button-primary" type="submit" name="manageFilters" value="Manage Filters" />&nbsp;&nbsp;&nbsp;&nbsp;
+			<input class="button-primary" type="submit" name="Refresh" value="Refresh" /></center></td>
 			</tr></table>';
 		}
 		
 	} else {
 		if(!empty($saved_user_name) && $saved_user_id > 0){
-		        $msg = $msg.'<p class="one"><br><b>You do not have any questionnaire in the system.</b><br>&nbsp;
-                            <center><input class="button-primary" type="submit" name="Refresh" value="Refresh" /></center></p>';
+		        $msg = $msg.'<p class="one">&nbsp;<br><b>You do not have any survey in the system.</b><br>&nbsp;
+				<center><input class="button-primary" type="submit" name="Refresh" value="Refresh" /></center><br></p>';
 		} else {
-			$msg = $msg.'<p class="one"><br><b>Please login to access your questionnaire.</b><br>&nbsp;</p>';
+			$msg = $msg.'<p class="one"><br><b>Please login to access your survey.</b><br>&nbsp;</p>';
 		}
 	}
 	return $msg;
@@ -1327,47 +1440,36 @@ function getGeoChart(){
 }
 function exportpdf($questionnaire){
           
-        ob_start();
-	$msg = viewAll($questionnaire);
-      
-       $finalmsg = '<html><body>'.$msg.'</body></html>';
-	require_once('tcpdf/tcpdf.php');
-	$pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'ANSI', false);
-	$pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
-	$pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
-	
-	if (@file_exists(dirname(__FILE__).'/lang/eng.php')) {
-		require_once(dirname(__FILE__).'/lang/eng.php');
-		$pdf->setLanguageArray($l);
-	}
-	$pdf->SetFont('helvetica', '', 9);
-	$pdf->AddPage();
-        header('Content-type: application/pdf');
-        header('Content-Disposition: attachment; filename="Report.pdf"');
-	
-	$pdf->writeHTML($finalmsg , true, 0, true, 0);
-	$pdf->lastPage();
+       require_once('tcpdf/tcpdf.php');
+       $pdf = new TCPDF(PDF_PAGE_ORIENTATION, PDF_UNIT, PDF_PAGE_FORMAT, true, 'UTF-8', false);
+       $pdf->SetDefaultMonospacedFont(PDF_FONT_MONOSPACED);
+       $pdf->SetAutoPageBreak(TRUE, PDF_MARGIN_BOTTOM);
+
+       if (@file_exists(dirname(__FILE__).'/lang/eng.php')) {
+       	       require_once(dirname(__FILE__).'/lang/eng.php');
+       	       $pdf->setLanguageArray($l);
+       }
+       $pdf->SetFont('helvetica', '', 9);
+       $pdf->AddPage();
+       $msg = viewAll($questionnaire);
+        echo $msg;
+         
+         $pdf->writeHTML($msg, true, 0, true, 0);
+         $pdf->writeHTMLCell(0, 0, '', '', $msg, 0, 1, 0, true, '', true);
+         $pdf->lastPage();
+
+         $pdf->Output('report.pdf', 'D');
         
-	
-       
-	
-	// to open in browser
-	$pdf->Output('Report.pdf', 'I');
-	
-	
-	// to download as pdf
-	//$pdf->Output('Report.pdf', 'D');
-	
 }
 function viewAll($questionnaire){
-	$msg = '';
+	$msg = '<h3><center>QuestionPeach Analyzer</center></h3>';
 	
 	$questions = mysql_query("SELECT question_id, question_text, topic, title
 		FROM wp_question_dim A, wp_questionnaire_dim B
 		WHERE A.questionnaire_id = B.questionnaire_id
 		AND A.questionnaire_id = $questionnaire order by question_id");
 	$survey = mysql_fetch_row($questions);
-	$msg = $msg.'<h4>Topic: '.$survey[2].'</h4><h5>Title: '.$survey[3].'</h5>';
+	$msg = $msg.'<button id="generate">generate PDF</button><br><div id="qpresult"><table class="table"><tr class="tr1"><td class="td"><h4>Topic: '.$survey[2].'</h4><h5>Title: '.$survey[3].'</h5></td></tr>';
 	
 	if (mysql_data_seek($questions, 0))
 		{}
@@ -1391,7 +1493,7 @@ function viewAll($questionnaire){
 				$row = mysql_fetch_row($result);
 				if (mysql_data_seek($result, 0))
 					{}
-				$text = '<ul>';
+				$text = '<ol>';
 				// if the answer type is text
 				if(trim($row[3])=='Text Box'){
 					while($rows = mysql_fetch_assoc($result)) {
@@ -1399,17 +1501,14 @@ function viewAll($questionnaire){
 						$question_txt = $rows['question_text'];
 						$text = $text.'<li>'.$rows['response_content'].'</li><br>';
 					}
-					$text = $text.'</ul>';
-					$msg =$msg.'<table class="table">
-					<tbody>
+					$text = $text.'</ol>';
+					$msg =$msg.'
 					<tr class="tr1">
-					<td colspan="4" class="td"><b>'.$question_id.'. '.$question_txt.'</b><br>
+					<td class="td"><b>'.$question_id.'. '.$question_txt.'</b><br>
 					<br>
 					'.$text.'
 					</td>
-					</tr>
-					</tbody>
-					</table>';
+					</tr>';
 				} else if(trim($row[3]) == "NPS"){
 					
 					$res = mysql_query("SELECT question_id,  question_text FROM wp_question_dim
@@ -1488,8 +1587,7 @@ function viewAll($questionnaire){
 					$dataArray = $dataArray.',["Passives",'.$passives.']';
 					$dataArray = $dataArray.']';
 					
-					$msg =$msg.'<table class="table">
-					<tbody>
+					$msg =$msg.'
 					<script type="text/javascript" src="https://www.google.com/jsapi"></script>
 					<script type="text/javascript">
 					google.load("visualization", "1", {packages:["corechart"]});
@@ -1504,19 +1602,13 @@ function viewAll($questionnaire){
 					chart.draw(data, options);
 					}
 					</script><tr class="tr1">
-					<td colspan="4" class="td">
+					<td class="td">
 					<div id="chart_div'.$qid.'" style="width: 800px; height: 400px; margin:0 auto;"></div>
 					<br>
 					<center><b> NET PROMOTER SCORE (NPS): </b> '.$npsFinal.'<br></center><br>
 					</td>
-					</tr>
-					
-					
-					</tbody>
-					</table>';
-					
-					
-					
+					</tr>';
+										
 					
 				}else{
 					
@@ -1533,10 +1625,7 @@ function viewAll($questionnaire){
 					$dataArray = $dataArray.']';
 					
 					
-					$msg=$msg.'<table class="table">
-					<tbody>
-					
-					<script type="text/javascript" src="https://www.google.com/jsapi"></script>
+					$msg=$msg.'<script type="text/javascript" src="https://www.google.com/jsapi"></script>
 					<script type="text/javascript">
 					google.load("visualization", "1", {packages:["corechart"]});
 					google.setOnLoadCallback(drawChart);
@@ -1552,31 +1641,25 @@ function viewAll($questionnaire){
 					chart.draw(data, options);
 					}
 					</script><tr class="tr1">
-					<td colspan="4" class="td">
+					<td class="td">
 					<div id="chart_div'.$qid.'" style="width: 800px; height: 400px; margin:0 auto;"></div>
 					</td>
-					</tr>
-					</tbody>
-					</table>';
-					
-					
+					</tr>';
+									
 				}
 				
-				
-				
+							
 			} else {
 				
-				$msg = $msg.'<table class="table">
-				<tbody>
-				<tr class="tr1">
+				$msg = $msg.'<tr class="tr1">
 				<td colspan="4" class="td"><b>'.$qid.'.'.$qtext.'</b><br><br>
 				There is no result available for this question</td>
-				</tr></tr>
-				</tbody>
-				</table>';
+				</tr>';
 			}
 		}
 	}
+	
+	$msg = $msg.'</table></div>';
 	
 	return $msg;
 }
@@ -1726,47 +1809,16 @@ function execute($questionnaire,$question,$location,$responder, $start, $end){
 					//$question_txt = $rows['question_text'];
 					$text = $text.'<li>'.$rows['response_content'].'</li><br>';
 				}
-				$text = $text.'</ul>';
-				$msg =$msg.'<table class="table">
-				<tbody>
-				<tr class="tr1">
-				<td colspan="4" class="td"><b>'.$question_id.'. '.$question_txt.'</b><br>
-				<br>
-				'.$query.'
-				<br>
+				$text = $text.'</ol>';
+				$msg =$msg.'<br><b>'.$question_id.'. '.$question_txt.'</b><br>
 				<br>
 				'.$text.'
-				</td>
-				</tr>
-				
-				</tbody>
-				</table>';
+				<br>
+				<br>
+				<p class="two">'.$query.'</p>
+				<br>';
 			} else if(trim($row['ans_type']) == "NPS"){
-				$condtion='';
-				if(isset($location) and strlen($location) > 0){
-					$condtion = $condtion.' AND location_dim_location_id ='.$location;
-					if(isset($responder) and strlen($responder) > 0){
-						$condtion = $condtion.' AND respondee_dim_respondee_id ='. $responder;
-					}
-				} else if(isset($responder) and strlen($responder) > 0){
-					$condtion = $condtion.' AND respondee_dim_respondee_id = $responder';
-				} else if(strlen($start) and strlen($end) > 0){
-					
-				}
-				
-				if(strlen($condtion) > 0){
-					$nps = mysql_query("SELECT COUNT( * ) detractors
-						FROM ( SELECT CONVERT( response_content, UNSIGNED INTEGER ) AS response_content
-						FROM wp_question_response
-						WHERE questionnaire_dim_questionnaire_id =$questionnaire
-						AND question_dim_question_id =$question'
-						AND response_type = 'NPS'
-						AND CONVERT( response_content, UNSIGNED INTEGER )
-						BETWEEN 0
-						AND 6
-						) AS detractors");
-				} else {
-					$nps = mysql_query("SELECT COUNT( * ) detractors
+				$nps_sql = "SELECT COUNT( * ) detractors
 						FROM ( SELECT CONVERT( response_content, UNSIGNED INTEGER ) AS response_content
 						FROM wp_question_response
 						WHERE questionnaire_dim_questionnaire_id =$questionnaire
@@ -1775,31 +1827,8 @@ function execute($questionnaire,$question,$location,$responder, $start, $end){
 						AND CONVERT( response_content, UNSIGNED INTEGER )
 						BETWEEN 0
 						AND 6
-						) AS detractors");
-				}
-				
-				$detractors = 0;
-				if(!empty($nps)){
-					while($row = mysql_fetch_assoc($nps)) {
-						$detractors = $row['detractors'];
-					}
-				}
-				
-				if(strlen($condtion) > 0){
-					$nps1 = mysql_query("SELECT COUNT( * ) passives
-						FROM (
-						
-						SELECT CONVERT( response_content, UNSIGNED INTEGER ) AS response_content
-						FROM wp_question_response
-						WHERE questionnaire_dim_questionnaire_id =$questionnaire
-						AND question_dim_question_id =$question $condtion
-						AND response_type =  'NPS'
-						AND CONVERT( response_content, UNSIGNED INTEGER )
-						BETWEEN 7
-						AND 8
-						) AS passives");
-				} else {
-					$nps1 = mysql_query("SELECT COUNT( * ) passives
+						) AS detractors";
+				$nps1_sql = "SELECT COUNT( * ) passives
 						FROM (
 						
 						SELECT CONVERT( response_content, UNSIGNED INTEGER ) AS response_content
@@ -1810,10 +1839,216 @@ function execute($questionnaire,$question,$location,$responder, $start, $end){
 						AND CONVERT( response_content, UNSIGNED INTEGER )
 						BETWEEN 7
 						AND 8
-						) AS passives");
+						) AS passives";
+						
+					$nps2_sql = "SELECT COUNT( * ) promoters
+						FROM (SELECT CONVERT( response_content, UNSIGNED INTEGER ) AS response_content
+						FROM wp_question_response
+						WHERE questionnaire_dim_questionnaire_id =$questionnaire
+						AND question_dim_question_id =$question 
+						AND response_type =  'NPS'
+						AND CONVERT( response_content, UNSIGNED INTEGER )
+						BETWEEN 9
+						AND 10
+						) AS promoters";
+				
+				if(isset($location) and strlen($location) > 0){
+					$nps_sql = "SELECT L.city, L.country, COUNT(*) detractors 
+							FROM wp_question_response QR, wp_location_dim L
+							WHERE questionnaire_dim_questionnaire_id = $questionnaire
+							AND question_dim_question_id = $question
+                            AND location_dim_location_id = $location
+							AND response_type = 'NPS'
+                            AND L.location_id = QR.location_dim_location_id
+							AND CONVERT( response_content, UNSIGNED INTEGER )
+							BETWEEN 0
+							AND 6";
+					 $nps1_sql = "SELECT L.city, L.country, COUNT(*) passives 
+							FROM wp_question_response QR, wp_location_dim L
+							WHERE questionnaire_dim_questionnaire_id = $questionnaire
+							AND question_dim_question_id = $question
+                            AND location_dim_location_id = $location
+							AND response_type = 'NPS'
+                            AND L.location_id = QR.location_dim_location_id
+							AND CONVERT( response_content, UNSIGNED INTEGER )
+							BETWEEN 7
+							AND 8"; 
+						$nps2_sql = "SELECT L.city, L.country, COUNT(*) promoters
+							FROM wp_question_response QR, wp_location_dim L
+							WHERE questionnaire_dim_questionnaire_id = $questionnaire
+							AND question_dim_question_id = $question
+                            AND location_dim_location_id = $location
+							AND response_type = 'NPS'
+                            AND L.location_id = QR.location_dim_location_id
+							AND CONVERT( response_content, UNSIGNED INTEGER )
+							BETWEEN 9
+							AND 10";
+						
+					if(isset($responder) and strlen($responder) > 0){
+						$nps_sql = "SELECT R.username, L.city, L.country, COUNT(*) as detractors
+							FROM wp_question_response QR, wp_respondee_dim R, wp_location_dim L
+							WHERE questionnaire_dim_questionnaire_id = $questionnaire
+							AND question_dim_question_id = $question
+                            AND respondee_dim_respondee_id = $responder
+                            AND location_dim_location_id = $location
+							AND response_type = 'NPS'
+                            AND R.respondee_id = QR.respondee_dim_respondee_id
+                            AND L.location_id = QR.location_dim_location_id
+							AND CONVERT( response_content, UNSIGNED INTEGER )
+							BETWEEN 0
+							AND 6";
+							
+						$nps1_sql = "SELECT R.username, L.city, L.country, COUNT(*) as passives
+							FROM wp_question_response QR, wp_respondee_dim R, wp_location_dim L
+							WHERE questionnaire_dim_questionnaire_id = $questionnaire
+							AND question_dim_question_id = $question
+                            AND respondee_dim_respondee_id = $responder
+                            AND location_dim_location_id = $location
+							AND response_type = 'NPS'
+                            AND R.respondee_id = QR.respondee_dim_respondee_id
+                            AND L.location_id = QR.location_dim_location_id
+							AND CONVERT( response_content, UNSIGNED INTEGER )
+							BETWEEN 7
+							AND 8";
+							
+						$nps2_sql = "SELECT R.username, L.city, L.country, COUNT(*) as promoters
+							FROM wp_question_response QR, wp_respondee_dim R, wp_location_dim L
+							WHERE questionnaire_dim_questionnaire_id = $questionnaire
+							AND question_dim_question_id = $question
+                            AND respondee_dim_respondee_id = $responder
+                            AND location_dim_location_id = $location
+							AND response_type = 'NPS'
+                            AND R.respondee_id = QR.respondee_dim_respondee_id
+                            AND L.location_id = QR.location_dim_location_id
+							AND CONVERT( response_content, UNSIGNED INTEGER )
+							BETWEEN 9
+							AND 10";
+							if(strlen($start)> 0 and strlen($end) > 0){
+							 	$nps_sql = "SELECT R.username,
+											L.city,
+											L.country,
+											COUNT(*) as detractors,
+											(select T.date
+											from  wp_time_dim T
+											where T.time_id in(select wqr.time_dim_time_id
+											from wp_question_response wqr
+											where wqr.respondee_dim_respondee_id = $responder
+											AND question_dim_question_id = $question
+											AND location_dim_location_id = $location
+											AND response_type = 'NPS'
+											)
+											and T.date between '$start' and '$end' ) as dt
+											FROM   wp_question_response QR, wp_respondee_dim R, wp_location_dim L
+											WHERE  R.respondee_id = QR.respondee_dim_respondee_id
+											AND    L.location_id = QR.location_dim_location_id
+											AND questionnaire_dim_questionnaire_id = $questionnaire
+											AND question_dim_question_id = $question
+											AND location_dim_location_id = $location
+											AND respondee_dim_respondee_id = $responder
+											AND response_type = 'NPS'
+											AND CONVERT( response_content, UNSIGNED INTEGER ) BETWEEN 0 AND 6";
+							
+							    $nps1_sql = "SELECT R.username,
+											L.city,
+											L.country,
+											COUNT(*) as passives,
+											(select T.date
+											from  wp_time_dim T
+											where T.time_id in(select wqr.time_dim_time_id
+											from wp_question_response wqr
+											where wqr.respondee_dim_respondee_id = $
+											AND question_dim_question_id=3
+											AND location_dim_location_id = 1931
+											AND response_type = 'NPS'
+											)
+											and T.date between '2014-05-01' and '2014-05-10' ) as dt
+											
+											FROM   wp_question_response QR, wp_respondee_dim R, wp_location_dim L
+											WHERE  R.respondee_id = QR.respondee_dim_respondee_id
+											AND    L.location_id = QR.location_dim_location_id
+											AND questionnaire_dim_questionnaire_id = $questionnaire
+											AND question_dim_question_id=3
+											AND location_dim_location_id = 1931
+											AND respondee_dim_respondee_id=1
+											AND response_type = 'NPS'
+											AND CONVERT( response_content, UNSIGNED INTEGER ) BETWEEN 7 AND 8";
+											
+								$nps2_sql = "SELECT R.username,
+											L.city,
+											L.country,
+											COUNT(*) as promoters,
+											(select T.date
+											from  wp_time_dim T
+											where T.time_id in(select wqr.time_dim_time_id
+											from wp_question_response wqr
+											where wqr.respondee_dim_respondee_id=1
+											AND question_dim_question_id=3
+											AND location_dim_location_id = 1931
+											AND response_type = 'NPS'
+											)
+											and T.date between '2014-05-01' and '2014-05-10' ) as dt
+											FROM   wp_question_response QR, wp_respondee_dim R, wp_location_dim L
+											WHERE  R.respondee_id = QR.respondee_dim_respondee_id
+											AND    L.location_id = QR.location_dim_location_id
+											AND questionnaire_dim_questionnaire_id = 1
+											AND question_dim_question_id=3
+											AND location_dim_location_id = 1931
+											AND respondee_dim_respondee_id=1
+											AND response_type = 'NPS'
+											AND CONVERT( response_content, UNSIGNED INTEGER ) BETWEEN 9 AND 10;
+											";
+							}
+					}
+				} else if(isset($responder) and strlen($responder) > 0){
+					$nps_sql = "SELECT R.username, COUNT(*) as detractors
+							FROM wp_question_response QR, wp_respondee_dim R
+							WHERE questionnaire_dim_questionnaire_id = $questionnaire
+							AND question_dim_question_id = $question
+                            AND respondee_dim_respondee_id = $responder
+							AND response_type = 'NPS'
+                            AND R.respondee_id = QR.respondee_dim_respondee_id
+							AND CONVERT( response_content, UNSIGNED INTEGER )
+							BETWEEN 0
+							AND 6";
+						$nps1_sql = "SELECT R.username, COUNT(*) as passives
+							FROM wp_question_response QR, wp_respondee_dim R
+							WHERE questionnaire_dim_questionnaire_id = $questionnaire
+							AND question_dim_question_id = $question
+                            AND respondee_dim_respondee_id = $responder
+							AND response_type = 'NPS'
+                            AND R.respondee_id = QR.respondee_dim_respondee_id
+							AND CONVERT( response_content, UNSIGNED INTEGER )
+							BETWEEN 7
+							AND 8";
+							
+						$nps2_sql = "SELECT R.username, COUNT(*) as promoters
+							FROM wp_question_response QR, wp_respondee_dim R
+							WHERE questionnaire_dim_questionnaire_id = $questionnaire
+							AND question_dim_question_id = $question
+                            AND respondee_dim_respondee_id = $responder
+							AND response_type = 'NPS'
+                            AND R.respondee_id = QR.respondee_dim_respondee_id
+							AND CONVERT( response_content, UNSIGNED INTEGER )
+							BETWEEN 9
+							AND 10";
+				} else if(strlen($start) and strlen($end) > 0){
 					
 				}
 				
+				
+				$nps = mysql_query($nps_sql);
+				
+				
+				$detractors = 0;
+				if(!empty($nps)){
+					while($row = mysql_fetch_assoc($nps)) {
+						$detractors = $row['detractors'];
+					}
+				}
+				
+				
+				$nps1 = mysql_query($nps1_sql);
+											
 				
 				$passives =0;
 				if(!empty($nps1)){
@@ -1823,31 +2058,8 @@ function execute($questionnaire,$question,$location,$responder, $start, $end){
 					}
 				}
 				
-				if(strlen($condtion) > 0){
-					$nps2 = mysql_query("SELECT COUNT( * ) promoters
-						FROM (SELECT CONVERT( response_content, UNSIGNED INTEGER ) AS response_content
-						FROM wp_question_response
-						WHERE questionnaire_dim_questionnaire_id =$questionnaire
-						AND question_dim_question_id =$question $condtion
-						AND response_type =  'NPS'
-						AND CONVERT( response_content, UNSIGNED INTEGER )
-						BETWEEN 9
-						AND 10
-						) AS promoters");
-				} else {
-					$nps2 = mysql_query("SELECT COUNT( * ) promoters
-						FROM (SELECT CONVERT( response_content, UNSIGNED INTEGER ) AS response_content
-						FROM wp_question_response
-						WHERE questionnaire_dim_questionnaire_id =$questionnaire
-						AND question_dim_question_id =$question 
-						AND response_type =  'NPS'
-						AND CONVERT( response_content, UNSIGNED INTEGER )
-						BETWEEN 9
-						AND 10
-						) AS promoters");
-					
-				}
-				
+				$nps2 = mysql_query($nps2_sql);
+									
 				$promoters = 0;
 				if(!empty($nps2)){
 					while($row = mysql_fetch_assoc($nps2)) {
@@ -1871,8 +2083,7 @@ function execute($questionnaire,$question,$location,$responder, $start, $end){
 				$dataArray = $dataArray.',["Passives",'.$passives.']';
 				$dataArray = $dataArray.']';
 				
-				$msg =$msg.'<table class="table">
-				<tbody>
+				$msg =$msg.'
 				<script type="text/javascript" src="https://www.google.com/jsapi"></script>
 				<script type="text/javascript">
 				google.load("visualization", "1", {packages:["corechart"]});
@@ -1886,21 +2097,13 @@ function execute($questionnaire,$question,$location,$responder, $start, $end){
 				var chart = new google.visualization.PieChart(document.getElementById("chart_div"));
 				chart.draw(data, options);
 				}
-				</script><tr class="tr1">
-				<td colspan="4" class="td">
+				</script><br>
 				<div id="chart_div" style="width: 800px; height: 400px; margin:0 auto;"></div>
 				<br>
 				<center><b> NET PROMOTER SCORE (NPS): </b> '.$npsFinal.'<br></center><br>
-				</td>
-				</tr>
-				
-				
-				</tbody>
-				</table>';
-				
-				
-				
-				
+				<p class="two">'.$query.'</p>
+				<br>';
+								
 			} else{
 				
 				$dataArray = '[	["Answer", "Responses"]';
@@ -1916,9 +2119,7 @@ function execute($questionnaire,$question,$location,$responder, $start, $end){
 				$dataArray = $dataArray.']';
 				
 				
-				$msg=$msg.'<table class="table">
-				<tbody>
-				
+				$msg=$msg.'				
 				<script type="text/javascript" src="https://www.google.com/jsapi"></script>
 				<script type="text/javascript">
 				google.load("visualization", "1", {packages:["corechart"]});
@@ -1930,31 +2131,22 @@ function execute($questionnaire,$question,$location,$responder, $start, $end){
 				vAxis: {title: "Answer",  titleTextStyle: {color: "red"}}
 				};
 				
-				var chart = new google.visualization.BarChart(document.getElementById("chart_div"));
+				var chart = new google.visualization.BarChart(document.getElementById("chart_div1"));
 				chart.draw(data, options);
 				}
-				</script><tr class="tr1">
-				<td colspan="4" class="td">
-				<div id="chart_div" style="width: 800px; height: 400px; margin:0 auto;"></div>
+				</script><br>
+				<div id="chart_div1" style="width: 800px; height: 400px; margin:0 auto;"></div>
 				<br>
-				'.$query.'
+				<p class="two">'.$query.'</p>
 				<br>
-				</td>
-				</tr>
-				</tbody>
-				</table>';
+				<br>';
 				
 				
 			}
 		} else {
 			
-			$msg = $msg.'<table class="table">
-			<tbody>
-			<tr class="tr1">
-			<td colspan="4" class="td">There is no result available for this question</td>
-			</tr></tr>
-			</tbody>
-			</table>';
+			$msg = $msg.'<br>There is no result available for this question.
+			<br>';
 		}
 	} else {
 		$msg = 'Please select at least one question.';
@@ -2026,8 +2218,7 @@ function analyzer_refresh()
 	$wpdb->query($sql_4);
 	$wpdb->query($sql_5);
 	
-	echo '<script type="text/javascript">self.location="/questionpeach-analyzer-gui/?action=refresh";</script>';
-	
+	echo '<script type="text/javascript">self.location="/wp-admin/admin.php?page=questionpeach-analyzer&action=refresh";</script>';
 }
 
 //////////////////////////////// analyzer_manage_my_filters //////////////////////////////////////
@@ -2064,7 +2255,7 @@ function analyzer_manage_my_filters($saved_user_id, $saved_user_name)
 /////////////////////////////analyzer_generateReport.sql///////////////////
 function analyzer_generateReport($user_id, $user_name, $filter)
 {
-	
+	$msg = '<h3><center>QuestionPeach Analyzer</center></h3><table class="table">';
 	foreach ($filter as &$name) {
 		
 		$result = mysql_query("select * from wp_filters where name = '$name'");
@@ -2076,11 +2267,12 @@ function analyzer_generateReport($user_id, $user_name, $filter)
 			$start = $rows['start_date'];
 			$end = $rows['end_date'];
 			
-			$msg = $msg.execute($questionnaire,$question,$location,$responder, $start, $end);
+			$msg = $msg.'<tr class="tr1"><td class="td">'.execute($questionnaire,$question,$location,$responder, $start, $end).'</td></tr>';
 			
 		}
 		
 	}
+	$msg = $msg.'</table>';
 	return $msg;
 }
 
@@ -2093,7 +2285,7 @@ function deleteFilter($user_id, $user_name, $filter){
 	//running query
 	mysql_query($sql);
 	
-	echo'<script type="text/javascript">self.location="/questionpeach-analyzer-gui/?manageFilters=Manage+Filters";</script>';
+	echo'<script type="text/javascript">self.location="/wp-admin/admin.php?page=questionpeach-analyzer&manageFilters=Manage+Filters";</script>';
 	
 }
 //////////////////////////////// analyzer_save_user_report_params //////////////////////////////////////
@@ -2106,7 +2298,7 @@ function analyzer_save_user_report_params($saved_user_analyzer, $saved_questionn
 	$rows = mysql_num_rows($result);
 	if (strlen($filterName)==0){
 		echo '<script type="text/javascript">alert("Please enter the filter name.");</script>
-		<script type="text/javascript">self.location="/questionpeach-analyzer-gui/?questionnaire='.$saved_questionnaire.'&question='.$saved_question
+		<script type="text/javascript">self.location="/wp-admin/admin.php?page=questionpeach-analyzer&questionnaire='.$saved_questionnaire.'&question='.$saved_question
 		.'&location='.$saved_location.'&responder='.$saved_responder.'&start='.$saved_start_date_id.'&end='.$saved_end_date_id.'";</script>';
 	}else if($rows == 0){
 		global $wpdb;
@@ -2149,11 +2341,11 @@ function analyzer_save_user_report_params($saved_user_analyzer, $saved_questionn
 		
 		$wpdb->query($sql_0);  
 		analyzer_remove_nulls();
-		echo '<script type="text/javascript">self.location="/questionpeach-analyzer-gui/?questionnaire='.$saved_questionnaire.'&question='.$saved_question
+		echo '<script type="text/javascript">self.location="/wp-admin/admin.php?page=questionpeach-analyzer&questionnaire='.$saved_questionnaire.'&question='.$saved_question
 		.'&location='.$saved_location.'&responder='.$saved_responder.'&start='.$saved_start_date_id.'&end='.$saved_end_date_id.'&action=save+filter";</script>';
 	} else {
 		echo '<script type="text/javascript">alert("The filter name entered already in use. please choose a different name. ");</script>
-		<script type="text/javascript">self.location="/questionpeach-analyzer-gui/?questionnaire='.$saved_questionnaire.'&question='.$saved_question
+		<script type="text/javascript">self.location="/wp-admin/admin.php?page=questionpeach-analyzer&questionnaire='.$saved_questionnaire.'&question='.$saved_question
 		.'&location='.$saved_location.'&responder='.$saved_responder.'&start='.$saved_start_date_id.'&end='.$saved_end_date_id.'";</script>';
 	}
 }

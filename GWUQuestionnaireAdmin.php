@@ -46,25 +46,25 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
             // Register function to be called when administration pages init takes place
             add_action('admin_init', array($this, 'GWU_Questionnaire_admin_init'));
 
-            // Set Plugin Path
-            $this->pluginPath = dirname(__FILE__);
-
             // Set Plugin URL
             $this->pluginUrl = WP_PLUGIN_URL . '/GWU_Builder';
             $this->gwuquestion = new GWUQuestion();
             $this->gwuquestionnaire = new GWUQuestionnaire();
             $this->gwucondition = new GWUCondition();
             $this->gwuaction = new GWUAction();
+			
         }
 
         public function GWU_add_Questionnaire_menu_links() {
-                global $submenu;
-            add_menu_page('QuestionPeach', 'QuestionPeach', 'edit_pages', 'GWU_Questionnaire-mainMenu-page', array($this, 'GWU_Questionnaire_mainpage_callback')
+               global $submenu;
+            add_menu_page('Survey', 'Survey', 'edit_pages', 'GWU_Questionnaire-mainMenu-page', array($this, 'GWU_Questionnaire_mainpage_callback')
                     , plugins_url('images/GWUQuestionnaire.png', __FILE__));
-            add_submenu_page('GWU_Questionnaire-mainMenu-page', 'Add New Survey ', 'Add New Survey', 'edit_pages', 'GWU_add-Questionnaire-page', array($this, 'GWU_add_Questionnaire_mainpage_callback'));
-             add_submenu_page('GWU_Questionnaire-mainMenu-page', 'Analyze Survey ', 'Analyze Survey', 'edit_pages', 'GWU_view-Analyzer-page', array($this, 'GWU_view_Analyzer_mainpage_callback'));
-            add_submenu_page('GWU_Questionnaire-mainMenu-page', 'Users ', 'Users', 'create_users', 'GWU_view-Users-page', array($this, 'GWU_view_Users_mainpage_callback'));
+            add_submenu_page('GWU_Questionnaire-mainMenu-page', 'Add New', 'Add New', 'edit_pages', 'GWU_add-Questionnaire-page', array($this, 'GWU_add_Questionnaire_mainpage_callback'));
+
+            add_submenu_page('GWU_Questionnaire-mainMenu-page', 'All Users ', 'All Users', 'create_users', 'GWU_view-Users-page', array($this, 'GWU_view_Users_mainpage_callback'));
+ add_submenu_page('GWU_Questionnaire-mainMenu-page', 'Settings', 'Settings', 'edit_pages', 'GWU_view-Settings-page', array($this, 'GWU_view_Settings_mainpage_callback'));
                         $submenu['GWU_Questionnaire-mainMenu-page'][0][0] = 'View Surveys';
+
 
         }
 
@@ -85,33 +85,21 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
             $this->AddQuestionnairePageHandler();
         }
 
-        public function GWU_view_Users_mainpage_callback() {
+         public function GWU_view_Users_mainpage_callback() {
             //if current user is not admin, onwer, or survey editor 
             if (!current_user_can('own_survey')) {
                 wp_die('Insufficient permissions to access this page');
             }
             include_once dirname(__FILE__) . '/AddUser.php';
         }
-        public function GWU_view_Analyzer_mainpage_callback(){
 
-                        $admin = new Analyzer();
-         
-			$_p['post_title'] = $the_page_title;
-			$_p['post_content'] = $admin->{'creatUI'}();
-			$_p['post_status'] = 'publish';
-			$_p['post_type'] = 'page';
-			$_p['comment_status'] = 'closed';
-			$_p['ping_status'] = 'closed';
-			$_p['post_category'] = array(1); // the default 'Uncatrgorised'
-			
-			// Insert the post into the database
-			$the_page_id = wp_insert_post( $_p );
-         
-        //createUI
-       
-        
+         public function GWU_view_Settings_mainpage_callback() {
+            //if current user is not admin, onwer, or survey editor 
+            if (!current_user_can('own_survey')) {
+                wp_die('Insufficient permissions to access this page');
+            }
+            
         }
-
 
         // Register functions to be called when bugs are saved
         function GWU_Questionnaire_admin_init() {

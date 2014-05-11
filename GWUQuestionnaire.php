@@ -153,7 +153,7 @@ if (!class_exists('GWUQuestionnaire')) {
         }
 
         public function AddNewQuestionnaire() {
-
+            
             // Place all user submitted values in an array
 
             $Title = ( isset($_POST['questionnaire_title']) ? $_POST['questionnaire_title'] : '' );

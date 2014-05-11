@@ -72,16 +72,15 @@ $Topics = array('', 'Employee Feedback', 'Volunteer Feedback', 'Education',
   <form id="Questionnaire_form"
         class="create-new" style="  padding-left: 20%;
           padding-top: 50px;"
-        method="post" action= ""
-    <?php echo admin_url('admin-post.php'); ?>
-    ">
-    <input type="hidden" name="action" value=""<?php echo $actionName; ?>" />
-    <input type="hidden" name="QuestionnaireID" value=""<?php echo $QuestionnaireID ?>" />
+        method="post" action= "<?php echo admin_url('admin-post.php'); ?>"
+        >
+    <input type="hidden" name="action" value="<?php echo $actionName; ?>" />
+    <input type="hidden" name="QuestionnaireID" value="<?php echo $QuestionnaireID ?>" />
     <table>
       <tr>
         <td style="width: 200px">Survey Title</td>
         <td class="style1"style="width: 250px">
-          <input type="text" id="questionnaire_title" name="questionnaire_title" size="30" value=""<?php echo $Title; ?>" />
+          <input type="text" id="questionnaire_title" name="questionnaire_title" size="30" value="<?php echo $Title; ?>" />
         </td>
         <td>
           <span class="val_qtitle"></span>
@@ -164,4 +163,4 @@ $Topics = array('', 'Employee Feedback', 'Volunteer Feedback', 'Education',
   </form>
 </div>
 
-<link rel="stylesheet" type="text/css" href=""<?php echo WP_PLUGIN_URL . '/GWU_Builder/images/Menustyle.css' ?> media="screen" />
+<link rel="stylesheet" type="text/css" href="<?php echo WP_PLUGIN_URL . '/GWU_Builder/images/Menustyle.css' ?>" media="screen" />

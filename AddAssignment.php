@@ -1,4 +1,4 @@
-<script type="text/javascript">
+﻿<script type="text/javascript">
   jQuery( document ).ready( function($) {
   $('.buildDropDown').change(function(){
   var $button = $('input',$(this).parent().next('td'));
@@ -27,7 +27,7 @@
 
         <thead>
           <tr>
-            <th width="44%">Questionnaire</th>
+            <th width="44%">Survey</th>
             <th width="39%">Editor</th>
             <th width="22%"></th>
           </tr>

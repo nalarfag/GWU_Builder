@@ -301,6 +301,13 @@ function analyzer_create_tbl()
 		country VARCHAR(50) NULL,
 		PRIMARY KEY(location_id)
 		);
+
+		CREATE TABLE wp_cron_job (
+  		cronjob_id INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
+  		cronjob_name VARCHAR(50) NULL,
+  		cronjob_interval INTEGER NULL,
+  		PRIMARY KEY(cronjob_id)
+		);
 		
 		CREATE TABLE wp_questionnaire_dim (
 		questionnaire_id INTEGER(20) UNSIGNED NOT NULL,
@@ -351,6 +358,7 @@ function analyzer_drop_tbl()
 			wp_time_dim,
 			wp_question_dim,
 			wp_location_dim,
+			wp_cron_job,
 			wp_questionnaire_dim,
 			numbers,
 			numbers_small,
@@ -432,13 +440,12 @@ $sql_0="INSERT INTO wp_respondee_dim(respondee_id, survey_completed, survey_take
 	where SessionID not in(select respondee_id from wp_respondee_dim)); ";
 
 $sql_1="INSERT INTO wp_question_dim (question_id, questionnaire_id, question_text, ans_type)
-	SELECT gwu_question.questsequence, gwu_question.QuestionnaireID, gwu_question.text, AnsType
-	FROM gwu_question
-	WHERE gwu_question.QuestionnaireID in (
-	SELECT gwu_question.QuestionnaireID
-	From gwu_question
-	WHERE gwu_question.QuestionnaireID not in (select questionnaire_id from wp_question_dim)
-	); ";
+	SELECT GQ.questsequence, GQ.QuestionnaireID, GQ.text, GQ.AnsType
+	FROM gwu_question GQ
+	left join wp_question_dim WQ
+	on GQ.QuestionnaireID = WQ.questionnaire_id and GQ.QuestSequence = WQ.question_id
+	WHERE WQ.question_id is null
+	AND WQ.questionnaire_id is null; ";
 
 
 $sql_2="INSERT INTO wp_questionnaire_dim (questionnaire_id, topic, date_created, allow_anonymous, allow_multiple, title, creator_name, OwnerId, EditorId)
@@ -478,10 +485,9 @@ $sql_5="UPDATE wp_question_response SET location_dim_location_id =
 
 $sql_6="INSERT INTO wp_location_dim (city, country)
 	SELECT distinct City, Country
-	FROM gwu_session;";
-	
-	/*WHERE city    NOT IN(select distinct city    from wp_location_dim)
-	AND   country NOT IN(select distinct country from wp_location_dim);";*/
+	FROM gwu_session
+	WHERE city    NOT IN(select distinct city    from wp_location_dim)
+	AND   country NOT IN(select distinct country from wp_location_dim);";
 	
 require_once( ABSPATH . '/wp-admin/includes/upgrade.php' );
 
@@ -532,8 +538,32 @@ $wpdb->query($sql_11);
 $wpdb->query($sql_12);
 $wpdb->query($sql_13);
 $wpdb->query($sql_14);
-
 }
+
+//////////////////////////////////////// analyzer_deletion_cron_builder////////////////////////////////////////////
+function analyzer_deletion_cron_builder()
+{
+ $sql2 = "SELECT PostId FROM gwu_questionnaire WHERE PublishFlag = true";
+ $id_array = $wpdb->get_col($sql2);  
+ foreach($id_array as $id)
+ {
+  wp_delete_post($id);
+ }   
+
+ $wpdb->query("Truncate Table gwu_response"); 
+ $wpdb->query("Truncate Table gwu_session"); 
+ $wpdb->query("Truncate Table gwu_flag"); 
+ $wpdb->query("Truncate Table gwu_answerChoice"); 
+ $wpdb->query("Truncate Table gwu_action"); 
+ $wpdb->query("Truncate Table gwu_condition"); 
+ $wpdb->query("Truncate Table gwu_question"); 
+ $wpdb->query("Truncate Table gwu_questionnaire"); 
+ $wpdb->query("Truncate Table gwu_answerChoice"); 
+ $wpdb->query("Truncate Table gwu_question"); 
+ $wpdb->query("Truncate Table gwu_questionnaire");
+}
+
+
 
 ///////////////////////////// analyzer_get_rec_count($qry) ////////////////////////////////////
 function analyzer_get_rec_count($qry)
@@ -632,8 +662,17 @@ function analyzer_task_migrate()
 
 function analyzer_task_delete()  
 {
- return analyzer_deletion_cron();
+ analyzer_deletion_cron();
+ analyzer_deletion_cron_builder();
+
+ return true;
 }
+
+
+/*function analyzer_task_delete()  
+{
+ return analyzer_deletion_cron();
+}*/
 
 /////////////////////////////////// analyzer_cron_job_migrate_intervals //////////////////////////////////////////////
 function analyzer_cron_job_migrate_intervals($schedules) 
@@ -734,7 +773,7 @@ add_action( 'wp_enqueue_scripts', 'getCss' );
 function getCss(){
 	
 	// Respects SSL, Style.css is relative to the current file
-	wp_register_style( 'prefix-style', plugins_url('/css/alem.css', __FILE__) );
+	wp_register_style( 'prefix-style', plugins_url('/images/Menustyle.css', __FILE__) );
 	wp_enqueue_style( 'prefix-style' );
 }
 
@@ -830,6 +869,7 @@ function getQuestionnaireList(){
 	$manageFilters =$_GET['manageFilters'];
 	$export = $_GET['Export'];
 	$filter = $_GET['filter'];
+	$reset = $_GET['Reset'];
 	
 	require_once( ABSPATH.'wp-includes/user.php' );
 	$saved_user_id = intval(get_current_user_id());
@@ -872,7 +912,9 @@ function getQuestionnaireList(){
 	} else if(isset($refresh) and $refresh == 'Refresh'){
 		analyzer_refresh();
 		
-	} else if(isset($export) and $export == 'Export Data'){
+	} else if(isset($reset) and $reset == 'Reset'){
+		reset_ui();
+	}else if(isset($export) and $export == 'Export Data'){
 		
 		
 		exportpdf($questionnaire);
@@ -969,7 +1011,8 @@ function getQuestionnaireList(){
 			<strong>Filter Name: </strong>
 			<input type="text" name="filterName" value="" />&nbsp;&nbsp;&nbsp;&nbsp;<input class="button-primary" type="submit" name="saveFilters" value="Save Filters" />&nbsp;&nbsp;&nbsp;&nbsp;
 			<input class="button-primary" type="submit" name="manageFilters" value="Manage Filters" />&nbsp;&nbsp;&nbsp;&nbsp;
-			<input class="button-primary" type="submit" name="Refresh" value="Refresh" /></center></td>
+			<input class="button-primary" type="submit" name="Refresh" value="Refresh" />&nbsp;&nbsp;&nbsp;&nbsp;
+			<input class="button-primary" type="submit" name="Reset" value="Reset" /></center></td>
 			</tr>';
 			
 			// For The Questionnaire information
@@ -1123,6 +1166,7 @@ function getQuestionnaireList(){
 						$passives =0;
 						if(!empty($nps1)){
 							while($row = mysql_fetch_assoc($nps1)) {
+
 								
 								$passives = $row['passives'];
 							}
@@ -1170,11 +1214,11 @@ function getQuestionnaireList(){
 						title: "'.$question_id.'. '.$question_txt.'"
 						};
 						
-						var chart = new google.visualization.PieChart(document.getElementById("chart_div"));
+						var chart = new google.visualization.PieChart(document.getElementById("chart_div'.$question_id.'"));
 						chart.draw(data, options);
 						}
 						</script><br>
-						<div id="chart_div" style="width: 800px; height: 400px; margin:0 auto;"></div>
+						<div id="chart_div'.$question_id.'" style="width: 800px; height: 400px; margin:0 auto;"></div>
 						<br>
 						<center><b> NET PROMOTER SCORE (NPS): </b> '.$npsFinal.'<br></center><br>
 						<br>';
@@ -1213,11 +1257,11 @@ function getQuestionnaireList(){
 
 
 						
-						var chart = new google.visualization.BarChart(document.getElementById("chart_div"));
+						var chart = new google.visualization.BarChart(document.getElementById("chart_div'.$question_id.'"));
 						chart.draw(data, options);
 						}
 						</script><br>
-						<div id="chart_div" style="width: 800px; height: 400px; margin:0 auto;"></div>
+						<div id="chart_div'.$question_id.'" style="width: 800px; height: 400px; margin:0 auto;"></div>
 						<br>';
 						
 						
@@ -1271,7 +1315,8 @@ function getQuestionnaireList(){
 			<strong>Filter Name: </strong>
 			<input type="text" name="filterName" value="" />&nbsp;&nbsp;&nbsp;&nbsp;<input class="button-primary" type="submit" name="saveFilters" value="Save Filters" />&nbsp;&nbsp;&nbsp;&nbsp;
 			<input class="button-primary" type="submit" name="manageFilters" value="Manage Filters" />&nbsp;&nbsp;&nbsp;&nbsp;
-			<input class="button-primary" type="submit" name="Refresh" value="Refresh" /></center></td>
+			<input class="button-primary" type="submit" name="Refresh" value="Refresh" />&nbsp;&nbsp;&nbsp;&nbsp;
+			<input class="button-primary" type="submit" name="Reset" value="Reset" /></center></td></center></td>
 			</tr></table>';
 		}
 		
@@ -2094,11 +2139,11 @@ function execute($questionnaire,$question,$location,$responder, $start, $end){
 				title: "'.$question_id.'. '.$question_txt.'"
 				};
 				
-				var chart = new google.visualization.PieChart(document.getElementById("chart_div"));
+				var chart = new google.visualization.PieChart(document.getElementById("chart_div'.$question_id.'"));
 				chart.draw(data, options);
 				}
 				</script><br>
-				<div id="chart_div" style="width: 800px; height: 400px; margin:0 auto;"></div>
+				<div id="chart_div'.$question_id.'" style="width: 800px; height: 400px; margin:0 auto;"></div>
 				<br>
 				<center><b> NET PROMOTER SCORE (NPS): </b> '.$npsFinal.'<br></center><br>
 				<p class="two">'.$query.'</p>
@@ -2131,11 +2176,11 @@ function execute($questionnaire,$question,$location,$responder, $start, $end){
 				vAxis: {title: "Answer",  titleTextStyle: {color: "red"}}
 				};
 				
-				var chart = new google.visualization.BarChart(document.getElementById("chart_div1"));
+				var chart = new google.visualization.BarChart(document.getElementById("chart_div'.$question_id.'"));
 				chart.draw(data, options);
 				}
 				</script><br>
-				<div id="chart_div1" style="width: 800px; height: 400px; margin:0 auto;"></div>
+				<div id="chart_div'.$question_id.'" style="width: 800px; height: 400px; margin:0 auto;"></div>
 				<br>
 				<p class="two">'.$query.'</p>
 				<br>
@@ -2169,19 +2214,19 @@ function analyzer_refresh()
 	
 	
 	$sql_1="INSERT INTO wp_question_dim (question_id, questionnaire_id, question_text, ans_type)
-	SELECT gwu_question.questsequence, gwu_question.QuestionnaireID, gwu_question.text, AnsType
-	FROM gwu_question
-	WHERE gwu_question.QuestionnaireID in (
-	SELECT gwu_question.QuestionnaireID
-	From gwu_question
-	WHERE gwu_question.QuestionnaireID not in (select questionnaire_id from wp_question_dim)
-	);";
+		SELECT GQ.questsequence, GQ.QuestionnaireID, GQ.text, GQ.AnsType
+		FROM gwu_question GQ
+		left join wp_question_dim WQ
+		on GQ.QuestionnaireID = WQ.questionnaire_id and GQ.QuestSequence = WQ.question_id
+		WHERE WQ.question_id is null
+		AND WQ.questionnaire_id is null;";
 	
 	
 	$sql_2="INSERT INTO wp_questionnaire_dim (questionnaire_id, topic, date_created, allow_anonymous, allow_multiple, title, creator_name, OwnerId, EditorId)
 	SELECT QuestionnaireID, Topic, DateCreated, AllowAnnonymous, AllowMultiple, Title, CreatorName, OwnerId, EditorId
 	FROM gwu_questionnaire
-	WHERE QuestionnaireID in (
+	WHERE PublishFlag = '1'
+	AND QuestionnaireID in (
 	SELECT QuestionnaireID
 	FROM gwu_questionnaire
 	WHERE QuestionnaireID not in (SELECT questionnaire_id from wp_questionnaire_dim));";
@@ -2221,6 +2266,9 @@ function analyzer_refresh()
 	echo '<script type="text/javascript">self.location="/wp-admin/admin.php?page=questionpeach-analyzer&action=refresh";</script>';
 }
 
+function reset_ui(){
+	echo '<script type="text/javascript">self.location="/wp-admin/admin.php?page=questionpeach-analyzer";</script>';
+}
 //////////////////////////////// analyzer_manage_my_filters //////////////////////////////////////
 function analyzer_manage_my_filters($saved_user_id, $saved_user_name)
 {

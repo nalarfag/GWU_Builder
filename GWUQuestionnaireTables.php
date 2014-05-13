@@ -81,7 +81,7 @@ if (!class_exists('GWUQuestionnaireTables')) {
                     'CREATE TABLE IF NOT EXISTS gwu_condition (
                   `ConditionID` INTEGER UNSIGNED NOT NULL AUTO_INCREMENT,
                   `QuestionnaireID` INTEGER UNSIGNED NOT NULL,
-                  `LogicStatement` VARCHAR(100) NULL,
+		  `LogicStatement` text NULL,
                   `JumpQNoOnFailure` INTEGER UNSIGNED NULL,
                   `JumpQNoOnSuccess` INTEGER UNSIGNED NULL,
                   `Deleted` BOOL NULL,

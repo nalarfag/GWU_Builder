@@ -69,7 +69,7 @@ $Questions = array_filter($Questions, 'array_filter_callback');
 					type: "post",
 					url: ajaxurl,
 					data: data,
-					dataType: 'json',
+					dataType: "json",
 					success: function(response){
 							var id = $(flag_tag).attr('id').split('_')[1];
 							$('#flagValues_' + id).html("");
@@ -78,7 +78,10 @@ $Questions = array_filter($Questions, 'array_filter_callback');
 									$('#flagValues_' + id).append('<option value="' + obj.FlagValue + '">' + obj.FlagValue + '</option>');
 								});
 							}
-					}
+					},
+					error: function (request, status, error) {
+						alert(error);
+					} 
 				});
 			} else {
 				$('#flagValues_' + $(this).attr('id').split('_')[1]).html("");

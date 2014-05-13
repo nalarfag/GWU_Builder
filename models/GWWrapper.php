@@ -1,6 +1,7 @@
 <?php
 namespace WordPress\ORM\Model;
 
+
 class GWWrapper
 {
 	public static function listQuestion($questionnaireID, $allWithDeleted = false){
@@ -148,24 +149,8 @@ class GWWrapper
 		//$session->set_SessionID($sessionID);
 		$session->set_UserName($userName);
 		$session->set_IP($IP);
-		
-		$url = "http://api.ipinfodb.com/v3/ip-city/?key=5cfaab6c5af420b7b0f88d289571b990763e37b66761b2f053246f9db07ca913&ip=".$IP."&format=json";
-		
-		$ch = curl_init(); 
-		curl_setopt($ch, CURLOPT_URL, $url); 
-		//curl_setopt($ch, CURLOPT_HEADER, TRUE); CURLOPT_RETURNTRANSFER
-		curl_setopt($ch, CURLOPT_RETURNTRANSFER, TRUE);
-		//curl_setopt($ch, CURLOPT_NOBODY, TRUE); // remove body 
-		$head = curl_exec($ch); 
-		//$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE); 
-		curl_close($ch);
-
-		$response = json_decode($head);
-		
-		$session->set_City($response->{'cityName'});
-		//$session->set_City($response->{'regionName'});//state
-		$session->set_Country($response->{'countryName'});
-		//$session->set_Country($response->{'countryCode'});
+		$session->set_City($city);
+		$session->set_Country($country);
 		$session->set_Duration($duration);
 		$session->set_Country($country);
 		$session->set_SurveyTakenDate($surveyTakenDate);

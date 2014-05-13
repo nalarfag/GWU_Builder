@@ -49,6 +49,7 @@
 </script>
 
 <?php
+
 $adminURL = admin_url('admin-post.php');
 if (isset($_GET['id']) && ( $_GET['id'] == 'edit' && is_numeric($_GET['Qid']) )) {
     $actionName = 'edit_Questionnaire';
@@ -129,7 +130,7 @@ $Topics = array('', 'Employee Feedback', 'Volunteer Feedback', 'Education',
       </tr>
 
       <tr>
-        <td>Survey Topic:</td>
+        <td>Survey Topic</td>
 
         <td class="style1">
 

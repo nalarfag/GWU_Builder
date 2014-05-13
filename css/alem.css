@@ -1,0 +1,18 @@
+<style type="text/css">
+	.table {border: 1px solid black}
+	.td, .tr {border: 0}
+	.tr1 {outline: thin solid black;}
+	.td1 { vertical-align: middle; }
+	thead th {
+    background-color: #006DCC;
+    color: white;
+	}
+	hr { border: 0; color: #fff; width: 100%;}
+	div.ui-datepicker{ font-size:10px;}
+	
+	li{
+	display:inline;
+	padding:0 30%;
+	}
+	
+	</style>

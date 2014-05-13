@@ -45,16 +45,18 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
 
             // Register function to be called when administration pages init takes place
             add_action('admin_init', array($this, 'GWU_Questionnaire_admin_init'));
-
-           // Set Plugin Path
-            $this->pluginPath = dirname(__FILE__);
             
+            //Set Plugin Path
+            $this->pluginPath = dirname(__FILE__);
+
             // Set Plugin URL
             $this->pluginUrl = WP_PLUGIN_URL . '/GWU_Builder';
             $this->gwuquestion = new GWUQuestion();
             $this->gwuquestionnaire = new GWUQuestionnaire();
             $this->gwucondition = new GWUCondition();
             $this->gwuaction = new GWUAction();
+            
+            
 			
         }
 
@@ -124,7 +126,8 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
             add_action('admin_post_done_action', array($this->gwuaction, 'doneAction'));
             add_action('wp_ajax_delete_gw_action', array($this->gwuaction, 'removeAction'));
         }
-
+        
+ 
         public function AddQuestionnairePageHandler() {
 
             // Add questionnaire if no parameter sent in URL -->

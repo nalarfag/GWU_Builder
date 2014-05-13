@@ -657,7 +657,8 @@ function analyzer_cron_job_deletion_activation()
 
 function analyzer_task_migrate()  
 {
- return analyzer_migration_cron();
+
+return analyzer_migration_cron();
 }
 
 function analyzer_task_delete()  
@@ -687,6 +688,7 @@ function analyzer_cron_job_migrate_intervals($schedules)
 /////////////////////////////////// analyzer_cron_job_delete_intervals //////////////////////////////////////////////
 function analyzer_cron_job_delete_intervals($schedules2) 
 {
+
  $schedules2['OnceDaily'] = array(
 									'interval' => 86400,
 									'display' => __( 'Once Daily' )
@@ -773,7 +775,7 @@ add_action( 'wp_enqueue_scripts', 'getCss' );
 function getCss(){
 	
 	// Respects SSL, Style.css is relative to the current file
-	wp_register_style( 'prefix-style', plugins_url('/images/Menustyle.css', __FILE__) );
+	wp_register_style( 'prefix-style', plugins_url('/css/alem.css', __FILE__) );
 	wp_enqueue_style( 'prefix-style' );
 }
 
@@ -842,6 +844,26 @@ $(function () {
         doc.save("Report.pdf");
     });
 });
+
+function printDiv(divID) {
+            //Get the HTML of div
+            var divElements = document.getElementById(divID).innerHTML;
+            //Get the HTML of whole page
+            var oldPage = document.body.innerHTML;
+
+            document.body.innerHTML = 
+              "<html><head><title></title></head><body>" + 
+              divElements + "</body>";
+
+            //Print Page
+            window.print();
+
+            //Restore orignal HTML
+            document.body.innerHTML = oldPage;
+
+          
+        }
+
 	</script>';
 	return $msg;
 }
@@ -1118,16 +1140,18 @@ function getQuestionnaireList(){
 					if (mysql_data_seek($result, 0))
 						{}
 					
-					$text = '<ol>';
+					$text = '<p>';
 					
 					// if the answer type is text
 					if(trim($row[3]) == "Text Box"){
+					$count = 1;
 						while($rows = mysql_fetch_assoc($result)) {
 							//$question_id = $rows['question_id'];
 							//$question_txt = $rows['question_text'];
-							$text = $text.'<li>'.$rows['response_content'].'</li><br>';
+							$text = $text.$count.' - '.$rows['response_content'].'<br>';
+							$count = $count + 1;
 						}
-						$text = $text.'</ol>';
+						$text = $text.'</p>';
 						$msg =$msg.'<b>'.$question_id.'. '.$question_txt.'</b><br>
 						<br>
 						'.$text.'
@@ -1218,7 +1242,7 @@ function getQuestionnaireList(){
 						chart.draw(data, options);
 						}
 						</script><br>
-						<div id="chart_div'.$question_id.'" style="width: 800px; height: 400px; margin:0 auto;"></div>
+						<div id="chart_div'.$question_id.'" style="width: 600px; height: 300px; margin:0 auto;"></div>
 						<br>
 						<center><b> NET PROMOTER SCORE (NPS): </b> '.$npsFinal.'<br></center><br>
 						<br>';
@@ -1261,7 +1285,7 @@ function getQuestionnaireList(){
 						chart.draw(data, options);
 						}
 						</script><br>
-						<div id="chart_div'.$question_id.'" style="width: 800px; height: 400px; margin:0 auto;"></div>
+						<div id="chart_div'.$question_id.'" style="width: 600px; height: 300px; margin:0 auto;"></div>
 						<br>';
 						
 						
@@ -1514,7 +1538,8 @@ function viewAll($questionnaire){
 		WHERE A.questionnaire_id = B.questionnaire_id
 		AND A.questionnaire_id = $questionnaire order by question_id");
 	$survey = mysql_fetch_row($questions);
-	$msg = $msg.'<button id="generate">generate PDF</button><br><div id="qpresult"><table class="table"><tr class="tr1"><td class="td"><h4>Topic: '.$survey[2].'</h4><h5>Title: '.$survey[3].'</h5></td></tr>';
+	
+	$msg = $msg.'<center><input class="button-primary" type="button" value="Print" onclick="javascript:printDiv(\'qpresult\')" /></center><br><div id="qpresult"><table class="table"><tr class="tr1"><td class="td"><h4>Topic: '.$survey[2].'</h4><h5>Title: '.$survey[3].'</h5></td></tr>';
 	
 	if (mysql_data_seek($questions, 0))
 		{}
@@ -1538,15 +1563,17 @@ function viewAll($questionnaire){
 				$row = mysql_fetch_row($result);
 				if (mysql_data_seek($result, 0))
 					{}
-				$text = '<ol>';
+				$text = '<p>';
 				// if the answer type is text
 				if(trim($row[3])=='Text Box'){
+				$count = 1;
 					while($rows = mysql_fetch_assoc($result)) {
 						$question_id = $rows['question_id'];
 						$question_txt = $rows['question_text'];
-						$text = $text.'<li>'.$rows['response_content'].'</li><br>';
+						$text = $text.$count.' - '.$rows['response_content'].'<br>';
+						$count = $count + 1;
 					}
-					$text = $text.'</ol>';
+					$text = $text.'</p>';
 					$msg =$msg.'
 					<tr class="tr1">
 					<td class="td"><b>'.$question_id.'. '.$question_txt.'</b><br>
@@ -1648,7 +1675,7 @@ function viewAll($questionnaire){
 					}
 					</script><tr class="tr1">
 					<td class="td">
-					<div id="chart_div'.$qid.'" style="width: 800px; height: 400px; margin:0 auto;"></div>
+					<div id="chart_div'.$qid.'" style="width: 600px; height: 300px; margin:0 auto;"></div>
 					<br>
 					<center><b> NET PROMOTER SCORE (NPS): </b> '.$npsFinal.'<br></center><br>
 					</td>
@@ -1687,7 +1714,7 @@ function viewAll($questionnaire){
 					}
 					</script><tr class="tr1">
 					<td class="td">
-					<div id="chart_div'.$qid.'" style="width: 800px; height: 400px; margin:0 auto;"></div>
+					<div id="chart_div'.$qid.'" style="width: 600px; height: 300px; margin:0 auto;"></div>
 					</td>
 					</tr>';
 									
@@ -1845,16 +1872,18 @@ function execute($questionnaire,$question,$location,$responder, $start, $end){
 			if (mysql_data_seek($result, 0))
 				{}
 			
-			$text = '<ol>';
+			$text = '<p>';
 			
 			// if the answer type is text
 			if(trim($row['ans_type']) == "Text Box"){
+			    $count = 1;
 				while($rows = mysql_fetch_assoc($result)) {
 					//$question_id = $rows['question_id'];
 					//$question_txt = $rows['question_text'];
-					$text = $text.'<li>'.$rows['response_content'].'</li><br>';
+					$text = $text.$count.' - '.$rows['response_content'].'<br>';
+					$count = $count + 1;
 				}
-				$text = $text.'</ol>';
+				$text = $text.'</p>';
 				$msg =$msg.'<br><b>'.$question_id.'. '.$question_txt.'</b><br>
 				<br>
 				'.$text.'
@@ -2143,11 +2172,11 @@ function execute($questionnaire,$question,$location,$responder, $start, $end){
 				chart.draw(data, options);
 				}
 				</script><br>
-				<div id="chart_div'.$question_id.'" style="width: 800px; height: 400px; margin:0 auto;"></div>
+				<div id="chart_div'.$question_id.'" style="width: 600px; height: 300px; margin:0 auto;"></div>
 				<br>
 				<center><b> NET PROMOTER SCORE (NPS): </b> '.$npsFinal.'<br></center><br>
 				<p class="two">'.$query.'</p>
-				<br>';
+				';
 								
 			} else{
 				
@@ -2180,7 +2209,7 @@ function execute($questionnaire,$question,$location,$responder, $start, $end){
 				chart.draw(data, options);
 				}
 				</script><br>
-				<div id="chart_div'.$question_id.'" style="width: 800px; height: 400px; margin:0 auto;"></div>
+				<div id="chart_div'.$question_id.'" style="width: 600px; height: 300px; margin:0 auto;"></div>
 				<br>
 				<p class="two">'.$query.'</p>
 				<br>
@@ -2303,7 +2332,8 @@ function analyzer_manage_my_filters($saved_user_id, $saved_user_name)
 /////////////////////////////analyzer_generateReport.sql///////////////////
 function analyzer_generateReport($user_id, $user_name, $filter)
 {
-	$msg = '<h3><center>QuestionPeach Analyzer</center></h3><table class="table">';
+	$msg = '<h3><center>QuestionPeach Analyzer</center></h3><center><input class="button-primary" type="button" value="Print" onclick="javascript:printDiv(\'qpresult\')" /></center><br><div id="qpresult">
+	<table class="table">';
 	foreach ($filter as &$name) {
 		
 		$result = mysql_query("select * from wp_filters where name = '$name'");
@@ -2320,7 +2350,7 @@ function analyzer_generateReport($user_id, $user_name, $filter)
 		}
 		
 	}
-	$msg = $msg.'</table>';
+	$msg = $msg.'</table></div>';
 	return $msg;
 }
 

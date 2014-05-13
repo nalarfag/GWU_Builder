@@ -2,6 +2,15 @@
 //include_once 'C:\xampp\htdocs\wordpress\wp-content\plugins\GWU_Builder\models\GWWrapper.php';
 include_once dirname( __FILE__ ) . '/models/GWWrapper.php';
 use WordPress\ORM\Model\GWWrapper;
+/**
+ * Description of response
+ *
+ * Display the questionnaire and save users' response
+ *
+ * @author Kaihua Wu(Michael)
+ * Some part by Darshan suchin
+ *
+ */
 add_shortcode('questionnaire', 'Response_questions');
 /*get next question sequence function*/
 function getNextQuestion($SessionID,$ConditionID)
@@ -11,7 +20,7 @@ function getNextQuestion($SessionID,$ConditionID)
 	 //1) get all the responses for this session id..i.e we need listResponses($SessionID)
 	 //2) iterate all the responses and get the flag values
      //3) store all the flagnames value
-	 
+
 		$arr_responsID = $Wrapper->listResponsesBySessionId($SessionID);
 		if($arr_responsID!=null){
 		foreach($arr_responsID as $temp) {
@@ -20,12 +29,12 @@ function getNextQuestion($SessionID,$ConditionID)
 			//$flagObject= new GWFlag();
 			if($arrAllResponses!=null)
 			{
-			 $flagObject = $arrAllResponses[0];
+				$flagObject = $arrAllResponses[0];
 			 $FlagName = $flagObject->get_FlagName();
 			 $FlagValue = $flagObject->get_FlagValue();
 			 $FlagValues[$FlagName]= $FlagValue;
 			}
-			 
+
 		}}
 		$Conditions=$Wrapper->getCondition($ConditionID);
 		$Condition=$Conditions[0];
@@ -135,11 +144,11 @@ function Response_questions($atts)
 	} else {	//Get current session object
 		$QSession = $_SESSION['QSession'];
 	}
-	
-	
 
 
-	
+
+
+
 
 	$Questions=$Wrapper->listQuestion($QuestionnaireID);
 	if(empty($Questions))
@@ -152,15 +161,14 @@ function Response_questions($atts)
              }
 
 	/* write down questionnaire title*/
-    $output='';
-     //   <p><font color="#545454"><small>Questionnaire:</small></font><br/> <big><strong>'.$Questionnaire->get_Title().'</strong></big></p><br/>';
+    $output='<p><font color="#545454"><small>Questionnaire:</small></font><br/> <big><strong>'.$Questionnaire->get_Title().'</strong></big></p><br/>';
 	/*Check if it's the first question*/
 	/*if it's new, set the $qno=0 else store last questionno in $qno */
-	
+
 	$qno=$_SESSION['sqno'];
 	if($qno != '0' && $_POST["qno"]==$qno && $_POST["IfJump"]!= 1)
 	{
-		
+
 		$questions=$Wrapper->getQuestion($qno, $QuestionnaireID);
 		$question=$questions[0];
 			/*else store the last question's response depends on it's type*/
@@ -180,20 +188,20 @@ function Response_questions($atts)
 				}
 				else	//NPS
 				{
-					
+
 					$Wrapper->saveResponse($qno, $QSession->get_SessionID(), $QuestionnaireID, $_POST["response"], $question->get_AnsType(), $_POST["response"], null, null);	
 				}
 	}/*$QSession->get_SessionID()*/
-	
+
 	/*if last question is the final question show thankyou*/
-	if($qno == $totalQuestionNum && $_POST["qno"]==$qno ||$totalQuestionNum == 0)	
+	if($qno == $totalQuestionNum && $_POST["qno"]==$qno || $totalQuestionNum==0)	
 	{
 		$gwsession = $_SESSION['QSession'];	//Get GWSession object from browser session
 		$gwsession->set_SurveyCompleted(1);	//set properties to be updated
 		$gwsession->update();	//This will update the GWSession object in the database
 		unset($_SESSION['QSession']);
 		return 'Thank your for participating our survey';
-		
+
 	}
 	/*else $qno +=1 Get the question and answerchoice from the database with $qno and $QuestionnaireID 
 	 * store in $quesion and $Anserchoices*/
@@ -218,21 +226,69 @@ function Response_questions($atts)
 				}
 				$_SESSION['sqno'] = $qno;
 			}
-			
+
 		}	
 	    $questions=$Wrapper->getQuestion($qno, $QuestionnaireID);
         $question=$questions[0];
 		$Answerchoices=$Wrapper->listAnswerChoice($QuestionnaireID,$qno);
 		$Actions=$Wrapper->listActions($QuestionnaireID,$qno);
 		$IfMandatory='';
+		$CheckFun='';
+		$IfMCMVMandatory='';
 		If($question->get_Mandatory()==1)
 		{
 			$IfMandatory='style="display: none"';
+			if($question->get_AnsType()=='Text Box')
+			{
+				$IfMCMVMandatory='onsubmit="javascript:return chkTextBox();"';
+				$CheckFun='<script>
+                      function chkTextBox() {
+                      	var obj = document.getElementById("response");
+                      	var objYN = false; 
+						var value = obj.value;
+                        value = value.replace(/\s/g,"");
+						if(value=="")
+						{
+							objYN=true;
+						}
+						if (objYN) {
+							alert("This is a mandatory question.You have to write your answer");
+							return false;
+						} 
+						else {
+							return true;
+						}
+					  }</script>';
+			}
+			if($question->get_AnsType()=='Multiple Choice, Multiple Value')
+			{
+				$IfMCMVMandatory='onsubmit="javascript:return chkCheckBox();"';
+				$CheckFun='<script>
+                      function chkCheckBox() {
+                      	var obj = document.getElementsByName("response[]"); 
+                      	var objLen = obj.length;
+                      	var objYN = false; 
+                      	for (var i = 0; i < objLen; i++) {
+                      		if (obj [i].checked == true) {
+                      			objYN = true;
+                      			break;
+							}
+						}
+						if (!objYN) {
+							alert("This is a mandatory question,you need at least choose one");
+							return false;
+						} 
+						else {
+							return true;
+						}
+					  }</script>';
+
+			}
 		}
 		/*show question text*/
-		$output .= '<form action="" method="post">
+		$output .= $CheckFun.'<form action="" method="post" '.$IfMCMVMandatory.'>
 		            <strong>'.$qno.". ".$question->get_Text().'</strong><br/>
-		            <input type="checkbox" value=1 name="IfJump" '.$IfMandatory.'/><font '.$IfMandatory.'>Skip this question</font><hr/>';
+		            <input type="checkbox" value=1 name="IfJump" '.$IfMandatory.'/><font '.$IfMandatory.'>Skip this quesion</font><hr/>';
 		/*show action*/
 		if(!empty($Actions))
 	    {
@@ -242,7 +298,7 @@ function Response_questions($atts)
 	    	    foreach ($Actions as $Action) {
 					if($Action->get_Sequence()>$max)
 					   $max=$Action->get_Sequence();
-					
+
 				}
 				for($i=1;$i<=$max;$i++)//put the action order by sequence, put the action with same sequence together
 				{
@@ -383,24 +439,24 @@ function Response_questions($atts)
                <button id="NextAct" onclick="changeaction()" type="button">next</button>
                </p><hr/></body>
                ';
-				
+
 		 }
 	    /*show the qno's quesion depends on it's type*/
-	    if($question->get_AnsType()=='Text Box')
+	    if($question->get_AnsType()=='Text Box')//text
 		          {
 			          $output .='
 			          <input type="hidden" name="qno" value="'.$qno.'"/>
 	                 
-	                  <textarea  cols="30" rows="5" name="response" ></textarea><br/>
+	                  <textarea id="response" cols="60" rows="9" name="response" ></textarea><br/>
                       <br/><input type="submit" value="next"></form>';
 				  }
-		     elseif($question->get_AnsType()=='Multiple Choice, Single Value')
+		     elseif($question->get_AnsType()=='Multiple Choice, Single Value')//mcsv
 		          {
 			         $output .='
 			            <input type="hidden" name="qno" value="'.$qno.'"/>';
 						if(empty($Answerchoices))
 						{
-							$output .='<br/>Your data is invalid because there is no answerchoice';
+							$output .='<br/>your data is invalid because there is no answerchoice';
 						}
 						else
 						{
@@ -415,17 +471,18 @@ function Response_questions($atts)
 					 	       <input name="response" type="radio" value="'.$answerchoice->get_OptionNumber() .'"'.$checked.' />'.$answerchoice->get_AnsValue();
 					        }
 						}
-					    
+
                         $output .='<br/><br/><input type="submit" value="next"></form>';
 
 		           }
-		       elseif($question->get_AnsType()=='Multiple Choice, Multiple Value')
+		       elseif($question->get_AnsType()=='Multiple Choice, Multiple Value')//mcmv
 		         {
+
 			         $output .='
 			             <input type="hidden" name="qno" value="'.$qno.'"/>';
 						 if(empty($Answerchoices))
 						{
-							$output .='<br/>Your data is invalid because there is no answerchoice';
+							$output .='<br/>your data is invalid because there is no answerchoice';
 						}
 						else
 						{
@@ -437,13 +494,13 @@ function Response_questions($atts)
 						}
                      $output .='<br/><br/><input type="submit" value="next"></form>';
 		            }
-		      else 
+		      else //nps
 		        {
 			         $output .= '
 			               <input type="hidden" name="qno" value="'.$qno.'"/><table><tr><td></td>';
 						if(empty($Answerchoices)||sizeof($Answerchoices)<13)
 						{
-							$output .='<br/>Your data is invalid because the answerchoices is not enough, please update your database';
+							$output .='<br/>your data is invalid because the answerchoices is not enough, please update your db';
 						}
 						else
 						{ 
@@ -465,11 +522,11 @@ function Response_questions($atts)
                         $output .= '<br/><br/><input type="submit" value="next"></form>';
 				}
 
-			 
-			
+
+
 		}
              /*return html*/	
-	
+
 	        return $output;	 
 }
 

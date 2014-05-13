@@ -101,7 +101,7 @@ if (!class_exists('GWUQuestionnaireAdmin')) {
             if (!current_user_can('own_survey')) {
                 wp_die('Insufficient permissions to access this page');
             }
-            
+             include_once dirname(__FILE__) . '/Updatecronjob.php';
         }
 
         // Register functions to be called when bugs are saved

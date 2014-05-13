@@ -150,7 +150,6 @@ class GWWrapper
 		$session->set_IP($IP);
 		
 		$url = "http://api.ipinfodb.com/v3/ip-city/?key=5cfaab6c5af420b7b0f88d289571b990763e37b66761b2f053246f9db07ca913&ip=".$IP."&format=json";
-		file_put_contents('C:/xampp/htdocs/wordpress/wp-content/plugins/GWU_Builder/models/log.txt', 'URL: '.$url, FILE_APPEND);
 		
 		$ch = curl_init(); 
 		curl_setopt($ch, CURLOPT_URL, $url); 
@@ -160,7 +159,6 @@ class GWWrapper
 		$head = curl_exec($ch); 
 		//$httpCode = curl_getinfo($ch, CURLINFO_HTTP_CODE); 
 		curl_close($ch);
-		file_put_contents('C:/xampp/htdocs/wordpress/wp-content/plugins/GWU_Builder/models/log.txt', 'Response: '.$head, FILE_APPEND);
 
 		$response = json_decode($head);
 		

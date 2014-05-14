@@ -651,7 +651,7 @@ function analyzer_cron_job_deletion_activation()
 {
  if(!wp_next_scheduled('analyzer_data_deletion')) 
  {
-  wp_schedule_event(current_time('timestamp'), 'OnceEvery30mins', 'analyzer_data_deletion');
+  wp_schedule_event(current_time('timestamp'), 'OnceDaily', 'analyzer_data_deletion');
  }
 }
 
@@ -688,9 +688,10 @@ function analyzer_cron_job_migrate_intervals($schedules)
 /////////////////////////////////// analyzer_cron_job_delete_intervals //////////////////////////////////////////////
 function analyzer_cron_job_delete_intervals($schedules2) 
 {
- $schedules2['OnceEvery30mins'] = array(
-									'interval' => 1800,
-									'display' => __( 'Once Every 1/2 Hour' )
+
+ $schedules2['OnceDaily'] = array(
+									'interval' => 86400,
+									'display' => __( 'Once Daily' )
 								  );
  return $schedules2;
 }

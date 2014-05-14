@@ -43,7 +43,7 @@ if (!class_exists('GWUQuestionnaire')) {
 
             //if the questionnaire id is valid we should get its title
             if ($result != null) {
-		$page = get_page_by_title('Surveys');
+                $page = get_page_by_title('Surveys');
                 $my_post = array(
                     'post_title' => $result->Title,
                     'post_content' => '[questionnaire id="' . $qId . '"]',
@@ -106,7 +106,7 @@ if (!class_exists('GWUQuestionnaire')) {
             $QuestionnaireID = $divIDArray[0];
             $questionnaire = $this->Wrapper->getQuestionnaire($QuestionnaireID);
 
-	    $page = get_page_by_title('Surveys');
+            $page = get_page_by_title('Surveys');
             $my_post = array(
                 'post_title' => $questionnaire[0]->get_Title(),
                 'post_content' => '[questionnaire id="' . $QuestionnaireID . '"]',

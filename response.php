@@ -20,7 +20,7 @@ function getNextQuestion($SessionID,$ConditionID)
 	 //1) get all the responses for this session id..i.e we need listResponses($SessionID)
 	 //2) iterate all the responses and get the flag values
      //3) store all the flagnames value
-	 
+
 		$arr_responsID = $Wrapper->listResponsesBySessionId($SessionID);
 		if($arr_responsID!=null){
 		foreach($arr_responsID as $temp) {
@@ -34,7 +34,7 @@ function getNextQuestion($SessionID,$ConditionID)
 			 $FlagValue = $flagObject->get_FlagValue();
 			 $FlagValues[$FlagName]= $FlagValue;
 			}
-			 
+
 		}}
 		$Conditions=$Wrapper->getCondition($ConditionID);
 		$Condition=$Conditions[0];
@@ -144,11 +144,11 @@ function Response_questions($atts)
 	} else {	//Get current session object
 		$QSession = $_SESSION['QSession'];
 	}
-	
-	
 
 
-	
+
+
+
 
 	$Questions=$Wrapper->listQuestion($QuestionnaireID);
 	if(empty($Questions))
@@ -161,14 +161,14 @@ function Response_questions($atts)
              }
 
 	/* write down questionnaire title*/
-    $output='<p><font color="#545454"><small>Questionnaire:</small></font><br/> <big><strong>'.$Questionnaire->get_Title().'</strong></big></p><br/>';
+    $output='<p><font color="#545454"><small></small></font><br/>';
 	/*Check if it's the first question*/
 	/*if it's new, set the $qno=0 else store last questionno in $qno */
-	
+
 	$qno=$_SESSION['sqno'];
 	if($qno != '0' && $_POST["qno"]==$qno && $_POST["IfJump"]!= 1)
 	{
-		
+
 		$questions=$Wrapper->getQuestion($qno, $QuestionnaireID);
 		$question=$questions[0];
 			/*else store the last question's response depends on it's type*/
@@ -188,11 +188,11 @@ function Response_questions($atts)
 				}
 				else	//NPS
 				{
-					
+
 					$Wrapper->saveResponse($qno, $QSession->get_SessionID(), $QuestionnaireID, $_POST["response"], $question->get_AnsType(), $_POST["response"], null, null);	
 				}
 	}/*$QSession->get_SessionID()*/
-	
+
 	/*if last question is the final question show thankyou*/
 	if($qno == $totalQuestionNum && $_POST["qno"]==$qno || $totalQuestionNum==0)	
 	{
@@ -201,7 +201,7 @@ function Response_questions($atts)
 		$gwsession->update();	//This will update the GWSession object in the database
 		unset($_SESSION['QSession']);
 		return 'Thank your for participating our survey';
-		
+
 	}
 	/*else $qno +=1 Get the question and answerchoice from the database with $qno and $QuestionnaireID 
 	 * store in $quesion and $Anserchoices*/
@@ -226,7 +226,7 @@ function Response_questions($atts)
 				}
 				$_SESSION['sqno'] = $qno;
 			}
-			
+
 		}	
 	    $questions=$Wrapper->getQuestion($qno, $QuestionnaireID);
         $question=$questions[0];
@@ -282,7 +282,7 @@ function Response_questions($atts)
 							return true;
 						}
 					  }</script>';
-			
+
 			}
 		}
 		/*show question text*/
@@ -298,7 +298,7 @@ function Response_questions($atts)
 	    	    foreach ($Actions as $Action) {
 					if($Action->get_Sequence()>$max)
 					   $max=$Action->get_Sequence();
-					
+
 				}
 				for($i=1;$i<=$max;$i++)//put the action order by sequence, put the action with same sequence together
 				{
@@ -439,7 +439,7 @@ function Response_questions($atts)
                <button id="NextAct" onclick="changeaction()" type="button">next</button>
                </p><hr/></body>
                ';
-				
+
 		 }
 	    /*show the qno's quesion depends on it's type*/
 	    if($question->get_AnsType()=='Text Box')//text
@@ -471,13 +471,13 @@ function Response_questions($atts)
 					 	       <input name="response" type="radio" value="'.$answerchoice->get_OptionNumber() .'"'.$checked.' />'.$answerchoice->get_AnsValue();
 					        }
 						}
-					    
+
                         $output .='<br/><br/><input type="submit" value="next"></form>';
 
 		           }
 		       elseif($question->get_AnsType()=='Multiple Choice, Multiple Value')//mcmv
 		         {
-		         	
+
 			         $output .='
 			             <input type="hidden" name="qno" value="'.$qno.'"/>';
 						 if(empty($Answerchoices))
@@ -522,11 +522,11 @@ function Response_questions($atts)
                         $output .= '<br/><br/><input type="submit" value="next"></form>';
 				}
 
-			 
-			
+
+
 		}
              /*return html*/	
-	
+
 	        return $output;	 
 }
 

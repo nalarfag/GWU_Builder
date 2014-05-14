@@ -1,4 +1,4 @@
-﻿<script type="text/javascript">
+<script type="text/javascript">
     jQuery( document ).ready( function($) {
         $('.buildDropDown').change(function(){
             var $button = $('input',$(this).parent().next('td'));

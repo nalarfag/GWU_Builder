@@ -16,6 +16,8 @@ function questionnaire_pages_excludes($exclude_array) {
 	$id_array = $wpdb->get_col($sql);   
 	 $page = get_page_by_title('Published Questionnairs');
 	array_push($id_array, $page->ID );
+	 $page = get_page_by_title('Surveys');
+	 array_push($id_array, $page->ID );
 	$exclude_array=array_merge($id_array, $exclude_array);
 	return $exclude_array;
 }

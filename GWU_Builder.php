@@ -68,7 +68,7 @@ register_activation_hook(__FILE__, 'CreateQuestionnairsPublishedLists');
 function CreateQuestionnairsPublishedLists() {
 
     $QuestionnairsPublishedList = array(
-        'post_title' => 'Published Questionnairs',
+	'post_title' => 'Surveys',
         'post_status' => 'publish',
         'post_type' => 'page',
         'comment_status' => 'closed'
